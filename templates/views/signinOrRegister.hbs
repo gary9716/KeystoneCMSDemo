@@ -1,0 +1,117 @@
+<div class="container">
+      <script>
+        $(document).ready(function() {
+          
+          $('#login-form-link').click(function(e) {
+            $("#login-form").delay(100).fadeIn(100);
+            $("#register-form").fadeOut(100);
+            $('#register-form-link').removeClass('active');
+            $(this).addClass('active');
+            e.preventDefault();
+          });
+          $('#register-form-link').click(function(e) {
+            $("#register-form").delay(100).fadeIn(100);
+            $("#login-form").fadeOut(100);
+            $('#login-form-link').removeClass('active');
+            $(this).addClass('active');
+            e.preventDefault();
+          });
+
+          $('#login-submit').click(function(e) {
+            e.preventDefault();
+            var loginForm = $('#login-form');
+            loginForm.ajaxSubmit({
+              success: function (res) {
+                  if(res.success) {
+                    $("#ajax-msg").removeClass().addClass("alert alert-success").text(res.message);
+                    if(locals.redirect) //this come from initially we got signin form
+                      top.location.href = locals.redirect;
+                    else //we use the response returned from ajax
+                      top.location.href = res.redirect;
+                  }
+                  else {
+                    $("#ajax-msg").removeClass().addClass("alert alert-warning").text(res.message);
+                  }
+              },
+              error: function (res) {
+                  $("#ajax-msg").removeClass().addClass("alert alert-warning").text(res.message);
+              }
+            });
+
+          });
+      });
+      </script>
+      <div class="row">
+      <div class="col-md-6 col-md-offset-3">
+        <div class="panel panel-login">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-6">
+                <a href="#" class="active" id="login-form-link">Login</a>
+              </div>
+              <div class="col-xs-6">
+                <a href="#" id="register-form-link">Register</a>
+              </div>
+            </div>
+            <hr>
+          </div>
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-lg-12">
+
+                <form id="login-form" 
+                method="post"
+                action="/api/signin"
+                role="form" style="display: block;" data-toggle="validator">
+                  <input type="hidden" name="action" value="login">
+                  <div class="form-group">
+                    <input type="text" name="userID" id="loginUsername" tabindex="1" class="form-control" placeholder="Username" required>
+                  </div>
+                  <div class="form-group">
+                    <input type="password" name="password" id="loginPass" tabindex="2" class="form-control" placeholder="Password" required>
+                  </div>
+                  <div class="form-group">
+                    <div class="row">
+                      <div class="col-sm-6 col-sm-offset-3">
+                        <input type="submit" id="login-submit" tabindex="4" class="form-control btn btn-login" value="Log In">
+                      </div>
+                    </div>
+                  </div>
+                </form>
+
+                <form id="register-form" 
+                method="post" 
+                action="/api/register"
+                role="form" style="display: none;" value="register-form" data-toggle="validator">
+                  <input type="hidden" name="action" value="register">
+                  <div class="form-group">
+                    <input type="text" name="userID" id="registerUsername" tabindex="1" class="form-control" placeholder="Username" required>
+                  </div>
+                  <div class="form-group">
+                    <input type="email" name="email" id="email" tabindex="1" class="form-control" placeholder="Email Address">
+                    <div class="help-block with-errors"></div>
+                  </div>
+                  <div class="form-group">
+                    <input type="password" name="password" id="registerPass" data-minlength="6" tabindex="2" class="form-control" required placeholder="Password">
+                    <div class="help-block">Minimum of 6 characters</div>
+                  </div>
+                  <div class="form-group">
+                    <input type="password" id="confirmPassword" tabindex="2" class="form-control" data-match="#registerPass" data-match-error="Whoops, these don't match" required placeholder="Confirm Password">
+                    <div class="help-block with-errors"></div>
+                  </div>
+                  <div class="form-group">
+                    <div class="row">
+                      <div class="col-sm-6 col-sm-offset-3">
+                        <input type="submit" id="register-submit" tabindex="4" class="form-control btn btn-register" value="Register Now">
+                      </div>
+                    </div>
+                  </div>
+                </form>
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
