@@ -29,7 +29,7 @@ keystone.init({
 		extname: '.hbs',
 	}).engine,
 
-	'emails': 'templates/emails',
+	//'emails': 'templates/emails',
 	'session store': 'connect-redis',
 	'auto update': true,
 	'auth': true,
@@ -61,9 +61,11 @@ keystone.set('routes', require('./routes'));
 
 // Configure the navigation bar in Keystone's Admin UI
 keystone.set('nav', {
+	/*
 	posts: ['posts', 'post-categories'],
 	galleries: 'galleries',
 	enquiries: 'enquiries',
+	*/
 	users: 'users',
 });
 
@@ -105,24 +107,6 @@ async.waterfall([
     //console.log(results);   // results = [result1, result2, result3]
 });
 
-/*
-console.log(regulatedListItems);
-allListNames.forEach(function(listItem) {
-	if(!regulatedListItems || !regulatedListItems.some(function(rlItem) {
-		if(rlItem.name === listItem)
-			return true;
-		else
-			return false;
-	})) {
-		//didn't find the object in regulated list
-		regulatedList.create({name: listItem}, function (err, item) {
-			if(err) {
-				console.log('item ' + listItem + ' insertion failed');
-			}
-		});
-	}
-});
-*/
 
 // Start Keystone to connect to your database and initialise the web server
 if (!process.env.MAILGUN_API_KEY || !process.env.MAILGUN_DOMAIN) {

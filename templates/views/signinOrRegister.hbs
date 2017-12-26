@@ -17,27 +17,38 @@
             e.preventDefault();
           });
 
-          $('#login-submit').click(function(e) {
-            e.preventDefault();
-            var loginForm = $('#login-form');
-            loginForm.ajaxSubmit({
+          var doFormAjax = function(formID, doRedirect) {
+            var form = $(formID);
+            form.ajaxSubmit({
               success: function (res) {
                   if(res.success) {
                     $("#ajax-msg").removeClass().addClass("alert alert-success").text(res.message);
-                    if(locals.redirect) //this come from initially we got signin form
-                      top.location.href = locals.redirect;
-                    else //we use the response returned from ajax
-                      top.location.href = res.redirect;
+                    if(doRedirect) {
+                      if(locals.redirect) //this come from initially we got signin form
+                        top.location.href = locals.redirect;
+                      else //we use the response returned from ajax
+                        top.location.href = res.redirect;  
+                    }
+                    
                   }
                   else {
-                    $("#ajax-msg").removeClass().addClass("alert alert-warning").text(res.message);
+                    $("#ajax-msg").removeClass().addClass("alert alert-danger").text(res.message);
                   }
               },
               error: function (res) {
-                  $("#ajax-msg").removeClass().addClass("alert alert-warning").text(res.message);
+                  $("#ajax-msg").removeClass().addClass("alert alert-danger").text(res.message);
               }
             });
+          }
 
+          $('#login-submit').click(function(e) {
+            e.preventDefault();
+            doFormAjax('#login-form', true);
+          });
+
+          $('#register-submit').click(function(e) {
+            e.preventDefault();
+            doFormAjax('#register-form', false);
           });
       });
       </script>
@@ -61,7 +72,7 @@
 
                 <form id="login-form" 
                 method="post"
-                action="/api/signin"
+                action="/api/userSignin"
                 role="form" style="display: block;" data-toggle="validator">
                   <input type="hidden" name="action" value="login">
                   <div class="form-group">
@@ -81,7 +92,7 @@
 
                 <form id="register-form" 
                 method="post" 
-                action="/api/register"
+                action="/api/userRegister"
                 role="form" style="display: none;" value="register-form" data-toggle="validator">
                   <input type="hidden" name="action" value="register">
                   <div class="form-group">
