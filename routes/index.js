@@ -49,7 +49,11 @@ exports = module.exports = function (app) {
   //expose api
   app.post('/api/userRegister',routes.api.UserRelatedService.register);
   app.post('/api/userSignin',routes.api.UserRelatedService.signin);
-
+  app.post('/api/create',routes.api.RegulatedCRUDOp.create);
+  app.post('/api/read',routes.api.RegulatedCRUDOp.read);
+  app.post('/api/update',routes.api.RegulatedCRUDOp.update);
+  app.post('/api/delete',routes.api.RegulatedCRUDOp.delete);
+  
 	// NOTE: To protect a route so that only admins can see it, use the requireUser middleware:
 	// app.get('/protected', middleware.requireUser, routes.views.protected);
 

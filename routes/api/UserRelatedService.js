@@ -162,6 +162,6 @@ exports.register = function (req, res) {
         message: (err && err.message ? err.message : false) || '不好意思,註冊途中出現一些問題,請再試一次'
       });
     }
-});
+  });
 
 }
