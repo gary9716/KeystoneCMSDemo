@@ -4,12 +4,43 @@ require('dotenv').config();
 
 // Require keystone
 var keystone = require('keystone');
-var handlebars = require('express-handlebars');
+//var handlebars = require('express-handlebars');
+var dotEngine = require('express-dot-engine');
 var async = require('async');
+var helperFuncs = require('./templates/views/helpers/index');
+var _ = require('lodash');
 
 // Initialise Keystone with your project's configuration.
 // See http://keystonejs.com/guide/config for available options
 // and documentation.
+
+/*
+// doT settings(for customization)
+dotEngine.settings.dot = {
+  evaluate:    /\[\[([\s\S]+?)\]\]/g,
+  interpolate: /\[\[=([\s\S]+?)\]\]/g,
+  encode:      /\[\[!([\s\S]+?)\]\]/g,
+  use:         /\[\[#([\s\S]+?)\]\]/g,
+  define:      /\[\[##\s*([\w\.$]+)\s*(\:|=)([\s\S]+?)#\]\]/g,
+  conditional: /\[\[\?(\?)?\s*([\s\S]*?)\s*\]\]/g,
+  iterate:     /\[\[~\s*(?:\]\]|([\s\S]+?)\s*\:\s*([\w$]+)\s*(?:\:\s*([\w$]+))?\s*\]\])/g,
+  varname: 'layout, partial, locals, model',
+  strip: false,
+  append: true,
+  selfcontained: false,
+};
+*/
+
+/*
+//this express-dot-engine's templating keyword
+[[ ]]     for evaluation
+[[= ]]    for interpolation
+[[! ]]    for interpolation with encoding
+[[# ]]    for compile-time evaluation/includes and partials
+[[## #]]  for compile-time defines
+[[? ]]    for conditionals
+[[~ ]]    for array iteration
+*/
 
 keystone.init({
 	'name': 'testProj',
@@ -19,22 +50,38 @@ keystone.init({
 	'static': 'public',
 	'favicon': 'public/favicon.ico',
 	'views': 'templates/views',
-	'view engine': '.hbs',
-
+	'view engine': 'dot',
+	/*
 	'custom engine': handlebars.create({
-		layoutsDir: 'templates/views/layouts',
-		partialsDir: 'templates/views/partials',
+		layoutsDir: 'hbsTemplates/views/layouts',
+		partialsDir: 'hbsTemplates/views/partials',
 		defaultLayout: 'default',
-		helpers: new require('./templates/views/helpers')(),
+		helpers: new require('./hbsTemplates/views/helpers')(),
 		extname: '.hbs',
 	}).engine,
+	*/
+	'custom engine': dotEngine.__express,
 
 	//'emails': 'templates/emails',
 	'session store': 'connect-redis',
 	'auto update': true,
-	'auth': true,
 	'user model': 'User',
 });
+
+/*
+keystone.initExpressApp();
+var app = keystone.app;
+
+//remove official signin routes and api
+var officialSigninRoute = '/' + keystone.get('admin path') + '/signin';
+var officialSigninAPI = '/' + keystone.get('admin path') + '/api/session/signin';
+
+console.log(app);
+
+var removeRoute = require('express-remove-route');
+removeRoute(app, officialSigninAPI);
+removeRoute(app, officialSigninRoute);
+*/
 
 // Load your project's Models
 keystone.import('models');
@@ -43,10 +90,11 @@ keystone.import('models');
 // bundled templates and layouts. Any runtime locals (that should be set uniquely
 // for each request) should be added to ./routes/middleware.js
 keystone.set('locals', {
-	_: require('lodash'),
+	_: _,
 	env: keystone.get('env'),
 	utils: keystone.utils,
 	editable: keystone.content.editable,
+	helpers: helperFuncs()
 });
 
 
@@ -68,6 +116,8 @@ keystone.set('nav', {
 	*/
 	users: 'users',
 });
+
+keystone.set('auth', true);
 
 var allListNames = Object.keys(keystone.lists);
 var regulatedList = keystone.list('RegulatedList');
@@ -94,17 +144,23 @@ async.waterfall([
 			}
 		});
 		
-		next(null, null);
+		next(null, rlNames);
 	},
-	/*
-	function(next) {
+	
+	function(rlNames, next) {
+		var itemsToRemove = _.differenceWith(rlNames, allListNames, function(rlItem, allListItem) {
+			return (rlItem.name === allListItem);
+		});
+		
+		if(itemsToRemove)
+			console.log('should remove:['+itemsToRemove.toString()+']');
+		
 		next();
 	},
-	*/
+	
 	],
-	function(errs, results) {
+	function(errs) {
     if(errs) throw errs;    // errs = [err1, err2, err3]
-    //console.log(results);   // results = [result1, result2, result3]
 });
 
 

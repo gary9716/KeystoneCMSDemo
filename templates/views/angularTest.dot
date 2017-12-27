@@ -1,0 +1,17 @@
+---
+layout: layouts/default.dot
+title: angular test page
+---
+[[##body:
+<div ng-app="mainApp">
+  <ul>
+    <li> <a ui-sref="test">Test</a></li>
+    <li> <a ui-sref="home">Home</a></li>
+  </ul>
+  <section ui-view>
+    <p>loading...</p>
+  </section>
+  <script src="/app/app.js"></script>
+  <script src="/app/test/testCtrler.js"></script>  
+</div>
+#]]

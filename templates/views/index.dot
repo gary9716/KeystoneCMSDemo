@@ -1,0 +1,7 @@
+---
+layout: layouts/default.dot
+title: Index page
+---
+[[##body:
+  Hello world from index.dot
+#]]

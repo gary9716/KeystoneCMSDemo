@@ -36,7 +36,18 @@ var routes = {
 exports = module.exports = function (app) {
 	// Views
   app.get('/', routes.views.index);
-	
+  app.get('/signin_or_register', routes.views.signinOrRegister);
+  app.get('/angular_test',routes.views.angularTest);
+
+  //test routes
+  app.get('/pathToHome',function(req, res) {
+    setTimeout(function(){
+      res.json({
+        addr: "feng yuan"
+      });
+    }, 1500);
+  });
+
   /*
   app.get('/blog/:category?', routes.views.blog);
 	app.get('/blog/post/:post', routes.views.post);
@@ -44,8 +55,6 @@ exports = module.exports = function (app) {
   app.all('/contact', routes.views.contact);
   */
 
-  app.get('/signin_or_register', routes.views.signinOrRegister);
-  
   //expose api
   app.post('/api/userRegister',routes.api.UserRelatedService.register);
   app.post('/api/userSignin',routes.api.UserRelatedService.signin);

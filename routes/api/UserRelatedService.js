@@ -10,6 +10,7 @@ var signInWithId = function(req, res, user, successMsg) {
             return res.locals.redirect;
           }
           else {
+            console.log("use default redirect");
             if(user.isAdmin) {
               return '/' + keystone.get('admin path');
             }
