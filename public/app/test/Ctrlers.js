@@ -1,23 +1,44 @@
-(function(){
-
 angular.module('mainApp')
-.controller('testCtrler', testCtrler)
-.controller('homeController', homeCtrler);
+.controller('TestCtrler', [TestCtrler])
+.controller('HomeController', ['$http', HomeCtrler]);
 
-testCtrler.$inject = [];
-function testCtrler() {
+function TestCtrler() {
   var vm = this;
   vm.greetMsg = 'Hello world!';
 }
 
-homeCtrler.$inject = ['$http'];
-function homeCtrler($http) {
+function HomeCtrler($http) {
   var vm = this;
   vm.msg = 'finding...';
+  vm.addrList = [
+    {
+      addr: 'yokohama',
+      id: '1'
+    },
+    
+    {
+      addr: 'ikebukuro',
+      id: '2'
+    },
+
+    {
+      addr: 'shinjyuku',
+      id: '3'
+    },
+
+    {
+      addr: 'ueno',
+      id: '4'
+    },
+
+  ];
+
+
   $http({
     method: 'GET',
     url: '/pathToHome'
-  }).then(
+  })
+  .then(
     function successCallback(response) {
       // this callback will be called asynchronously
       // when the response is available
@@ -30,6 +51,3 @@ function homeCtrler($http) {
     }
   );
 }
-
-})();
-
