@@ -5,10 +5,11 @@ var pump = require('pump');
 var concat = require('gulp-concat');
 var sourcemaps = require('gulp-sourcemaps');
 var iife = require("gulp-iife");
-
+var htmlmin = require('gulp-htmlmin');
 gulp.task('watch', function () {
     gulpLivereload.listen();
     gulp.watch('../public/app/**/*.js', ['minify-angular-app-js','concat-angular-app-scripts']);
+    gulp.watch('../public/app/**/*.html',['htmls']);
 });
 
 gulp.task('minify-angular-app-js', function (cb) {
@@ -28,7 +29,8 @@ gulp.task('concat-angular-app-scripts', function(cb) {
       //sourcemaps.init(),
       concat('whole-app.js'),
       //sourcemaps.write(),
-      gulp.dest('../public/app-dist/')
+      gulp.dest('../public/app-dist/'),
+      gulpLivereload()
     ],
     cb);
 });
@@ -53,9 +55,23 @@ gulp.task('concatLib', function(cb){
 
   return pump([gulp.src(libSrcs),
     concat('all-lib.js'),
-    gulp.dest('../public/js/')],
+    gulp.dest('../public/js/'),
+    gulpLivereload()],
     cb
   );
 });
 
-//compose build task
+gulp.task('htmls', function(cb) {
+  pump([
+      gulp.src('../public/app/**/*.html'),
+      htmlmin({
+        collapseWhitespace: true,
+        removeComments: true,
+        removeScriptTypeAttributes: true,
+        removeStyleLinkTypeAttributes: true,
+        removeEmptyAttributes: true
+      }),
+      gulp.dest('../public/app-min'),
+      gulpLivereload()
+    ],cb);
+});

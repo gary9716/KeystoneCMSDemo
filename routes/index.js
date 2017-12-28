@@ -17,7 +17,7 @@
  * See the Express application routing documentation for more information:
  * http://expressjs.com/api.html#app.VERB
  */
-
+var _ = require('lodash');
 var keystone = require('keystone');
 var middleware = require('./middleware');
 var importRoutes = keystone.importer(__dirname);
@@ -34,10 +34,18 @@ var routes = {
 
 // Setup Route Bindings
 exports = module.exports = function (app) {
-	// Views
-  app.get('/', routes.views.index);
-  app.get('/signin_or_register', routes.views.signinOrRegister);
-  app.get('/angular_test',routes.views.angularTest);
+	
+  // Views
+  app.get('/',routes.views.defaultViewCtrler.bind({
+    viewPath: 'index',
+    section: 'home'
+  }), middleware.doViewRender);
+
+  app.get('/signin_or_register', routes.views.signinOrRegister, middleware.doViewRender);
+  
+  app.get('/angular_test', routes.views.defaultViewCtrler.bind({
+    viewPath: 'angularTest'
+  }), middleware.doViewRender);
 
   //test routes
   app.get('/pathToHome',function(req, res) {

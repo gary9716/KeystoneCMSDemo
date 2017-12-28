@@ -8,9 +8,9 @@
  * modules in your project's /lib directory.
  */
 var _ = require('lodash');
-
 var keystone = require('keystone');
 var UrlPattern = require('url-pattern');
+var htmlmin = require('htmlmin');
 var keystonePathPrefix = '/'+ keystone.get('admin path');
 var routesToBlock = [keystonePathPrefix + '/api/session/signin', keystonePathPrefix + '/signin'];
 
@@ -82,3 +82,30 @@ exports.requireUser = function (req, res, next) {
 		next();
 	}
 };
+
+var htmlMinify = function (err, html) {
+	//this would be bound in renderFunc
+	if(err) return this.status(500).send({ error: 'something blew up' });
+	
+	this.send(
+		htmlmin(html, {
+        collapseWhitespace: true,
+        removeComments: true,
+        removeScriptTypeAttributes: true,
+        removeStyleLinkTypeAttributes: true,
+        removeEmptyAttributes: true
+  	})
+  );
+
+}
+
+var renderFunc = function (err, req, res) {
+	if(err) return res.status(500).send({ error: 'something blew up' });
+	var cb = htmlMinify.bind(res); //apply minify middleware
+	res.render(res.locals.viewPath,null,cb); //this would be bound in getRenderFunc
+}
+
+exports.doViewRender = function(req, res) {
+	var view = new keystone.View(req, res);
+	view.render(renderFunc);
+}

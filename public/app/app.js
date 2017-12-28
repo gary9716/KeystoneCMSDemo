@@ -1,31 +1,33 @@
 //Specify all dependencies and config provider
-  
+
 // Define the `mainApp` module
 angular.module('mainApp', [
-  // ...which depends on the modules below
+  // ...which depends on the modules below  
   'ui.router',
   'angular.filter'
 ])
-.config(config)
-.run(run);
+.constant('appRootPath','/app-min/');
 
-config.$inject = ['$stateProvider', '$urlRouterProvider'];
-function config($stateProvider, $urlRouterProvider) {
+angular.module('mainApp')
+.config(['appRootPath','$stateProvider', '$urlRouterProvider', config])
+.run(['$state', run]);
+
+function config(appRootPath, $stateProvider, $urlRouterProvider) {
     $stateProvider
     .state({
       name: 'test',
-      templateUrl: '/app/test/test.html',
+      templateUrl: appRootPath + 'test/test.html',
       controller: 'TestCtrler as testCtrler'
     })
     
     .state({
       name: 'home',
-      templateUrl: '/app/test/home.html',
+      templateUrl: appRootPath + 'test/home.html',
       controller: 'HomeController as homeCtrler'
     })
     .state({
       name: 'home.list',
-      templateUrl: '/app/test/home-list.html'
+      templateUrl: appRootPath + 'test/home-list.html'
     })
 
     .onInvalid(function(toState, fromState) {
@@ -35,7 +37,6 @@ function config($stateProvider, $urlRouterProvider) {
 
 }
 
-run.$inject =['$state'];
 function run($state) {
   console.log('config end, start to run');
   window.setTimeout(function() {
