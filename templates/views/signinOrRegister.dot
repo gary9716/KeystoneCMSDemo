@@ -24,6 +24,10 @@ title: auth page
 
           var doFormAjax = function(formID, doRedirect) {
             var form = $(formID);
+            var flashMsgs = $("#flash-messages");
+            if(flashMsgs)
+              flashMsgs.remove();
+            
             form.ajaxSubmit({
               success: function (res) {
                   if(res.success) {

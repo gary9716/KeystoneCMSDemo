@@ -6,11 +6,11 @@ var keystone = require('keystone'),
 var signInWithId = function(req, res, user, successMsg) {
     var getRedirectPath = function(res) {
           if(res.locals.redirect) {
-            console.log(res.locals.redirect);
+            //console.log(res.locals.redirect);
             return res.locals.redirect;
           }
           else {
-            console.log("use default redirect");
+            //console.log("use default redirect");
             if(user.isAdmin) {
               return '/' + keystone.get('admin path');
             }
@@ -23,6 +23,7 @@ var signInWithId = function(req, res, user, successMsg) {
     var onSuccess = function(user) {
       console.log('[signInWithId]  - Successfully signed in.');
       console.log('------------------------------------------------------------');
+      delete user.password; //for security concern,dont pass password back
       return res.json({
         success: true,
         message: successMsg,
@@ -44,7 +45,8 @@ var signInWithId = function(req, res, user, successMsg) {
     console.log('[signInWithId]  - Signing in user...');
     console.log('------------------------------------------------------------');
     
-    keystone.session.signin(String(user._id), req, res, onSuccess, onFail);
+    //!!beware: sign in session without password check
+    keystone.session.signin(String(user._id), req, res, onSuccess, onFail); 
 }
 
 exports.signin = function (req, res) {
@@ -54,6 +56,13 @@ exports.signin = function (req, res) {
       existingUser: false
     };
   */
+  if (!keystone.security.csrf.validate(req)) {
+    return res.json({
+      success: false,
+      message: 'invalid csrf'
+    });
+  }
+
   User.model.findOne({ userID: req.body['userID'] }).exec(function(err, user) {
     if (err || !user) {
       return res.json({
@@ -61,7 +70,26 @@ exports.signin = function (req, res) {
         message: (err && err.message ? err.message : false) || '不好意思, 登錄失敗, 請重新再試一次'
       });
     }
-    signInWithId(req, res, user, '登錄成功');
+    else {
+      user._.password.compare(req.body.password, function (err, isMatch) {
+        if (isMatch) {
+          return signInWithId(req, res, user, '登錄成功');
+        } 
+        else if (err) {
+          return res.json({ 
+            success: false,
+            message: (err && err.message ? err.message : false) || 'bcrypt error'
+          });
+        } 
+        else {
+          return res.json({ 
+            success: false,
+            message: 'password not match'
+          });
+        }
+      });
+    }
+    
     
   });
 

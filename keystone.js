@@ -66,6 +66,7 @@ keystone.init({
 	'session store': 'connect-redis',
 	'auto update': true,
 	'user model': 'User',
+	'auth' : true
 });
 
 /*
@@ -117,8 +118,6 @@ keystone.set('nav', {
 	users: 'users',
 });
 
-keystone.set('auth', true);
-
 var allListNames = Object.keys(keystone.lists);
 var regulatedList = keystone.list('RegulatedList');
 
@@ -153,7 +152,7 @@ async.waterfall([
 		});
 		
 		if(itemsToRemove)
-			console.log('should remove:['+itemsToRemove.toString()+']');
+			console.log('[keystone.js] should remove:['+itemsToRemove.toString()+']');
 		
 		next();
 	},
