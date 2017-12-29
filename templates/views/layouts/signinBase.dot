@@ -32,7 +32,6 @@
   </head>
   <body>
     <div id="header">
-      [[?model.navLinks && model.navLinks.length]]
       <div class="container">
         <div role="navigation" class="navbar navbar-default">
           <div class="container-fluid">
@@ -41,30 +40,19 @@
                 <span class="sr-only">Toggle navigation</span>
                 <span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span>
               </button>
-              <a href="/" class="navbar-brand">testProj</a>
+              <a href="/" class="navbar-brand">Home</a>
             </div>
             <div class="collapse navbar-collapse">
-              <ul class="nav navbar-nav navbar-left">
-                  [[~ model.navLinks:link]]
-                  <li [[?model.state === link.state]]class="active"[[?]]>
-                    <a href=[[=link.href]]>[[=link.label]]</a>
-                  </li>
-                  [[~]]
-              </ul>
               <ul class="nav navbar-nav navbar-right">
                 [[?model.user]]
                 [[var result= helpers.getKeystoneAttr('signout url');]]
                 <li><a href=[[=result]]>Sign Out</a></li>
-                [[?? true]]
-                [[var result= helpers.getKeystoneAttr('signin url');]]
-                <li><a href=[[=result]]>Sign In</a></li>
                 [[?]]
               </ul>
             </div>
           </div>
         </div>
       </div>
-      [[?]]
     </div>
     <div id="body">
       <!--

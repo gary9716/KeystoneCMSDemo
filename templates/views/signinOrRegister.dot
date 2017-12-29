@@ -1,9 +1,12 @@
 ---
-layout: layouts/default.dot
-title: auth page
+layout: layouts/signinBase.dot
+title: 登入頁面
 ---
 [[##body:
-<div class="container">
+  <div class="container">
+    <div id="ajax-msg"></div>
+  </div>
+  <div class="container">
       <script>
         $(document).ready(function() {
           

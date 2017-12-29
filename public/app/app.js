@@ -9,10 +9,8 @@ angular.module('mainApp', [
 .constant('appRootPath','/app-min/');
 
 angular.module('mainApp')
-.config(['appRootPath','$stateProvider', '$urlRouterProvider', config])
-.run(['$state', run]);
-
-function config(appRootPath, $stateProvider, $urlRouterProvider) {
+.config(['appRootPath', '$stateProvider', '$urlRouterProvider', 
+  function (appRootPath, $stateProvider, $urlRouterProvider){
     $stateProvider
     .state({
       name: 'test',
@@ -27,7 +25,7 @@ function config(appRootPath, $stateProvider, $urlRouterProvider) {
     })
     .state({
       name: 'home.list',
-      templateUrl: appRootPath + 'test/home-list.html'
+      templateUrl: appRootPath + 'test/home.list.html'
     })
 
     .onInvalid(function(toState, fromState) {
@@ -35,12 +33,10 @@ function config(appRootPath, $stateProvider, $urlRouterProvider) {
       return false;
     });
 
-}
+}])
+.run(['$state', '$http', '$rootScope',
+  function ($state, $http, $rootScope) {
+    console.log('config end, start to run');
+    $state.go(locals.state);
+}]);
 
-function run($state) {
-  console.log('config end, start to run');
-  window.setTimeout(function() {
-    $state.go('home');  
-  },1500);
-  
-}

@@ -11,6 +11,7 @@ title: angular test page
   <section ui-view>
     <p>loading...</p>
   </section>
+  <my-ajax-msg></my-ajax-msg>
   <script src="/app-dist/whole-app.js"></script>  
 </div>
 #]]

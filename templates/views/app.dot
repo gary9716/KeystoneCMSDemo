@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html>
+<html ng-app="mainApp">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>[[=layout.title]]</title>
+    <title>{{pageTitle || "app"}}</title>
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
     <link href="/styles/site.min.css" rel="stylesheet">
     [[var helpers = model.helpers;]] <!--get helper functions-->
@@ -41,13 +41,13 @@
                 <span class="sr-only">Toggle navigation</span>
                 <span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span>
               </button>
-              <a href="/" class="navbar-brand">testProj</a>
+              <a href="/" class="navbar-brand">Test App</a>
             </div>
             <div class="collapse navbar-collapse">
               <ul class="nav navbar-nav navbar-left">
                   [[~ model.navLinks:link]]
-                  <li [[?model.state === link.state]]class="active"[[?]]>
-                    <a href=[[=link.href]]>[[=link.label]]</a>
+                  <li>
+                    <a ui-sref=[[=link.state]]>[[=link.label]]</a>
                   </li>
                   [[~]]
               </ul>
@@ -66,44 +66,12 @@
       </div>
       [[?]]
     </div>
+
     <div id="body">
-      <!--
-        Flash messages allow you to display once-off status messages to users, e.g. form
-        validation errors, success messages, etc
-      -->
-      
-      <div id="flash-messages" class="container">
-        [[?model.messages.info && model.messages.info.length]]
-        <div class="alert alert-info">
-            [[var msg = helpers.flashMessages(model.messages.info);]]
-            [[=msg]]
-        </div>
-        [[?]]
-        [[?model.messages.success && model.messages.success.length]]
-        <div class="alert alert-success">
-            [[var msg = helpers.flashMessages(model.messages.success);]]
-            [[=msg]]
-        </div>
-        [[?]]
-        [[?model.messages.warning && model.messages.warning.length]]
-        <div class="alert alert-warning">
-            [[var msg = helpers.flashMessages(model.messages.warning);]]
-            [[=msg]]
-        </div>
-        [[?]]
-        [[?model.messages.error && model.messages.error.length]]
-        <div class="alert alert-danger">
-            [[var msg = helpers.flashMessages(model.messages.error);]]
-            [[=msg]]
-        </div>
-        [[?]]
-      </div>      
-      
-      <!-- The content block should contain the body of your template's content-->
-      
-      [[=layout.body]]
-      
+      <my-ajax-msg></my-ajax-msg>
+      <section ui-view></section>
     </div>
+
     <div class="container">
       <div id="footer">
         <p>Powered by <a href="http://keystonejs.com" target="_blank">KeystoneJS</a>.</p>
@@ -115,5 +83,7 @@
     [[=code]]
     [[var code = helpers.isAdminEditorJS(model.user);]]
     [[=code]]
+
+    <script src="/app-dist/whole-app.js"></script>
   </body>
 </html>

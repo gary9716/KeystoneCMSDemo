@@ -37,15 +37,17 @@ exports = module.exports = function (app) {
 	
   // Views
   app.get('/',routes.views.defaultViewCtrler.bind({
-    viewPath: 'index',
-    section: 'home'
+    viewPath: 'app',
+    state: 'home'
   }), middleware.doViewRender);
 
   app.get('/signin_or_register', routes.views.signinOrRegister, middleware.doViewRender);
   
+  
   app.get('/angular_test', routes.views.defaultViewCtrler.bind({
     viewPath: 'angularTest'
   }), middleware.doViewRender);
+  
 
   //test routes
   app.get('/pathToHome',function(req, res) {

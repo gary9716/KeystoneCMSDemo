@@ -1,9 +1,0 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <title>[[= layout.title ]]</title>
-  </head>
-  <body>
-    [[=layout.body]]
-  </body>
-</html>
