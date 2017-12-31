@@ -41,6 +41,25 @@ exports.create = {
 };
 
 /*
+async.waterfall([
+  function(next) {
+    fs.readFile('geoData/zipCodeAndDist.json', 'utf8', function(err, geoInfo) {
+      if(err) next(err);
+      else next(null, JSON.parse(geoInfo));
+    });
+  },
+
+  function(next) {
+
+    
+  },
+  
+], function(err) {
+  if(err) throw err;
+});
+*/
+
+/*
 
 // This is the long-hand version of the functionality above:
 

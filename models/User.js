@@ -18,15 +18,15 @@ var User = new keystone.List('User', {
 User.add(
   {
   	userID: { type: String, label: '使用者ID', initial: true, unique: true, index: true, required: true, noedit:true},
-    name: { type: Types.Name, label: '姓名' , initial: true},
+    name: { type: String, label: '姓名' , initial: true},
   	email: { type: Types.Email, label: '信箱', initial: true, index: true },
   	password: { type: Types.Password, label: '密碼', initial: true, required: true },
-    territory: {type: Types.Relationship, label: '分部', initial: true, ref: 'Territory'}
+    territory: {type: Types.Relationship, label: '分部', ref: 'Territory', index: true, initial: true }
   }, 
   'Permissions', 
   {
 	  isAdmin: { type: Boolean, label: '管理者', initial: true, index: true, default: false }, //最高權限者（第一層級）
-    roles: { type: Types.Relationship, label: '角色', ref: 'Role', initial: true, many: true, dependsOn : {isAdmin: false} }
+    roles: { type: Types.Relationship, label: '非管理者角色', ref: 'Role', index: true, initial: true, many: true, dependsOn : {isAdmin: false} }
     
   }
 );
@@ -40,7 +40,7 @@ User.schema.virtual('canAccessKeystone').get(function () {
 /**
  * Relationships
  */
-User.relationship({ ref: 'Post', path: 'posts', refPath: 'author' });
+//User.relationship({ ref: 'Post', path: 'posts', refPath: 'author' });
 
 
 /**
