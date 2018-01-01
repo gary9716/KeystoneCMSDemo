@@ -1,16 +1,20 @@
 var keystone = require('keystone');
 var Types = keystone.Field.Types;
+var Constants = require('../Constants');
 
-var Account = new keystone.List('Account');
+//console.log(Constants.AccountListName);
+var Account = new keystone.List(Constants.AccountListName);
+
 Account.add({
-  name: { type: String, label:'存摺名' ,index: true, unique: true, require: true, noedit:true },
-  farmer: { type: Types.Relationship, label:'擁有者', ref: 'Farmer', index: true, require: true, noedit:true },
+  aid: { type: String, label:'存摺編號' ,index: true, unique: true, require: true, noedit:true },
+  farmer: { type: Types.Relationship, label:'擁有者', ref: Constants.FarmerListName, index: true, require: true, noedit:true },
   user: { type: String, label:'使用者', index: true },
   active: { type: Boolean, label:'未結清', index: true, default: true, initial: true },
-
-  money: { type: Types.Money, label:'餘額', noedit: true, default: 0}
+  lastRecord: { type: Types.Relationship, label: '最近的操作記錄', ref: Constants.AccountRecordListName, noedit: true, require: true }, //first record should be creating record
+  createdAt: { type: Types.Datetime, label: '開戶時間', noedit: true, require: true },
+  closedAt: { type: Types.Datetime, label: '結清時間', noedit: true },
+  balance: { type: Types.Money, label:'餘額', noedit: true, default: 0}
 
 });
-
-Account.defaultColumns = 'name, user, active, money';
+Account.defaultColumns = 'name, farmer, user, active, balance, lastOp';
 Account.register();

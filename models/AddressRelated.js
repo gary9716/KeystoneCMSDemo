@@ -1,0 +1,24 @@
+var keystone = require('keystone');
+var Constants = require('../Constants');
+var Types = keystone.Field.Types;
+
+//console.log(Constants.VillageListName);
+var Village = new keystone.List(Constants.VillageListName, {
+  label: '里別' //for ex: 豐圳里
+})
+Village.add({
+  name: { type: String, label: '里名', required: true, initial: true, index: true }
+});
+Village.relationship({ ref: Constants.FarmerListName, refPath: 'village', path: 'farmersInVillage' });
+Village.register();
+
+//console.log(Constants.AddrPrefixListName);
+var AddrPrefix = new keystone.List(Constants.AddrPrefixListName);
+AddrPrefix.add({
+    city: { type: String, label: '直轄縣市', required: true, initial: true, index: true },
+    dist: { type: String, label: '鄉鎮市區', required: true, initial: true, index: true },
+    code: { type: String, label: '郵遞區號', required: true, initial: true }
+});
+AddrPrefix.relationship({ ref: Constants.FarmerListName, refPath: 'addrPrefix', path: 'farmersInArea' });
+AddrPrefix.defaultColumns = 'city, dist, code';
+AddrPrefix.register();

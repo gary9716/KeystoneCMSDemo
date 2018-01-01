@@ -1,32 +1,38 @@
 var keystone = require('keystone');
 var Types = keystone.Field.Types;
+var Constants = require('../Constants');
 
-// Create a list of regions / territories
-var Territory = new keystone.List('Territory'); //分部
-Territory.add({
-  name: {type: Types.Text, label: "分部名"}
+//console.log(Constants.ShopListName);
+var Shop = new keystone.List(Constants.ShopListName, {
+  label: '兌領處'
+});
+Shop.add({
+  name: {type: Types.Text, label: '名稱'}
 }).register();
 
+//console.log(Constants.UserListName);
 /**
  * User Model
  * ==========
  */
-var User = new keystone.List('User', {
+var User = new keystone.List(Constants.UserListName, {
+  label: '系統操作者',
   track: true //track when and who the data was created, updated
 });
 
 User.add(
+  '基本資料',
   {
   	userID: { type: String, label: '使用者ID', initial: true, unique: true, index: true, required: true, noedit:true},
     name: { type: String, label: '姓名' , initial: true},
   	email: { type: Types.Email, label: '信箱', initial: true, index: true },
   	password: { type: Types.Password, label: '密碼', initial: true, required: true },
-    territory: {type: Types.Relationship, label: '分部', ref: 'Territory', index: true, initial: true }
+    shop: {type: Types.Relationship, label: '兌領處', ref: Constants.ShopListName, index: true, initial: true }
   }, 
-  'Permissions', 
+  '權限設定', 
   {
-	  isAdmin: { type: Boolean, label: '管理者', initial: true, index: true, default: false }, //最高權限者（第一層級）
-    roles: { type: Types.Relationship, label: '非管理者角色', ref: 'Role', index: true, initial: true, many: true, dependsOn : {isAdmin: false} }
+	  isAdmin: { type: Boolean, label: '是否為管理者', initial: true, index: true, default: false }, //是否最高權限者（第一層級）
+    roles: { type: Types.Relationship, label: '非管理者角色', ref: Constants.RoleListName, index: true, initial: true, many: true, dependsOn : {isAdmin: false} }
     
   }
 );
@@ -36,15 +42,8 @@ User.schema.virtual('canAccessKeystone').get(function () {
 	return this.isAdmin;
 });
 
-
-/**
- * Relationships
- */
-//User.relationship({ ref: 'Post', path: 'posts', refPath: 'author' });
-
-
 /**
  * Registration
  */
-User.defaultColumns = 'userID, name, email, isAdmin';
+User.defaultColumns = 'userID, name, email, shop, isAdmin';
 User.register();

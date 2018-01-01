@@ -1,7 +1,9 @@
 var keystone = require('keystone');
+var Constants = require('../Constants');
 
-var RegulatedList = new keystone.List('RegulatedList', {
-    autokey: { path: 'key', from: 'name', unique: true }
+//console.log(Constants.RegulatedListName);
+var RegulatedList = new keystone.List(Constants.RegulatedListName, {
+    hidden: true
 });
 
 RegulatedList.add({
