@@ -1,1 +1,0 @@
-!function(){"use strict";angular.module("mainApp").controller("TestCtrler",[function(){this.greetMsg="Hello world!"}]).controller("HomeController",["$http","$rootScope",function(o,r){this.msg="finding...",this.addrList=[{addr:"yokohama",id:"1"},{addr:"ikebukuro",id:"2"},{addr:"shinjyuku",id:"3"},{addr:"ueno",id:"4"}]}])}();

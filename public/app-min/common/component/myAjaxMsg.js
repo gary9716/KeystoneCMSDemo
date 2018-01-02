@@ -1,1 +1,0 @@
-!function(){"use strict";angular.module("mainApp").component("myAjaxMsg",{template:'<div id="my-ajax-msg">{{$ctrl.msg}}</div>',controller:["$rootScope",function(s){var a=this;s.$on("ajaxRes",function(s,e){e.message?a.msg=e.message:a.msg=""})}]})}();

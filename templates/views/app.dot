@@ -8,8 +8,6 @@
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
     <link href="/styles/site.min.css" rel="stylesheet">
     [[var helpers = model.helpers;]] <!--get helper functions-->
-    
-    
   </head>
   <body>
     <div id="header">
@@ -61,11 +59,6 @@
       </div>
     </div>
 
-    <!-- admin JS and CSS code-->
-    [[var code = helpers.isAdminEditorCSS(model.user);]]
-    [[=code]]
-    [[var code = helpers.isAdminEditorJS(model.user);]]
-    [[=code]]
     <!-- This file provides the default styling for the KeystoneJS Content Editor
       - only renders when user is logged in and admin-->
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries
@@ -79,12 +72,29 @@
       //- and the KeystoneJS Content Editor. If you are not targeting IE8,
       //- you can upgrade to 2.1.4 (also bundled) for better performance.
     -->
-    <script src="/js/all-lib.js"></script>
     <script>
       <!-- expose locals -->
       [[var locals = JSON.stringify(model._locals);]]
       var locals = [[=locals]];
     </script>
+    <script src="/js/all-lib.js"></script>
+    <!-- admin JS and CSS code, needs to be placed behind lib code-->
+    [[var code = helpers.isAdminEditorCSS(model.user);]]
+    [[=code]]
+    [[var code = helpers.isAdminEditorJS(model.user);]]
+    [[=code]]
+    
+    [[? model.env === 'production']]
     <script src="/app-dist/whole-app.js"></script>
+    [[?? true]]
+    <script src="/app/app.js"></script>
+    <script src="/app/home/HomeCtrler.js"></script>
+    <script src="/app/common/component/myAjaxMsg.js"></script>
+    <script src="/app/common/filter/orFilter.js"></script>
+    <script src="/app/common/service/myValidation.js"></script>
+
+    <script src="/app/farmerRegister/FarmerRegisterCtrler.js"></script>
+    [[?]]
+
   </body>
 </html>

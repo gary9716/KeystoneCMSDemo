@@ -1,0 +1,7 @@
+<div>
+  <input type="text" ng-model="ctrler.search">
+  <input type="checkbox" ng-model="ctrler.isStrict">
+  <ul>
+    <li ng-repeat="addrData in ctrler.addrList | orFilter:['addr'] : ctrler.search : ctrler.isStrict : 'id' track by addrData.id">地址：{{addrData.addr}}</li>
+  </ul>
+</div>

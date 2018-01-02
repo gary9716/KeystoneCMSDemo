@@ -16,16 +16,14 @@ exports = module.exports = (function() {
 	dataCollection[Constants.UserListName] = [
 		{ 
 			'userID': 'admin',
-			'name.first': 'Admin', 
-			'name.last': 'User', 
+			'name': '管理者',
 			'email': 'gary9716@gmail.com', 
 			'password': 'admin', 
 			'isAdmin': true
 		},
 		{ 
 			'userID': 'test',
-			'name.first': 'Test', 
-			'name.last': 'User', 
+			'name': '測試者', 
 			'email': 'gary9716@gmail.com', 
 			'password': 'test', 
 			'isAdmin': false,

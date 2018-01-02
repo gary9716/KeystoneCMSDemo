@@ -11,13 +11,11 @@ Role.add({
 });
 
 // Relationship definitions are optional
-
 Role.relationship({ ref: Constants.UserListName, refPath: 'roles', path: 'usersWithRole' });
 Role.relationship({ ref: Constants.PermissionListName, refPath: 'create', path: 'createsWithRole' });
 Role.relationship({ ref: Constants.PermissionListName, refPath: 'read', path: 'readsWithRole' });
 Role.relationship({ ref: Constants.PermissionListName, refPath: 'update', path: 'updatesWithRole' });
 Role.relationship({ ref: Constants.PermissionListName, refPath: 'delete', path: 'deletesWithRole' });
-
 
 Role.defaultColumns = 'name';
 Role.register();
