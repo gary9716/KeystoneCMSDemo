@@ -10,12 +10,12 @@ var Transaction = new keystone.List(Constants.TransactionListName, {
 });
 
 Transaction.add({
-  date: { type: Types.Datetime, label: '交易時間', require: true },
-  account: { type: Types.Relationship, ref: Constants.AccountListName, label: '存摺', require: true },
-  amount: { type: Types.Money, label: '交易金額', require: true },
-  shop: { type: Types.Relationship, ref: Constants.ShopListName, label: '兌領處', require: true },
-  trader: { type: Types.Relationship, ref: Constants.UserListName, label: '業務員', require: true },
-  products: { type: Types.TextArray, label: '商品明細', require: true },
+  date: { type: Types.Datetime, label: '交易時間', required: true },
+  account: { type: Types.Relationship, ref: Constants.AccountListName, label: '存摺', required: true },
+  amount: { type: Types.Money, label: '交易金額', required: true },
+  shop: { type: Types.Relationship, ref: Constants.ShopListName, label: '兌領處', required: true },
+  trader: { type: Types.Relationship, ref: Constants.UserListName, label: '業務員', required: true },
+  products: { type: Types.TextArray, label: '商品明細', required: true },
 });
 
 Transaction.register();

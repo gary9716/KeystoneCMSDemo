@@ -11,5 +11,6 @@ exports = module.exports = {
   UserListName: 'User',
   ShopListName: 'Shop',
   PermissionListName: 'Permission',
-  RegulatedListName: 'RegulatedList'
+  RegulatedListName: 'RegulatedList',
+  CityListName: 'City'
 };

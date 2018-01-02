@@ -12,6 +12,12 @@ Village.add({
 Village.relationship({ ref: Constants.FarmerListName, refPath: 'village', path: 'farmersInVillage' });
 Village.register();
 
+var City = new keystone.List(Constants.CityListName);
+City.add({
+    name: { type: String, label: '縣市名', required: true }
+});
+City.register();
+
 //console.log(Constants.AddrPrefixListName);
 var AddrPrefix = new keystone.List(Constants.AddrPrefixListName);
 AddrPrefix.add({

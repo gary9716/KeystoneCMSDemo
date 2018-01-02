@@ -4,8 +4,8 @@ var Types = keystone.Field.Types;
 
 var Farmer = new keystone.List(Constants.FarmerListName);
 Farmer.add({
-  name: { type:String, index: true, require: true, initial: true },
-  residentID: { type:String, index: true, unique: true, require: true, initial: true },
+  name: { type:String, index: true, required: true, initial: true },
+  residentID: { type:String, index: true, unique: true, required: true, initial: true },
   birth: { type:Types.Date, initial: true },
   teleNum1: { type:String, index: true, initial: true },
   teleNum2: { type:String, index: true, initial: true },

@@ -1,6 +1,7 @@
 // Simulate config options from your production environment by
 // customising the .env file in your project's root folder.
 require('dotenv').config();
+global.__base = __dirname + '/';
 
 // Require keystone
 var keystone = require('keystone');

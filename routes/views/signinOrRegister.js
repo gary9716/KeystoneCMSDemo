@@ -1,7 +1,7 @@
 exports = module.exports = function (req, res, next) {
   var keystone = require('keystone');
-  
-  var Territory = keystone.list('Territory'); //分部
+  var Constants = require(__base + 'Constants');
+  var Shop = keystone.list(Constants.ShopListName); //分部
   var UserList = keystone.list(keystone.get('user model'));
   
   var locals = res.locals;

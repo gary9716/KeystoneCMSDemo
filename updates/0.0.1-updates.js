@@ -6,20 +6,14 @@
  * Alternatively, you can export a custom function for the update:
  * module.exports = function(done) { ... }
  */
-
-exports.create = {
-	Role: [
-		{ 
-			name: '用戶資料管理者',
-			__ref: 'role_user_manage' 
-		},
-		{
-			name: '訪客',
-			__ref: 'role_guest'
-		},
-		
-	],
-	User: [
+exports = module.exports = (function() {
+	var keystone = require('keystone');
+	var async = require('async');
+	var fs = require('fs');
+	var Constants = require(__base + 'Constants');
+	
+	var dataCollection = {};
+	dataCollection[Constants.UserListName] = [
 		{ 
 			'userID': 'admin',
 			'name.first': 'Admin', 
@@ -37,59 +31,28 @@ exports.create = {
 			'isAdmin': false,
 			'roles': ['role_guest'] 
 		}
-	]
-};
+	];
 
-/*
-async.waterfall([
-  function(next) {
-    fs.readFile('geoData/zipCodeAndDist.json', 'utf8', function(err, geoInfo) {
-      if(err) next(err);
-      else next(null, JSON.parse(geoInfo));
-    });
-  },
+	dataCollection[Constants.RoleListName] = [
+				{ 
+					name: '用戶資料管理者',
+					__ref: 'role_user_manage' 
+				},
+				{
+					name: '訪客',
+					__ref: 'role_guest'
+				},
+				
+	];
 
-  function(next) {
+	var jsonData = JSON.parse(fs.readFileSync(__base + 'initData/zipCodeAndDist.json', 'utf8'));
+	dataCollection[Constants.CityListName] = jsonData.cities;
+	dataCollection[Constants.AddrPrefixListName] = jsonData.details;
 
-    
-  },
-  
-], function(err) {
-  if(err) throw err;
-});
-*/
+	return {
+		create: dataCollection
 
-/*
+	};
 
-// This is the long-hand version of the functionality above:
+})();
 
-var keystone = require('keystone');
-var async = require('async');
-var User = keystone.list('User');
-
-var admins = [
-	{ email: 'user@keystonejs.com', password: 'admin', name: { first: 'Admin', last: 'User' } }
-];
-
-function createAdmin (admin, done) {
-
-	var newAdmin = new User.model(admin);
-
-	newAdmin.isAdmin = true;
-	newAdmin.save(function (err) {
-		if (err) {
-			console.error('Error adding admin ' + admin.email + ' to the database:');
-			console.error(err);
-		} else {
-			console.log('Added admin ' + admin.email + ' to the database.');
-		}
-		done(err);
-	});
-
-}
-
-exports = module.exports = function (done) {
-	async.forEach(admins, createAdmin, done);
-};
-
-*/
