@@ -1,9 +1,9 @@
 angular.module('mainApp')
 .service('myValidation', [
-  '$http', 
-  function($http) {
+  '$http','$rootScope','$q',
+  function($http,$rootScope,$q) {
     this.checkPID = checkPID;
-    this.checkAuth = checkAuth;
+    this.checkPermission = checkPermission;
 
     function checkPID(pid, errCB) {
    
@@ -81,7 +81,24 @@ angular.module('mainApp')
         
     }
 
-    function checkAuth() {
+    function checkPermission(testData) {
+      if(!testData) {
+        return $q.reject('no parameter provided');
+      }
 
+      return $http.post('/api/permission',{
+        testData: testData
+      })
+      .then(function(res) {
+        var data = res.data;
+        //console.log(data);
+        if(data.success) {
+          return $q.resolve('access granted');
+        }
+        else {
+          return $q.reject('access denied');
+        }
+      });
     }
+
 }]);

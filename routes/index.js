@@ -38,18 +38,24 @@ exports = module.exports = function (app) {
   // Views
   app.get('/',routes.views.defaultViewCtrler.bind({
     viewPath: 'app',
+    state: keystone.get('defaultState')
+  }), middleware.doViewRender);
+
+  app.get('/home',routes.views.defaultViewCtrler.bind({
+    viewPath: 'app',
     state: 'home'
   }), middleware.doViewRender);
 
   app.get('/signin_or_register', routes.views.signinOrRegister, middleware.doViewRender);
   
-  
+  /*
   app.get('/angular_test', routes.views.defaultViewCtrler.bind({
     viewPath: 'angularTest'
   }), middleware.doViewRender);
-  
+  */
 
   //test routes
+  /*
   app.get('/pathToHome',function(req, res) {
     setTimeout(function(){
       res.json({
@@ -57,6 +63,7 @@ exports = module.exports = function (app) {
       });
     }, 1500);
   });
+  */
 
   /*
   app.get('/blog/:category?', routes.views.blog);
@@ -72,7 +79,7 @@ exports = module.exports = function (app) {
   app.post('/api/read',routes.api.RegulatedCRUDOp.read);
   app.post('/api/update',routes.api.RegulatedCRUDOp.update);
   app.post('/api/delete',routes.api.RegulatedCRUDOp.delete);
-  
+  app.post('/api/permission',routes.api.RegulatedCRUDOp.permissionCheck);
 	// NOTE: To protect a route so that only admins can see it, use the requireUser middleware:
 	// app.get('/protected', middleware.requireUser, routes.views.protected);
 

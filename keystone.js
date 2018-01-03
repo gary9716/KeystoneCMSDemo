@@ -10,6 +10,9 @@ var dotEngine = require('express-dot-engine');
 var async = require('async');
 var helperFuncs = require('./templates/views/helpers/index');
 var _ = require('lodash');
+var Constants = require(__base + 'Constants');
+
+keystone.set('defaultState', process.env.DEFAULT_STATE || 'home' );
 
 // Initialise Keystone with your project's configuration.
 // See http://keystonejs.com/guide/config for available options
@@ -124,12 +127,17 @@ var regulatedList = keystone.list('RegulatedList');
 
 async.waterfall([
 	function(next) {
-		regulatedList.model.find(null, 'name', {lean: true}, function (err1, rlNames) {
+		regulatedList.model
+		.find()
+		.select('name')
+		.lean()
+		.exec(function (err1, rlNames) {
 			next(err1, rlNames);
 		});
 	},
 
 	function(rlNames, next) {
+		var rlEntriesForCreation = [];
 		allListNames.forEach(function(listItem) {
 			if(!rlNames.some(function(rlItem) {
 				if(rlItem.name === listItem)
@@ -138,13 +146,24 @@ async.waterfall([
 					return false;
 			})) {
 				//didn't find the object in regulated list
-				regulatedList.model.create({name: listItem}, function (err2, item) {
-					if(err2) next(err2);
+				rlEntriesForCreation.push({ 
+					name: listItem,
 				});
 			}
 		});
 		
-		next(null, rlNames);
+		if(rlEntriesForCreation.length > 0) {
+			var dataCollection = {};
+			dataCollection[Constants.RegulatedListName] = rlEntriesForCreation;
+
+			keystone.createItems(
+				dataCollection,
+				function(err, stats) {
+					stats && console.log(stats.message);
+					next(err, rlNames);
+			});
+		}
+		
 	},
 	
 	function(rlNames, next) {

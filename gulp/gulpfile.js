@@ -48,7 +48,9 @@ gulp.task('concatLib', function(cb){
 
     'angular/angular.min.js', 
     'angular/angular-ui-router.min.js',
-    'angular/angular-filter.min.js'
+    'angular/angular-filter.min.js',
+    'angular/angular-animate.min.js',
+    'angular/ui-bootstrap-tpls-2.5.0.min.js',
     ]).map(function(path) {
     return libPrefx + path;
   });

@@ -16,8 +16,7 @@ Shop.add({
  * ==========
  */
 var User = new keystone.List(Constants.UserListName, {
-  label: '系統操作者',
-  track: true //track when and who the data was created, updated
+  label: '系統操作者'
 });
 
 User.add(

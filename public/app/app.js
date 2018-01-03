@@ -4,7 +4,8 @@
 angular.module('mainApp', [
   // ...which depends on the modules below  
   'ui.router',
-  'angular.filter'
+  'angular.filter',
+  'ui.bootstrap'
 ])
 .constant('appRootPath',(function() {
   if(locals && locals.env) {
@@ -21,7 +22,7 @@ angular.module('mainApp', [
 })());//to inject into config, we need to register this value as constant
 
 angular.module('mainApp')
-.config(['appRootPath', '$stateProvider', '$urlRouterProvider', 
+.config(['appRootPath', '$stateProvider', '$urlRouterProvider',  
   function (appRootPath, $stateProvider, $urlRouterProvider){
     $stateProvider
     .state({
@@ -37,7 +38,25 @@ angular.module('mainApp')
     .state({
       name: 'farmerRegister',
       templateUrl: appRootPath + 'farmerRegister/index.html',
-      controller: 'FarmerRegisterCtrler as ctrler'
+      controller: 'FarmerRegisterCtrler as ctrler',
+      resolve: {
+        condition1 : ['myValidation', function(myValidation) {
+          //if this promise is rejected, then the transition will fail
+          return myValidation.checkPermission([
+              {
+                listName: 'User',
+                opName: ['read','create']
+              },
+
+              {
+                listName: 'Account',
+                opName: 'read'
+              },
+              
+            ]); 
+        }]
+      }
+
     })
 
     .onInvalid(function(toState, fromState) {
@@ -46,10 +65,18 @@ angular.module('mainApp')
     });
 
 }])
-.run(['$state', '$http', '$rootScope',
-  function ($state, $http, $rootScope) {
-    console.log('config end, start to run');
-    console.log(locals);
+.run(['$state', '$http', '$rootScope', '$transitions', 'myValidation',
+  function ($state, $http, $rootScope, $transitions, myValidation) {
+    console.log('config end, angular app start to run');
+    //console.log(locals);
+/*
+    $transitions.onStart({ }, function(trans) {
+      console.log('trans start');
+      var SpinnerService = trans.injector().get('SpinnerService');
+      SpinnerService.transitionStart();
+      trans.promise.finally(SpinnerService.transitionEnd);
+    });
+*/
     $state.go(locals.state);
 }]);
 
