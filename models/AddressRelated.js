@@ -20,7 +20,11 @@ City.add({
 City.register();
 
 //console.log(Constants.AddrPrefixListName);
-var AddrPrefix = new keystone.List(Constants.AddrPrefixListName);
+var AddrPrefix = new keystone.List(Constants.AddrPrefixListName, {
+  map: {
+    name: 'dist'
+  }
+});
 AddrPrefix.add({
     city: { type: Types.Relationship, ref: Constants.CityListName, label: '直轄縣市', initial: true, index: true },
     dist: { type: String, label: '鄉鎮市區', required: true, initial: true, index: true },

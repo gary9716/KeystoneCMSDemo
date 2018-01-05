@@ -63,6 +63,26 @@ angular.module('mainApp')
     })
 
     .state({
+      name: 'farmerSearch',
+      templateUrl: appRootPath + 'farmer/search.html',
+      url: '/farmer/search',
+      controller: 'FarmerPageCtrler as ctrler',
+      resolve: {
+        condition1 : ['myValidation', function(myValidation) {
+          //if this promise is rejected, then the transition will fail
+          return myValidation.checkPermission([
+              {
+                listName: 'Farmer',
+                opName: 'read'
+              },
+
+            ]); 
+        }]
+      }
+
+    })
+
+    .state({
       name: '403',
       templateUrl: appRootPath + 'error/403.html',
       url: '/error/403'

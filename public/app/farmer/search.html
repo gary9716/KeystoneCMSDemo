@@ -1,5 +1,59 @@
-<button type="button" class="btn btn-default" ng-click="isCollapsed = !isCollapsed">開啟搜尋頁面</button>
+<button type="button" class="btn btn-default" ng-click="isCollapsed = !isCollapsed">{{isCollapsed? "開啟搜尋頁面": "關閉搜尋頁面"}}</button>
 <hr>
 <div uib-collapse="isCollapsed">
-  <div class="well well-lg">Some content</div>
+  
+  <form class="form-horizontal" name="RegisterForm" id="RegisterForm" ng-show="!ctrler.showRegisterTable">
+  <fieldset>
+  <!-- Form Name -->
+  <div class="form-group">
+    <label class="col-md-4 control-label" for="textinput">姓名</label>
+    <div class="col-md-4">
+      <input name="farmerName" ng-model="ctrler.farmerName" ng-model-options="{ debounce: 200 }" type="text" placeholder="" class="form-control input-md">
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="col-md-4 control-label" for="textinput">身份證字號</label>
+    <div class="col-md-4">
+      <input name="pid" ng-model="ctrler.pid" ng-model-options="{ debounce: 200 }" type="text" placeholder="" class="form-control input-md">
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="col-md-4 control-label" for="textinput">電話</label>
+    <div class="col-md-4">
+      <input name="tele" ng-model="ctrler.tele" ng-model-options="{ debounce: 500 }" type="text" placeholder="" class="form-control input-md">
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="col-md-4 control-label" for="geoSelectors">地址</label>
+    <div class="col-md-5">
+      <div class="row-offset-2" style="margin-top:7px;" id="geoSelectors">
+        直轄縣市
+        <select style="min-width:20%;" ng-init="ctrler.getCities()" ng-model="ctrler.citySelect" ng-model-options="{ debounce: 100 }" ng-change="ctrler.selectOnChange('dists',ctrler.citySelect,'AddrPrefix')">
+          <option ng-repeat="city in ctrler.cities track by city._id" value="{{::city._id}}")>{{::city.name}}</option>
+        </select>
+        鄉鎮市區
+        <select style="min-width:20%;" name="dist" ng-model="ctrler.distSelect" ng-change="ctrler.selectOnChange('villages',ctrler.distSelect,'Village')" ng-model-options="{ debounce: 100 }">
+          <option ng-repeat="dist in ctrler.dists track by dist._id" value="{{::dist._id}}")>{{::dist.dist}}</option>
+        </select><br>
+        村里
+        <select name="village" style="min-width:20%; margin-top: 5px;" ng-model="ctrler.villageSelect" ng-model-options="{ debounce: 100 }">
+          <option ng-repeat="village in ctrler.villages track by village._id" value="{{::village._id}}")>{{::village.name}}</option>
+        </select>
+      </div>
+      
+      <input style="margin-top:5px;" name="addrRest" ng-model="ctrler.addrRest" ng-model-options="{ debounce: 200 }" type="text" placeholder="" class="form-control input-md">
+    </div>
+  </div>
+
+  <div class="form-group">
+    <div class="col-md-4 col-md-offset-5">
+      <button class="btn btn-primary" ng-click="ctrler.search();" ng-disabled="ctrler.isSearching">搜尋</button>
+    </div>
+  </div>
+  </fieldset>
+  </form>
+
 </div>

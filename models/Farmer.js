@@ -9,8 +9,10 @@ Farmer.add({
   birth: { type:Types.Date, initial: true },
   teleNum1: { type:String, index: true, initial: true },
   teleNum2: { type:String, index: true, initial: true },
+  city : { type:Types.Relationship, ref:Constants.CityListName, required: true, index: true, initial: true },
+  dist : { type:Types.Relationship, ref:Constants.AddrPrefixListName, required: true, index: true, initial: true },
   village: { type:Types.Relationship, ref:Constants.VillageListName, required: true, index: true, initial: true },
-  addr: { type:String, initial: true },
+  addr : { type:String, initial: true },
 });
 
 //Mirrored from Account to Farmer
