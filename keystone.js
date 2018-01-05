@@ -122,6 +122,7 @@ keystone.set('nav', {
 	users: 'users',
 });
 
+/*
 var allListNames = Object.keys(keystone.lists);
 var regulatedList = keystone.list('RegulatedList');
 
@@ -181,6 +182,7 @@ async.waterfall([
 	function(errs) {
     if(errs) throw errs;    // errs = [err1, err2, err3]
 });
+*/
 
 
 // Start Keystone to connect to your database and initialise the web server

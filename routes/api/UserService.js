@@ -50,12 +50,7 @@ var signInWithId = function(req, res, user, successMsg) {
 }
 
 exports.signin = function (req, res) {
-  /*
-    var locals = {
-      form: req.body,
-      existingUser: false
-    };
-  */
+  
   if (!keystone.security.csrf.validate(req)) {
     return res.json({
       success: false,
@@ -71,7 +66,7 @@ exports.signin = function (req, res) {
       });
     }
     else {
-      user._.password.compare(req.body.password, function (err, isMatch) {
+      user._.password.compare(req.body['password'], function (err, isMatch) {
         if (isMatch) {
           return signInWithId(req, res, user, '登錄成功');
         } 
@@ -96,17 +91,15 @@ exports.signin = function (req, res) {
 };
 
 exports.register = function (req, res) {
-  var locals = {
-    form: req.body,
-    newUser: false
-  };
+  var newUser = false;
+  var form = req.body;
 
   async.series([
     
     // Perform basic form validation
     function(next) {
       
-      if (!locals.form['userID'] || !locals.form['password']) {
+      if (!form.hasOwnProperty('userID') || !form.hasOwnProperty('password')) {
         console.log('[register] - Failed registering.');
         console.log('------------------------------------------------------------');
         return next({
@@ -120,23 +113,32 @@ exports.register = function (req, res) {
     
     // Check for user by userID
     function(next) {
-      var userID = locals.form['userID'];
+      var userID = form['userID'];
       console.log('[register]  - Searching for existing users via userID: [' + userID + '] ...');
       console.log('------------------------------------------------------------');
       
-      var query = User.model.findOne({ userID: userID }, null, { lean: true });
-        query.exec(function(err, user) {
-          if (err) {
-            console.log('[register]  - Error finding existing user via userID.', err);
-            console.log('------------------------------------------------------------');
-            return next({ message: '不好意思,讀取資料庫途中出現一些問題,請再試一次' });
-          }
+      User.model.findOne({ userID: userID })
+        .lean()
+        .exec()
+        .then(function(user) {
           if (user) {
             console.log('[register]  - Found existing user via userID...');
             console.log('------------------------------------------------------------');
-            return next({ message: '已存在同名之使用者ID, 請改以登入或是換一個ID註冊' });
+            next({ message: '已存在同名之使用者ID, 請改以登入或是換一個ID註冊' });
           }
-          return next();
+          else {
+            next();
+          }
+        })
+        .catch(function(err) {
+          
+          console.log('[register]  - Error finding existing user via userID.', err);
+          console.log('------------------------------------------------------------');
+          
+          return next({ 
+            message: err? err.toString(): '不好意思,讀取資料庫途中出現一些問題,請再試一次' 
+          });
+
         });
       
     },
@@ -148,27 +150,24 @@ exports.register = function (req, res) {
       console.log('------------------------------------------------------------');
       
       var userData = {
-        userID: locals.form['userID'],
-        password: locals.form['password']
+        userID: form['userID'],
+        password: form['password']
       };
 
-      if(locals.form['name.first'] && locals.form['name.last']) {
-        userData.name = {
-          first: locals.form['name.first'],
-          last: locals.form['name.last']
-        };
+      if(form.hasOwnProperty('name')) {
+        userData.name = form['name'];
       }
 
-      if(locals.form.email) {
-        userData.email = locals.form.email;
+      if(form.hasOwnProperty('email')) {
+        userData.email = form.email;
       }
       
-      locals.newUser = new User.model(userData);
-      locals.newUser.save(function(err) {
+      newUser = new User.model(userData);
+      newUser.save(function(err) {
         if (err) {
           console.log('[register]  - Error saving new user.', err);
           console.log('------------------------------------------------------------');
-          return next({ message: '不好意思,寫入資料庫途中出現一些問題,請再試一次' });
+          return next({ message: err.toString() });
         }
         console.log('[register]  - Saved new user.');
         console.log('------------------------------------------------------------');
@@ -179,7 +178,7 @@ exports.register = function (req, res) {
     
     // Sign in with Session
     function(next) {
-      signInWithId(req, res, locals.newUser, '註冊成功');
+      signInWithId(req, res, newUser, '註冊成功');
     }
     
   ], function(err) {

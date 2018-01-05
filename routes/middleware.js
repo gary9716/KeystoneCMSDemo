@@ -7,6 +7,10 @@
  * you have more middleware you may want to group it as separate
  * modules in your project's /lib directory.
  */
+
+var async = require('async');
+var Constants = require(__base + 'Constants');
+
 var _ = require('lodash');
 var keystone = require('keystone');
 var UrlPattern = require('url-pattern');
@@ -39,7 +43,7 @@ exports.blockRoute = function (req, res, next) {
 exports.initLocals = function (req, res, next) {
 	res.locals.navLinks = [
 		{ label: 'Home', state: 'home' },
-    { label: 'FarmerRegister', state: 'farmerRegister' }
+    { label: 'FarmerPage', state: 'farmer' }
 	];
 
 	res.locals.env = keystone.get('env');
@@ -155,15 +159,11 @@ exports.doViewRender = function(req, res) {
 以下是身分證檢核 JavaScript 程式函式 */
 
 exports.checkPID = checkPID;
-function checkPID(pid, errCB) {
+function checkPID(pid) {
    
     var err = {};
 
-    if ( pid.length !== 10 ) {
-      if(errCB) {
-        err.message = '身分證字號長度不正確';
-        errCB(err);  
-      }
+    if (!pid || pid.length !== 10 ) {
       return false;
     }
     
@@ -183,7 +183,7 @@ function checkPID(pid, errCB) {
         }
         else if(curIndex == 1) {
           var i = table.indexOf(curChar.toUpperCase());
-          if(i != -1) {
+          if(i != -1) { //A->0,B->1,C->2,D->3
             sum += i * Mx[curIndex];
           }
           else {
@@ -212,21 +212,235 @@ function checkPID(pid, errCB) {
         return true;
       }
       else {
-        if(errCB) {
-          err.message = '不合法身分證字號';
-          errCB(err);  
-        }
-        
         return false;
       }
 
     }
     else {
-      if(errCB) {
-        err.message = '含不合法字元，請檢查';
-        errCB(err);
-      }
       return false;
     }
     
+}
+
+exports.getPureNumStr = function(str) {
+  return str.replace( /\D+/g, '');
+}
+
+exports.checkAuth = function(next) {
+  if (!this.user) {
+    next({
+      message:'請登入後再存取該資源'
+    });
+  } 
+  else {
+    next();
+  }
+};
+
+exports.checkPermissions = function (next) {
+  var user = this.user;
+  var listName = this.listName;
+  var opName = this.opName;
+
+  if(user.isAdmin) {
+    return next(); //we dont need to check user with highest priviledge
+  }
+
+  if(listName) {
+    console.log('test list:',listName);
+    keystone.list(Constants.RegulatedListName).model
+    .findOne({ name: listName })
+    .select('_id')
+    .lean()
+    .exec()
+    .then(function(rl) {
+      if(rl)
+        return rl._id;
+      else if(keystone.list(listName)) {
+        //not a regulated list
+        //everyone can access this list
+        return 'pass';
+      }
+      else {
+        return Promise.reject({
+          message:'查無此列表'
+        });
+      }
+    })
+    .then(function(listID) {
+      if(listID === 'pass')
+        return listID;
+
+      var PermissionList = keystone.list(Constants.PermissionListName);
+      if(opName instanceof Array) {
+        var opNameStr = opName.join(' ');
+        return PermissionList.model
+          .findOne({ 'listName' : listID })
+          .select(opNameStr)
+          .lean()
+          .exec();
+      }
+      else
+        return PermissionList.model
+          .findOne({ 'listName' : listID })
+          .select(opName)
+          .lean()
+          .exec();
+    })
+    .then(function(permission){
+      if(permission === 'pass')
+        return next();
+
+      if(permission) {
+        var userRoles = user.roles;
+        if(!userRoles || userRoles.length == 0) {
+          return Promise.reject({
+            message:'權限不足'
+          });
+        }
+
+        function strMapper(item){
+          return item.toString();
+        }
+
+        var userRoleSet = new Set(userRoles.map(strMapper));
+        
+        //console.log(userRoles);
+        //console.log(permission);
+
+        function userHasPermissionWithOpName(singleOpName) {
+          var permittedRole = permission[singleOpName];
+          if(permittedRole && permittedRole.length) {
+            permittedRole = permittedRole.map(strMapper);
+            //check permission
+            if(permittedRole.some(function(role){
+              return userRoleSet.has(role);
+            })) {
+              //user is permitted to operate this list
+              console.log(singleOpName, ":passed");
+              return true;
+            }
+            else {
+              console.log(singleOpName, ":failed");
+              return false;
+            }
+          }
+          else {
+            console.log(singleOpName, ":failed 2");
+            return false;
+          }
+        }
+
+        if(opName instanceof Array) {
+          if(opName.every(userHasPermissionWithOpName)) 
+          { 
+            //all ops was granted
+            next();
+          }
+          else {
+            return Promise.reject({
+              message:'權限不足'
+            });
+          }
+        }
+        else { //single opName(for CRUD request)
+          if(userHasPermissionWithOpName(opName)) {
+            next();
+          }
+          else {
+            return Promise.reject({
+              message:'權限不足'
+            });
+          }
+        }
+        
+      }
+      else {
+        return Promise.reject({
+          message:'權限未設定'
+        });
+      }
+    })
+    .catch(function(err) {
+      if(err)
+        return err.message ? next(err) : next({
+          message:'查詢權限失敗'
+        });
+      else
+        return next({
+          message:'不明原因操作失敗'
+        });
+    });
+
+  }
+  else {
+    next({
+      message: '沒有指明欲操作的列表'
+    });
+  }
+
+
+};
+
+exports.permissionCheck = function(req, res, next) {
+  //console.log("body:-----");
+  //console.log(req.body);
+  console.log("user:------");
+  console.log(req.user);
+  console.log("-----------");
+  
+  var funcArray = [ exports.checkAuth.bind(req) ];
+
+  if(req.body.listArray) {
+    req.body.listArray.forEach(function(item) {
+      var params = {
+        listName: item.listName,
+        user: req.user,
+        opName: item.opName
+      };
+      funcArray.push(exports.checkPermissions.bind(params));
+    });
+  }
+  else if(req.body.listName && req.body.opName) {
+    var params = {
+      listName: req.body.listName,
+      user: req.user,
+      opName: req.body.opName
+    };
+    funcArray.push(exports.checkPermissions.bind(params));
+  }
+  else if(this.listName && this.opName) {
+    var params = {
+      listName: this.listName,
+      user: req.user,
+      opName: this.opName
+    };
+    funcArray.push(exports.checkPermissions.bind(params));
+  }
+  else {
+    return res.json({
+      success: false,
+      message: '參數不足'
+    });
+  }
+
+  funcArray.push(function(){
+    next();
+  });
+
+  async.series(funcArray, function(err) {
+    if(err) {
+      return res.json({
+        success: false,
+        message: err.message
+      });
+    }
+  });
+    
+};
+
+exports.okResponse = function(req, res) {
+  res.json({
+    success: true
+  });
 }

@@ -21,6 +21,7 @@ var _ = require('lodash');
 var keystone = require('keystone');
 var middleware = require('./middleware');
 var importRoutes = keystone.importer(__dirname);
+var Constants = require(__base + 'Constants');
 
 // Common Middleware
 keystone.pre('routes', middleware.initLocals);
@@ -47,23 +48,6 @@ exports = module.exports = function (app) {
   }), middleware.doViewRender);
 
   app.get('/signin_or_register', routes.views.signinOrRegister, middleware.doViewRender);
-  
-  /*
-  app.get('/angular_test', routes.views.defaultViewCtrler.bind({
-    viewPath: 'angularTest'
-  }), middleware.doViewRender);
-  */
-
-  //test routes
-  /*
-  app.get('/pathToHome',function(req, res) {
-    setTimeout(function(){
-      res.json({
-        addr: "feng yuan"
-      });
-    }, 1500);
-  });
-  */
 
   /*
   app.get('/blog/:category?', routes.views.blog);
@@ -72,15 +56,25 @@ exports = module.exports = function (app) {
   app.all('/contact', routes.views.contact);
   */
 
-  //expose api
-  app.post('/api/userRegister',routes.api.UserRelatedService.register);
-  app.post('/api/userSignin',routes.api.UserRelatedService.signin);
-  app.post('/api/create',routes.api.RegulatedCRUDOp.create);
+  //APIs
+  app.post('/api/userRegister',routes.api.UserService.register);
+  app.post('/api/userSignin',routes.api.UserService.signin);
   app.post('/api/read',routes.api.RegulatedCRUDOp.read);
-  app.post('/api/update',routes.api.RegulatedCRUDOp.update);
-  app.post('/api/delete',routes.api.RegulatedCRUDOp.delete);
-  app.post('/api/permission',routes.api.RegulatedCRUDOp.permissionCheck);
-	// NOTE: To protect a route so that only admins can see it, use the requireUser middleware:
+  app.post('/api/permission',middleware.permissionCheck,middleware.okResponse);
+
+  app.post('/api/farmer/register',
+    middleware.permissionCheck.bind({
+      opName: 'create',
+      listName: Constants.FarmerListName
+    }),
+    routes.api.FarmerService.register
+  );
+
+  //app.post('/api/create',routes.api.RegulatedCRUDOp.create);
+  //app.post('/api/update',routes.api.RegulatedCRUDOp.update);
+  //app.post('/api/delete',routes.api.RegulatedCRUDOp.delete);
+  
+  // NOTE: To protect a route so that only admins can see it, use the requireUser middleware:
 	// app.get('/protected', middleware.requireUser, routes.views.protected);
 
 };

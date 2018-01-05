@@ -13,6 +13,37 @@ exports = module.exports = (function() {
 	var Constants = require(__base + 'Constants');
 	
 	var dataCollection = {};
+
+	dataCollection[Constants.RegulatedListName] = ([
+		Constants.RoleListName,
+		Constants.UserListName,
+		Constants.ShopListName,
+		Constants.PermissionListName,
+		Constants.RegulatedListName,
+		Constants.FarmerListName,
+		Constants.TransactionListName,
+		Constants.AccountRecordListName,
+		Constants.AccountListName,
+		Constants.ProductTypeListName,
+		Constants.ProductListName
+	]).map(function(listName) {
+		return {
+			name: listName
+		};
+	});
+
+	dataCollection[Constants.RoleListName] = [
+				{ 
+					name: '農民資料管理者',
+					__ref: 'role_farmer_manage' 
+				},
+				{
+					name: '訪客',
+					__ref: 'role_guest'
+				},
+				
+	];
+
 	dataCollection[Constants.UserListName] = [
 		{ 
 			'userID': 'admin',
@@ -27,25 +58,16 @@ exports = module.exports = (function() {
 			'email': 'gary9716@gmail.com', 
 			'password': 'test', 
 			'isAdmin': false,
-			'roles': ['role_guest'] 
+			'roles': ['role_farmer_manage'] 
 		}
 	];
 
-	dataCollection[Constants.RoleListName] = [
-				{ 
-					name: '用戶資料管理者',
-					__ref: 'role_user_manage' 
-				},
-				{
-					name: '訪客',
-					__ref: 'role_guest'
-				},
-				
-	];
-
 	var jsonData = JSON.parse(fs.readFileSync(__base + 'initData/zipCodeAndDist.json', 'utf8'));
+	
 	dataCollection[Constants.CityListName] = jsonData.cities;
-	dataCollection[Constants.AddrPrefixListName] = jsonData.details;
+	dataCollection[Constants.AddrPrefixListName] = jsonData.dists;
+	dataCollection[Constants.VillageListName] = jsonData.villages;
+	
 
 	return {
 		create: dataCollection

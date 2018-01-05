@@ -12,6 +12,19 @@ gulp.task('watch', function () {
     gulp.watch('../public/app/**/*.html',['htmls']);
 });
 
+gulp.task('watch-dev',function() {
+    gulpLivereload.listen();
+    gulp.watch('../public/**/*', [ 'reload' ]);
+});
+
+gulp.task('reload', function(cb) {
+    pump([
+      gulp.src('../public/app/**/*'),
+      gulpLivereload()
+    ],
+    cb);
+})
+
 gulp.task('minify-angular-app-js', function (cb) {
   pump([
       gulp.src('../public/app/**/*.js'),
@@ -51,6 +64,7 @@ gulp.task('concatLib', function(cb){
     'angular/angular-filter.min.js',
     'angular/angular-animate.min.js',
     'angular/ui-bootstrap-tpls-2.5.0.min.js',
+    'angular/xeditable.min.js',
     ]).map(function(path) {
     return libPrefx + path;
   });

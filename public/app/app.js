@@ -28,35 +28,44 @@ angular.module('mainApp')
     .state({
       name: 'home',
       templateUrl: appRootPath + 'home/index.html',
-      controller: 'HomeCtrler as ctrler'
+      controller: 'HomeCtrler as ctrler',
+      url: '/',
     })
     .state({
       name: 'home.addrList',
-      templateUrl: appRootPath + 'home/addrList.html'
+      templateUrl: appRootPath + 'home/addrList.html',
+    })
+
+    .state({
+      name: 'farmer',
+      templateUrl: appRootPath + 'farmer/index.html',
+      url: '/farmer'
     })
 
     .state({
       name: 'farmerRegister',
-      templateUrl: appRootPath + 'farmerRegister/index.html',
-      controller: 'FarmerRegisterCtrler as ctrler',
+      templateUrl: appRootPath + 'farmer/register.html',
+      url: '/farmer/register',
+      controller: 'FarmerPageCtrler as ctrler',
       resolve: {
         condition1 : ['myValidation', function(myValidation) {
           //if this promise is rejected, then the transition will fail
           return myValidation.checkPermission([
               {
-                listName: 'User',
-                opName: ['read','create']
+                listName: 'Farmer',
+                opName: 'create'
               },
 
-              {
-                listName: 'Account',
-                opName: 'read'
-              },
-              
             ]); 
         }]
       }
 
+    })
+
+    .state({
+      name: '403',
+      templateUrl: appRootPath + 'error/403.html',
+      url: '/error/403'
     })
 
     .onInvalid(function(toState, fromState) {
@@ -77,6 +86,15 @@ angular.module('mainApp')
       trans.promise.finally(SpinnerService.transitionEnd);
     });
 */
+    
+    $transitions.onError({}, function(transition) {
+      var errorReason = transition.error().detail;
+      if(errorReason === "access denied") {
+        $state.go('403');
+      }
+      
+    });
+
     $state.go(locals.state);
 }]);
 

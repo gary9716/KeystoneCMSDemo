@@ -5,14 +5,14 @@ angular.module('mainApp')
     this.checkPID = checkPID;
     this.checkPermission = checkPermission;
 
-    function checkPID(pid, errCB) {
-   
+    function checkPID(pid, cb) {
+
         var err = {};
 
-        if ( pid.length !== 10 ) {
-          if(errCB) {
+        if (!pid || pid.length !== 10) {
+          if(cb) {
             err.message = '身分證字號長度不正確';
-            errCB(err);  
+            cb(err);  
           }
           return false;
         }
@@ -59,12 +59,14 @@ angular.module('mainApp')
           });
 
           if(sum % 10 == 0) {
+            if(cb)
+              cb();
             return true;
           }
           else {
-            if(errCB) {
+            if(cb) {
               err.message = '不合法身分證字號';
-              errCB(err);  
+              cb(err);  
             }
             
             return false;
@@ -72,22 +74,22 @@ angular.module('mainApp')
 
         }
         else {
-          if(errCB) {
+          if(cb) {
             err.message = '含不合法字元，請檢查';
-            errCB(err);
+            cb(err);
           }
           return false;
         }
         
     }
 
-    function checkPermission(testData) {
-      if(!testData) {
+    function checkPermission(listArray) {
+      if(!listArray) {
         return $q.reject('no parameter provided');
       }
 
       return $http.post('/api/permission',{
-        testData: testData
+        listArray: listArray
       })
       .then(function(res) {
         var data = res.data;
@@ -101,4 +103,22 @@ angular.module('mainApp')
       });
     }
 
+}])
+.directive('legalpid', [
+  'myValidation', 
+  function(myValidation) {
+    return {
+      require: 'ngModel',
+      link: function(scope, elm, attrs, ngModel) {
+        ngModel.$validators.legalpid = function(modelValue, viewValue) {
+          if (ngModel.$isEmpty(modelValue)) {
+            // consider empty models to be invalid
+            return false;
+          }
+          else
+            return myValidation.checkPID(viewValue);
+
+        };
+      }
+    };
 }]);
