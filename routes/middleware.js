@@ -222,10 +222,6 @@ function checkPID(pid) {
     
 }
 
-exports.getPureNumStr = function(str) {
-  return str.replace( /\D+/g, '');
-}
-
 exports.checkAuth = function(next) {
   if (!this.user) {
     next({
@@ -390,9 +386,20 @@ exports.permissionCheck = function(req, res, next) {
   console.log("-----------");
   
   var funcArray = [ exports.checkAuth.bind(req) ];
+  var listName = req.body.listName ? req.body.listName : this.listName;
+  var opName = req.body.opName ? req.body.opName : this.opName;
 
-  if(req.body.listArray) {
-    req.body.listArray.forEach(function(item) {
+  if(listName && opName) {
+    var params = {
+      listName: listName,
+      user: req.user,
+      opName: opName
+    };
+    funcArray.push(exports.checkPermissions.bind(params));
+  }
+  else if(req.body.listArray || this instanceof Array) {
+    var listArray = req.body.listArray ? req.body.listArray : this;
+    listArray.forEach(function(item) {
       var params = {
         listName: item.listName,
         user: req.user,
@@ -400,22 +407,6 @@ exports.permissionCheck = function(req, res, next) {
       };
       funcArray.push(exports.checkPermissions.bind(params));
     });
-  }
-  else if(req.body.listName && req.body.opName) {
-    var params = {
-      listName: req.body.listName,
-      user: req.user,
-      opName: req.body.opName
-    };
-    funcArray.push(exports.checkPermissions.bind(params));
-  }
-  else if(this.listName && this.opName) {
-    var params = {
-      listName: this.listName,
-      user: req.user,
-      opName: this.opName
-    };
-    funcArray.push(exports.checkPermissions.bind(params));
   }
   else {
     return res.json({
@@ -438,6 +429,20 @@ exports.permissionCheck = function(req, res, next) {
   });
     
 };
+
+
+exports.getPureNumStr = function(str) {
+  return str.replace( /\D+/g, '');
+}
+
+exports.getRegExp = function(data, type) {
+  if(type === 'substr') {
+    return new RegExp(data);
+  }
+  else {
+    return new RegExp(data);
+  }
+}
 
 exports.okResponse = function(req, res) {
   res.json({

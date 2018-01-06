@@ -90,7 +90,7 @@ title: 登入頁面
 
                 <form id="login-form" 
                 method="post"
-                action="/api/userSignin"
+                action="/api/user/signin"
                 role="form" style="display: block;" data-toggle="validator">
                   <input type="hidden" name="action" value="login">
                   <div class="form-group">
@@ -110,7 +110,7 @@ title: 登入頁面
 
                 <form id="register-form" 
                 method="post" 
-                action="/api/userRegister"
+                action="/api/user/register"
                 role="form" style="display: none;" value="register-form" data-toggle="validator">
                   <input type="hidden" name="action" value="register">
                   <div class="form-group">

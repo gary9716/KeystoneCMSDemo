@@ -57,11 +57,17 @@ exports = module.exports = function (app) {
   */
 
   //APIs
-  app.post('/api/userRegister',routes.api.UserService.register);
-  app.post('/api/userSignin',routes.api.UserService.signin);
-  app.post('/api/read',routes.api.RegulatedCRUDOp.read);
+  app.post('/api/read',
+    middleware.permissionCheck.bind({
+      opName: 'read'
+    }),
+    routes.api.CRUDOp.read);
+
   app.post('/api/permission',middleware.permissionCheck,middleware.okResponse);
 
+  app.post('/api/user/register',routes.api.UserService.register);
+  app.post('/api/user/signin',routes.api.UserService.signin);
+  
   app.post('/api/farmer/register',
     middleware.permissionCheck.bind({
       opName: 'create',
@@ -70,11 +76,98 @@ exports = module.exports = function (app) {
     routes.api.FarmerService.register
   );
 
-  //app.post('/api/create',routes.api.RegulatedCRUDOp.create);
-  //app.post('/api/update',routes.api.RegulatedCRUDOp.update);
-  //app.post('/api/delete',routes.api.RegulatedCRUDOp.delete);
-  
-  // NOTE: To protect a route so that only admins can see it, use the requireUser middleware:
-	// app.get('/protected', middleware.requireUser, routes.views.protected);
+  app.post('/api/farmer/search',
+    middleware.permissionCheck.bind({
+      opName: 'read',
+      listName: Constants.FarmerListName
+    }),
+    routes.api.FarmerService.search
+  );
+
+  app.post('/api/farmer/get-and-populate',
+    middleware.permissionCheck.bind([
+      {
+        opName: 'read',
+        listName: Constants.FarmerListName
+      },
+
+      {
+        opName: 'read',
+        listName: Constants.AccountListName
+      }
+    ]),
+    routes.api.FarmerService.getAndPopulate
+  );
+
+  app.post('/api/account/create',
+    middleware.permissionCheck.bind(
+      {
+        opName: 'create',
+        listName: Constants.AccountListName
+      }
+    ),
+    routes.api.AccountService.create
+  );
+
+  app.post('/api/account/update',
+    middleware.permissionCheck.bind(
+      {
+        opName: 'update',
+        listName: Constants.AccountListName
+      }
+    ),
+    routes.api.AccountService.update
+  );
+
+  app.post('/api/account-rec/create',
+    middleware.permissionCheck.bind(
+      {
+        opName: 'create',
+        listName: Constants.AccountRecordListName
+      }
+    ),
+    routes.api.AccountRecordService.create
+  );
+
+
+  app.post('/api/transaction/create',
+    middleware.permissionCheck.bind(
+      {
+        opName: 'create',
+        listName: Constants.TransactionListName
+      }
+    ),
+    routes.api.TransactionService.create
+  );
+
+  app.post('/api/product/create',
+    middleware.permissionCheck.bind(
+      {
+        opName: 'create',
+        listName: Constants.ProductListName
+      }
+    ),
+    routes.api.ProductService.create
+  );
+
+  app.post('/api/product/update',
+    middleware.permissionCheck.bind(
+      {
+        opName: 'update',
+        listName: Constants.ProductListName
+      }
+    ),
+    routes.api.ProductService.update
+  );
+
+  app.post('/api/product/delete',
+    middleware.permissionCheck.bind(
+      {
+        opName: 'delete',
+        listName: Constants.ProductListName
+      }
+    ),
+    routes.api.ProductService.delete
+  );
 
 };

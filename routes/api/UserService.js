@@ -54,7 +54,7 @@ exports.signin = function (req, res) {
   if (!keystone.security.csrf.validate(req)) {
     return res.json({
       success: false,
-      message: 'invalid csrf'
+      message: '過期憑證,請刷新登入頁面'
     });
   }
 

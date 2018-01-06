@@ -3,6 +3,7 @@
 // Define the `mainApp` module
 angular.module('mainApp', [
   // ...which depends on the modules below  
+  'ngAnimate',
   'ui.router',
   'angular.filter',
   'ui.bootstrap'
@@ -98,16 +99,10 @@ angular.module('mainApp')
   function ($state, $http, $rootScope, $transitions, myValidation) {
     console.log('config end, angular app start to run');
     //console.log(locals);
-/*
-    $transitions.onStart({ }, function(trans) {
-      console.log('trans start');
-      var SpinnerService = trans.injector().get('SpinnerService');
-      SpinnerService.transitionStart();
-      trans.promise.finally(SpinnerService.transitionEnd);
-    });
-*/
     
     $transitions.onError({}, function(transition) {
+      if(!transition)
+        return;
       var errorReason = transition.error().detail;
       if(errorReason === "access denied") {
         $state.go('403');

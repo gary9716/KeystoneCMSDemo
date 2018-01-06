@@ -4,9 +4,8 @@ angular.module('mainApp')
   function(myValidation, $http, $window, $state) {
     var vm = this;
     vm.showRegisterTable = false;
-    vm.farmerVillage = null;
-    vm.farmerAddr = null;
     vm.isRegistering = false;
+    vm.isSearching = false;
 
     var dataCache = {
       dists: {},
@@ -23,7 +22,7 @@ angular.module('mainApp')
         return;
 
       if(targetName === 'dists') {
-        vm.villages = null;
+        vm.villages = undefined;
       }
 
       var cache = dataCache[targetName];
@@ -172,6 +171,38 @@ angular.module('mainApp')
         //TODO: show on web page
         console.log(err);
       });
+    }
+
+    vm.search = function() {
+      var farmerData = {
+        name: vm.farmerName && vm.farmerName.length ? vm.farmerName : undefined,
+        pid: vm.pid && vm.pid.length ? vm.pid : undefined,
+        tele: vm.tele && vm.tele.length ? vm.tele : undefined,
+        city: vm.citySelect && vm.citySelect.length ? vm.citySelect : undefined,
+        dist: vm.distSelect && vm.distSelect.length ? vm.distSelect : undefined,
+        village: vm.villageSelect && vm.villageSelect.length ? vm.villageSelect : undefined
+      };
+
+      vm.isSearching = true;
+
+      $http.post('/api/farmer/search',farmerData)
+      .then(function(res) {
+        vm.isSearching = false;
+        var data = res.data;
+        if(data.success) {
+          vm.farmers = data.result;
+        }
+        else {
+          //TODO: show on web page
+          console.log(err.message);
+        }
+      })
+      .catch(function(err) {
+        vm.isSearching = false;
+        //TODO: show on web page
+        console.log(err);
+      });
+
     }
 
 }]);
