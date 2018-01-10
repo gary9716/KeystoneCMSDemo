@@ -10,13 +10,14 @@ angular.module('mainApp')
       return;
     }
 
-    vm.farmerID = $state.params.farmerID;
+    vm.farmerPID = $state.params.farmerPID;
+    vm.accountUser = "QAQ";
 
-    vm.getFarmerData = function() {
+    vm.getDetail = function() {
 
       $http.post('/api/farmer/get-and-populate',
       {
-        farmerID: vm.farmerID
+        farmerPID: vm.farmerPID
       })
       .then(function(res) {
         var data = res.data;
@@ -25,7 +26,7 @@ angular.module('mainApp')
           vm.accounts = data.result.accounts;
         }
         else {
-          console.log('抓取農夫資料失敗,', data.message);
+          console.log(data.message);
         }
       })
       .catch(function(err) {
@@ -38,12 +39,14 @@ angular.module('mainApp')
 
       $http.post('/api/account/create',
       {
-        farmerID: vm.farmerID
+        farmerPID: vm.farmerPID,
+        accountUser: vm.accountUser
       })
       .then(function(res) {
         var data = res.data;
         if(data.success) {
           vm.newAccount = data.result;
+          console.log(vm.newAccount);
         }
         else {
           console.log('創建存摺失敗,', data.message);

@@ -3,14 +3,15 @@ exports = module.exports = {
   ProductTypeListName: 'ProductType',
   AccountListName: 'Account',
   AccountRecordListName: 'AccountRecord',
+  PurchaseListName: 'Purchase',
   TransactionListName: 'Transaction',
-  AddrPrefixListName: 'AddrPrefix',
-  VillageListName: 'Village',
   FarmerListName: 'Farmer',
   RoleListName: 'Role',
   UserListName: 'User',
   ShopListName: 'Shop',
   PermissionListName: 'Permission',
   RegulatedListName: 'RegulatedList',
-  CityListName: 'City'
+  CityListName: 'City',
+  AddrPrefixListName: 'AddrPrefix',
+  VillageListName: 'Village',
 };

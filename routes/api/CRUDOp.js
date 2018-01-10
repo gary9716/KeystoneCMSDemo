@@ -16,8 +16,8 @@ format: {
             update(required), 
             delete(required)
 
-  selectFields(array): used in read
-  populateFields(array): used in read
+  select(array): used in read
+  populate(array): used in read
   
   pagination:(used in read)
     page: page to start at
@@ -89,7 +89,7 @@ exports.read = function(req, res) {
 
   var query;
 
-  if(form.page && form.perPage) { //pagination
+  if(form.hasOwnProperty("Page") && form.hasOwnProperty("perPage")) { //pagination
     
     var paginateOpt = {
       page: form.page,
@@ -109,21 +109,21 @@ exports.read = function(req, res) {
   }
   else {
     
-    if(form.filters) 
+    if(form.hasOwnProperty("filters")) 
       query = targetList.model.find(form.filters);
     else 
       query = targetList.model.find();
 
   }
   
-  if(form.sortField)
-    query = query.sort('-'+form.sortField);
+  if(form.hasOwnProperty("sort"))
+    query = query.sort('-'+form.sort);
 
-  if(form.selectFields)
-    query = query.select(form.selectFields.join(' '));
+  if(form.hasOwnProperty("select"))
+    query = query.select(form.select.join(' '));
 
-  if(form.populateFields)
-    query = query.populate(form.populateFields.join(' '));
+  if(form.hasOwnProperty("populate"))
+    query = query.populate(form.populate.join(' '));
 
 
   query.lean().exec()
@@ -134,16 +134,10 @@ exports.read = function(req, res) {
       });
     })
     .catch(function(err) {
-      if(err)
-        return res.json({
-          success: false,
-          message: err.toString()
-        });
-      else
-        return res.json({
-          success: false,
-          message:'不明原因讀取失敗'
-        });
+      return res.json({
+        success: false,
+        message: err.toString()
+      });
     });
 
 
@@ -159,13 +153,13 @@ exports.update = function(req, res) {
         message: '欲操作的列表不存在'
       });
 
-    if(!form.filters)
+    if(!form.hasOwnProperty("filters"))
       return res.json({
         success: false,
         message: '更新用的過濾條件未設定'
       });
 
-    if(!form.itemData)
+    if(!form.hasOwnProperty("itemData"))
       return res.json({
         success: false,
         message: '沒有更新用的資料'
@@ -192,9 +186,7 @@ exports.update = function(req, res) {
 
           if(errs.length) {
             var errMsg = errs.join(';');
-            return Promise.reject({
-              message: errMsg
-            });
+            return Promise.reject(errMsg);
           }
           else {
             res.json({
@@ -203,28 +195,14 @@ exports.update = function(req, res) {
           }
         }
         else {
-          return Promise.reject({
-            message:'未找到可更新項目'
-          });
+          return Promise.reject('未找到可更新項目');
         }
       })
       .catch(function(err) {
-        if(err)
-          return err.message ? 
-            res.json({
-              success: false,
-              message: err.message
-            }) 
-            : 
-            res.json({
-              success: false,
-              message: err.toString()
-            });
-        else
-          return res.json({
-            success: false,
-            message: '不明原因更新失敗'
-          });
+        res.json({
+          success: false,
+          message: err.toString()
+        });
       })
 
 }
@@ -240,7 +218,7 @@ exports.delete = function(req, res) {
       message: '欲操作的列表不存在'
     });
 
-  if(!form.filters)
+  if(!form.hasOwnProperty("filters"))
     return res.json({
       success: false,
       message: '刪除用的過濾條件未設定'
@@ -253,21 +231,9 @@ exports.delete = function(req, res) {
       });
     })
     .catch(function(err) {
-      if(err)
-        return err.message ? 
-          res.json({
-            success: false,
-            message: err.message
-          }) 
-          : 
-          res.json({
-            success: false,
-            message: err.toString()
-          });
-      else
-        return res.json({
-          success: false,
-          message: '不明原因刪除失敗'
-        });
+      res.json({
+        success: false,
+        message: err.toString()
+      });
     });
 };

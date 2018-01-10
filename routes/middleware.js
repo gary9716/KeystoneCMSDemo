@@ -16,15 +16,16 @@ var keystone = require('keystone');
 var UrlPattern = require('url-pattern');
 var htmlmin = require('htmlmin');
 var keystonePathPrefix = '/'+ keystone.get('admin path');
-var routesToBlock = [keystonePathPrefix + '/api/session/signin', keystonePathPrefix + '/signin'];
+
+var routesToBlock = [keystonePathPrefix + '/signin', keystonePathPrefix + '/api/session/signin'];
 
 exports.blockRoute = function (req, res, next) {
-	var urlPattern = new UrlPattern(req.path);
+  var urlPattern = new UrlPattern(req.path);
 	var testRoute = function(element) {
-		var pattern = urlPattern.match(element);
-		if(pattern)
-			return true;
-	};
+    var pattern = urlPattern.match(element);
+    if(pattern)
+      return true;
+  };
 
 	if(routesToBlock.some(testRoute)) {
 		res.status(403).send('forbidden routes');
@@ -41,7 +42,7 @@ exports.blockRoute = function (req, res, next) {
 	or replace it with your own templates / logic.
 */
 exports.initLocals = function (req, res, next) {
-	res.locals.navLinks = [
+  res.locals.navLinks = [
 		{ label: 'Home', state: 'home' },
     { label: 'FarmerPage', state: 'farmer' }
 	];
@@ -64,7 +65,6 @@ exports.initLocals = function (req, res, next) {
 	
 	next();
 };
-
 
 /**
 	Fetches and clears the flashMessages before a view is rendered
@@ -258,9 +258,7 @@ exports.checkPermissions = function (next) {
         return 'pass';
       }
       else {
-        return Promise.reject({
-          message:'查無此列表'
-        });
+        return Promise.reject('查無此列表');
       }
     })
     .then(function(listID) {
@@ -290,9 +288,7 @@ exports.checkPermissions = function (next) {
       if(permission) {
         var userRoles = user.roles;
         if(!userRoles || userRoles.length == 0) {
-          return Promise.reject({
-            message:'權限不足'
-          });
+          return Promise.reject('權限不足');
         }
 
         function strMapper(item){
@@ -334,9 +330,7 @@ exports.checkPermissions = function (next) {
             next();
           }
           else {
-            return Promise.reject({
-              message:'權限不足'
-            });
+            return Promise.reject('權限不足');
           }
         }
         else { //single opName(for CRUD request)
@@ -344,28 +338,19 @@ exports.checkPermissions = function (next) {
             next();
           }
           else {
-            return Promise.reject({
-              message:'權限不足'
-            });
+            return Promise.reject('權限不足');
           }
         }
         
       }
       else {
-        return Promise.reject({
-          message:'權限未設定'
-        });
+        return Promise.reject('權限未設定');
       }
     })
     .catch(function(err) {
-      if(err)
-        return err.message ? next(err) : next({
-          message:'查詢權限失敗'
-        });
-      else
-        return next({
-          message:'不明原因操作失敗'
-        });
+      return next({
+        message: err.toString()
+      });
     });
 
   }

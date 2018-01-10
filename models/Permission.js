@@ -7,7 +7,7 @@ var Constants = require('../Constants');
 var Permission = new keystone.List(Constants.PermissionListName);
 
 Permission.add({
-    name: { type: String, required: true, index: true },
+    name: { type: String, required: true, index: true, trim: true },
     listName: { type: Types.Relationship, ref: Constants.RegulatedListName, unique: true, required: true, initial: true, index: true },
     create: { type: Types.Relationship, ref: Constants.RoleListName, many: true, initial: true, index: true },
     read: { type: Types.Relationship, ref: Constants.RoleListName, many: true, initial: true, index: true},

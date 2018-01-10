@@ -84,6 +84,33 @@ angular.module('mainApp')
     })
 
     .state({
+      name: 'farmerDetail',
+      templateUrl: appRootPath + 'farmer/detail.html',
+      url: '/farmer/detail/',
+      params: {
+        farmerPID: null
+      },
+      controller: 'AccountPageCtrler as ctrler',
+      resolve: {
+        condition1 : ['myValidation', function(myValidation) {
+          //if this promise is rejected, then the transition will fail
+          return myValidation.checkPermission([
+              {
+                listName: 'Farmer',
+                opName: 'read'
+              },
+
+              {
+                listName: 'Account',
+                opName: 'read'
+              }
+            ]); 
+        }]
+      }
+
+    })
+
+    .state({
       name: '403',
       templateUrl: appRootPath + 'error/403.html',
       url: '/error/403'

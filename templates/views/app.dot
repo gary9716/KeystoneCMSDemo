@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>{{pageTitle || "app"}}</title>
+    <title>{{pageTitle || "白米兌換系統"}}</title>
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
     <link href="/styles/site.min.css" rel="stylesheet">
     [[var helpers = model.helpers;]] <!--get helper functions-->
@@ -53,12 +53,6 @@
       </div>
     </div>
 
-    <div class="container">
-      <div id="footer">
-        <p>Powered by <a href="http://keystonejs.com" target="_blank">KeystoneJS</a>.</p>
-      </div>
-    </div>
-
     <!-- This file provides the default styling for the KeystoneJS Content Editor
       - only renders when user is logged in and admin-->
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries
@@ -95,6 +89,8 @@
     <script src="/app/common/service/myValidation.js"></script>
 
     <script src="/app/farmer/FarmerPageCtrler.js"></script>
+    <script src="/app/farmer/AccountPageCtrler.js"></script>
+    
     [[?]]
 
   </body>

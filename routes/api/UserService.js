@@ -73,13 +73,13 @@ exports.signin = function (req, res) {
         else if (err) {
           return res.json({ 
             success: false,
-            message: (err && err.message ? err.message : false) || 'bcrypt error'
+            message: err.toString()
           });
         } 
         else {
           return res.json({ 
             success: false,
-            message: 'password not match'
+            message: '密碼不合'
           });
         }
       });
@@ -136,7 +136,7 @@ exports.register = function (req, res) {
           console.log('------------------------------------------------------------');
           
           return next({ 
-            message: err? err.toString(): '不好意思,讀取資料庫途中出現一些問題,請再試一次' 
+            message: err.toString()
           });
 
         });
@@ -155,23 +155,26 @@ exports.register = function (req, res) {
       };
 
       if(form.hasOwnProperty('name')) {
-        userData.name = form['name'];
+        userData.name = form.name;
       }
 
       if(form.hasOwnProperty('email')) {
         userData.email = form.email;
       }
+
+      if(form.hasOwnProperty('shop')) {
+        userData.shop = form.shop;
+      }
       
       newUser = new User.model(userData);
-      newUser.save(function(err) {
-        if (err) {
-          console.log('[register]  - Error saving new user.', err);
-          console.log('------------------------------------------------------------');
-          return next({ message: err.toString() });
-        }
-        console.log('[register]  - Saved new user.');
+      newUser.save()
+      .then(function(savUser) {
+        next();
+      })
+      .catch(function(err) {
+        console.log('[register]  - Error saving new user.', err);
         console.log('------------------------------------------------------------');
-        return next();
+        return next({ message: err.toString() });
       });
     
     },

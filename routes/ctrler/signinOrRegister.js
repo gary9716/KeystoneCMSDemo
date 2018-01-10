@@ -15,5 +15,15 @@ exports = module.exports = function (req, res, next) {
     req.flash('info', '你已成功登出');
   }
 
-  next();
+  Shop.model.find()
+  .lean()
+  .exec()
+  .then(function(shops) {
+    locals.shops = shops;
+    next();
+  })
+  .catch(function(err) {
+    res.status(500).send(err.toString());
+  });
+
 };

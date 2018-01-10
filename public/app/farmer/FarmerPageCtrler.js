@@ -22,7 +22,7 @@ angular.module('mainApp')
         return;
 
       if(targetName === 'dists') {
-        vm.villages = undefined;
+        vm.villages = null;
       }
 
       var cache = dataCache[targetName];
@@ -103,19 +103,6 @@ angular.module('mainApp')
       setTeleNum();
     }
 
-
-/*
-  name: { type:String, index: true, required: true, initial: true },
-  pid: { type:String, index: true, unique: true, required: true, initial: true },
-  birth: { type:Types.Date, initial: true },
-  teleNum1: { type:String, index: true, initial: true },
-  teleNum2: { type:String, index: true, initial: true },
-  city : { type:Types.Relationship, ref:Constants.CityListName, required: true, index: true, initial: true },
-  dist : { type:Types.Relationship, ref:Constants.AddrPrefixListName, required: true, index: true, initial: true },
-  village: { type:Types.Relationship, ref:Constants.VillageListName, required: true, index: true, initial: true },
-  addr : { type:String, initial: true },
-*/
-    
     vm.registerFarmer = function() {
       var farmerData = {
         name: vm.farmerName,
@@ -138,7 +125,6 @@ angular.module('mainApp')
         if(data.success) {
           console.log('register farmer success');
           $state.go('farmer');
-          //TODO: redirect to farmer index
         }
         else {
           //TODO: show on web page
@@ -193,8 +179,9 @@ angular.module('mainApp')
           vm.farmers = data.result;
         }
         else {
+          vm.farmers = [];
           //TODO: show on web page
-          console.log(err.message);
+          console.log(data.message);
         }
       })
       .catch(function(err) {

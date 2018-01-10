@@ -24,12 +24,13 @@ var importRoutes = keystone.importer(__dirname);
 var Constants = require(__base + 'Constants');
 
 // Common Middleware
+keystone.pre('admin', middleware.blockRoute);
 keystone.pre('routes', middleware.initLocals);
 keystone.pre('render', middleware.flashMessages);
 
 // Import Route Controllers
 var routes = {
-	views: importRoutes('./views'),
+	ctrler: importRoutes('./ctrler'),
   api: importRoutes('./api')
 };
 
@@ -37,24 +38,17 @@ var routes = {
 exports = module.exports = function (app) {
 	
   // Views
-  app.get('/',routes.views.defaultViewCtrler.bind({
+  app.get('/',routes.ctrler.defaultViewCtrler.bind({
     viewPath: 'app',
     state: keystone.get('defaultState')
   }), middleware.doViewRender);
 
-  app.get('/home',routes.views.defaultViewCtrler.bind({
+  app.get('/home',routes.ctrler.defaultViewCtrler.bind({
     viewPath: 'app',
     state: 'home'
   }), middleware.doViewRender);
 
-  app.get('/signin_or_register', routes.views.signinOrRegister, middleware.doViewRender);
-
-  /*
-  app.get('/blog/:category?', routes.views.blog);
-	app.get('/blog/post/:post', routes.views.post);
-	app.get('/gallery', routes.views.gallery);
-  app.all('/contact', routes.views.contact);
-  */
+  app.get('/auth', routes.ctrler.signinOrRegister, middleware.doViewRender);
 
   //APIs
   app.post('/api/read',
@@ -100,44 +94,43 @@ exports = module.exports = function (app) {
   );
 
   app.post('/api/account/create',
-    middleware.permissionCheck.bind(
+    middleware.permissionCheck.bind([
       {
         opName: 'create',
         listName: Constants.AccountListName
+      },
+      {
+        opName: 'read',
+        listName: Constants.FarmerListName
       }
-    ),
+    ]),
     routes.api.AccountService.create
   );
 
-  app.post('/api/account/update',
-    middleware.permissionCheck.bind(
+  app.post('/api/account/close',
+    middleware.permissionCheck.bind([
       {
         opName: 'update',
         listName: Constants.AccountListName
-      }
-    ),
-    routes.api.AccountService.update
-  );
-
-  app.post('/api/account-rec/create',
-    middleware.permissionCheck.bind(
+      },
       {
         opName: 'create',
         listName: Constants.AccountRecordListName
       }
-    ),
-    routes.api.AccountRecordService.create
+    ]),
+    routes.api.AccountService.close
   );
 
 
-  app.post('/api/transaction/create',
+
+  app.post('/api/product/transact',
     middleware.permissionCheck.bind(
       {
         opName: 'create',
         listName: Constants.TransactionListName
       }
     ),
-    routes.api.TransactionService.create
+    routes.api.ProductService.transact
   );
 
   app.post('/api/product/create',

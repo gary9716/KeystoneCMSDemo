@@ -1,7 +1,6 @@
 <button type="button" class="btn btn-default" ng-click="ctrler.isCollapsed = !ctrler.isCollapsed">{{ctrler.isCollapsed? "開啟搜尋頁面": "關閉搜尋頁面"}}</button>
 <hr>
 <div class="well well-lg" uib-collapse="ctrler.isCollapsed">
-  
   <form class="form-horizontal" name="RegisterForm" id="RegisterForm" ng-show="!ctrler.showRegisterTable">
   <fieldset>
   <!-- Form Name -->
@@ -51,10 +50,57 @@
 
   <div class="form-group">
     <div class="col-md-4 col-md-offset-5">
-      <button class="btn btn-primary" ng-click="ctrler.search();" ng-disabled="ctrler.isSearching">搜尋</button>
+      <button class="clickable btn btn-primary" ng-click="ctrler.search();" ng-disabled="ctrler.isSearching">搜尋</button>
     </div>
   </div>
   </fieldset>
   </form>
+</div>
+<!-- confirm table -->
+<style>
+.fr-col1 {
+  width: 10%;
+}
+.fr-col2 {
+  width: 20%;
+}
+.fr-col3 {
+  width: 40%;
+}
+.fr-col4 {
+  width: 15%;
+}
+.fr-col5 {
+  width: 15%;
+}
+
+.table-hover tbody tr:hover td{
+  background-color: #c9d4e2;
+}
+
+</style>
+<div class="table-responsive" ng-show="ctrler.farmers">
+  <legend>搜尋結果</legend>
+  <table class="table table-striped table-bordered table-hover" style="width: 100%; margin: 0px auto 20px;">
+    <tbody>
+      <tr>
+        <th class="fr-col1">姓名</th>
+        <th class="fr-col2">身分證字號</th>
+        <th class="fr-col3">地址</th>
+        <th class="fr-col4">住家電話</th>
+        <th class="fr-col5">行動電話</th>
+      </tr>
+      <!-- use collaspable ui to show detail -->
+      <tr ui-sref="farmerDetail({farmerPID: farmer.pid})" ng-repeat="farmer in ctrler.farmers track by farmer.pid">
+          <td class="fr-col1">{{::farmer.name}}</td>
+          <td class="fr-col2">{{::farmer.pid}}</td>
+          <td class="fr-col3">{{::farmer.addr}}</td>
+          <td class="fr-col4">{{::farmer.teleNum1}}</td>
+          <td class="fr-col5">{{::farmer.teleNum2}}</td>
+      </tr>
+
+    </tbody>
+    
+  </table>
 
 </div>

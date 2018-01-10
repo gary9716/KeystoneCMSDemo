@@ -7,7 +7,7 @@ var Role = new keystone.List(Constants.RoleListName, {
 });
 
 Role.add({
-    name: { type: String, required: true, unique: true, index: true }
+    name: { type: String, required: true, unique: true, index: true, trim: true }
 });
 
 // Relationship definitions are optional

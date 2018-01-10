@@ -55,20 +55,11 @@ keystone.init({
 	'favicon': 'public/favicon.ico',
 	'views': 'templates/views',
 	'view engine': 'dot',
-	/*
-	'custom engine': handlebars.create({
-		layoutsDir: 'hbsTemplates/views/layouts',
-		partialsDir: 'hbsTemplates/views/partials',
-		defaultLayout: 'default',
-		helpers: new require('./hbsTemplates/views/helpers')(),
-		extname: '.hbs',
-	}).engine,
-	*/
 	'custom engine': dotEngine.__express,
 
 	//'emails': 'templates/emails',
 	'session store': 'connect-redis',
-	'auto update': true,
+	'auto update': false,
 	'user model': 'User',
 	'auth' : true
 });
@@ -104,7 +95,7 @@ keystone.set('locals', {
 
 
 // Use our own sign in and sign out route
-keystone.set('signin url', '/signin_or_register');
+keystone.set('signin url', '/auth');
 keystone.set('signin redirect', '/');
 keystone.set('signout redirect', keystone.get('signin url') + '?status=signed_out');
 
@@ -195,5 +186,14 @@ if (!process.env.MAILGUN_API_KEY || !process.env.MAILGUN_DOMAIN) {
 	+ '\n\nCreate a mailgun account and add the credentials to the .env file to'
 	+ '\nset up your mailgun integration');
 }
+
+var Fawn = require("fawn");
+Fawn.init(keystone.get('mongoose'));
+
+var roller = Fawn.Roller();
+roller.roll()
+.then(function(){
+	console.log('rollback process complete');	
+});
 
 keystone.start();
