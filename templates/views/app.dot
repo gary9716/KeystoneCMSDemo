@@ -48,7 +48,7 @@
 
     <div id="body">
       <div class="container">
-        <my-ajax-msg></my-ajax-msg>
+        <div uib-alert ng-repeat="alert in alerts track by $index" ng-class="'alert-' + (alert.type || 'warning')" dismiss-on-timeout="3000" close="alerts.splice(alerts.indexOf(alert),1);">{{::alert.msg}}</div>
         <section ui-view></section>
       </div>
     </div>
@@ -70,7 +70,12 @@
       <!-- expose locals -->
       [[var locals = JSON.stringify(model._locals);]]
       var locals = [[=locals]];
-    </script>
+    </script>    
+    
+    [[?model.user && model.user.isAdmin]]
+    <script src="/js/jquery/jquery-1.11.3.min.js"></script>
+    [[?]]
+    
     <script src="/js/all-lib.js"></script>
     
     <!-- admin JS and CSS code, needs to be placed behind lib code-->
@@ -78,19 +83,18 @@
     [[=code]]
     [[var code = helpers.isAdminEditorJS(model.user);]]
     [[=code]]
-    
+
+
     [[? model.env === 'production']]
     <script src="/app-dist/whole-app.js"></script>
     [[?? true]]
     <script src="/app/app.js"></script>
     <script src="/app/home/HomeCtrler.js"></script>
-    <script src="/app/common/component/myAjaxMsg.js"></script>
     <script src="/app/common/filter/orFilter.js"></script>
     <script src="/app/common/service/myValidation.js"></script>
 
     <script src="/app/farmer/FarmerPageCtrler.js"></script>
     <script src="/app/farmer/AccountPageCtrler.js"></script>
-    
     [[?]]
 
   </body>

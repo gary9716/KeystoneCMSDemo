@@ -1,9 +1,10 @@
 angular.module('mainApp')
 .controller('AccountPageCtrler', 
-  ['$http', '$window', '$state', 
-  function($http, $window, $state) {
+  ['$http', '$window', '$state', '$rootScope', '$uibModal',
+  function($http, $window, $state, $rootScope, $uibModal) {
 
     var vm = this;
+    $rootScope.alerts = [];
 
     if(!$state.params) {
       console.log('error: no params');
@@ -11,7 +12,7 @@ angular.module('mainApp')
     }
 
     vm.farmerPID = $state.params.farmerPID;
-    vm.accountUser = "QAQ";
+    vm.accountUser = '';
 
     vm.getDetail = function() {
 
@@ -45,21 +46,86 @@ angular.module('mainApp')
       .then(function(res) {
         var data = res.data;
         if(data.success) {
-          vm.newAccount = data.result;
-          console.log(vm.newAccount);
+          if(!vm.accounts instanceof Array)
+            vm.accounts = [];
+
+          vm.accounts.push(data.result);
         }
         else {
-          console.log('創建存摺失敗,', data.message);
+          $rootScope.alerts.push({ msg: data.message });
         }
       })
       .catch(function(err) {
+        $rootScope.alerts.push({ msg: '系統似乎出現一些錯誤' });
         console.log(err);
       });
 
-    }
+    };
 
+    vm.openCreateAccountModal = function() {
+      var modalInstance = $uibModal.open({
+        templateUrl: 'create-account.html', //this template is embedded in detail.html
+        controller: 'CreateAccountModalCtrler as $ctrl',
+        size: 'md', //'md','lg','sm'
+      });
 
+      modalInstance.result
+      .then(function (result) {
+        vm.accountUser = result.accountUser;
+        vm.createAccount();
+      })
+      .catch(function () { 
+        modalInstance.close(); 
+      });
+      
+    };
 
+    vm.openAccountDetail = function(account) {
+      account.farmer = vm.farmer;
+      var modalInstance = $uibModal.open({
+        templateUrl: 'account-detail.html', //this template is embedded in detail.html
+        controller: 'AccountDetailModalCtrler as $ctrl',
+        size: 'md', //'md','lg','sm'
+        resolve: { //used for passing parameters to modal controller
+          account: function() {
+            return account;
+          }
+        }
+      });
+
+      modalInstance.result.catch(function () { 
+        modalInstance.close(); 
+      });
+    };
+    
 
   }]
+)
+.controller('CreateAccountModalCtrler', 
+  ['$uibModalInstance',
+  function($uibModalInstance) {
+    var $ctrl = this;
+    $ctrl.result = {
+      accountUser: ''
+    };
+
+    $ctrl.ok = function () {
+      $uibModalInstance.close($ctrl.result);
+    };
+
+    $ctrl.cancel = function () {
+      $uibModalInstance.dismiss('cancel');
+    };
+  }]
+)
+.controller('AccountDetailModalCtrler', 
+  ['$uibModalInstance', 'account',
+  function($uibModalInstance, account) {
+    var $ctrl = this;
+    $ctrl.account = account;
+    $ctrl.ok = function () {
+      $uibModalInstance.close();
+    };
+  }]
 );
+

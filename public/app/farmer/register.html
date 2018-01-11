@@ -17,6 +17,16 @@
 </div>
 
 <div class="form-group">
+  <label class="col-md-4 control-label">生日</label>
+  <div class="col-md-3 input-group">
+    <input type="text" style="margin-left:15px;" class="form-control input-md" uib-datepicker-popup="yyyy/MM/dd" ng-model="ctrler.birth" is-open="ctrler.birthSelOpened" required close-text="Close" />
+    <span class="input-group-btn">
+      <button type="button" class="btn btn-default" ng-click="ctrler.birthSelOpened=true;"><i class="glyphicon glyphicon-calendar"></i></button>
+    </span>
+  </div>
+</div>
+
+<div class="form-group">
   <label class="col-md-4 control-label" for="textinput">住家電話</label>
   <div class="col-md-4">
     <input name="tele1" ng-model="ctrler.tele1" ng-model-options="{ debounce: 500 }" type="text" placeholder="" class="form-control input-md">
@@ -80,6 +90,11 @@
           <td class="fr-col2">{{ctrler.farmerName}}</td>
       </tr>
       
+      <tr>
+          <td class="fr-col1">生日</td>
+          <td class="fr-col2">{{ctrler.birth | date : 'yyyy/MM/dd'}}</td>
+      </tr>
+
       <tr>
           <td class="fr-col1">身分證字號</td>
           <td class="fr-col2">{{ctrler.pid}}</td>

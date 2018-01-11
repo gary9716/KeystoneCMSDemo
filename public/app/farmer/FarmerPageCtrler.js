@@ -1,11 +1,13 @@
 angular.module('mainApp')
 .controller('FarmerPageCtrler', 
-  ['myValidation', '$http', '$window', '$state',
-  function(myValidation, $http, $window, $state) {
+  ['myValidation', '$http', '$window', '$state', '$rootScope',
+  function(myValidation, $http, $window, $state, $rootScope) {
     var vm = this;
     vm.showRegisterTable = false;
     vm.isRegistering = false;
     vm.isSearching = false;
+    vm.birth = new Date(1980, 0 , 1);
+    $rootScope.alerts = [];
 
     var dataCache = {
       dists: {},
@@ -107,6 +109,7 @@ angular.module('mainApp')
       var farmerData = {
         name: vm.farmerName,
         pid: vm.pid,
+        birth: vm.birth,
         teleNum1: vm.tele1,
         teleNum2: vm.tele2,
         city: vm.citySelect,
@@ -119,23 +122,22 @@ angular.module('mainApp')
       
       $http.post('/api/farmer/register', farmerData)
       .then(function(res){
-        vm.isRegistering = false;
-
         var data = res.data;
         if(data.success) {
           console.log('register farmer success');
+          $rootScope.alerts.push({ type: 'success', msg: '註冊成功' });
           $state.go('farmer');
         }
         else {
-          //TODO: show on web page
-          console.log(data.message);
+          $rootScope.alerts.push({ msg: data.message });
         }
       })
       .catch(function(err) {
-        vm.isRegistering = false;
-
-        //TODO: show on web page
+        $rootScope.alerts.push({ msg: '系統似乎出現一些錯誤' });
         console.log(err);
+      })
+      .finally(function() {
+        vm.isRegistering = false;
       });
     }
 
@@ -149,12 +151,11 @@ angular.module('mainApp')
           vm.cities = data.result;
         }
         else {
-          //TODO: show on web page
-          console.log(err.message);
+          $rootScope.alerts.push({ msg: data.message });
         }
       })
       .catch(function(err) {
-        //TODO: show on web page
+        $rootScope.alerts.push({ msg: '系統似乎出現一些錯誤' });
         console.log(err);
       });
     }
@@ -173,21 +174,23 @@ angular.module('mainApp')
 
       $http.post('/api/farmer/search',farmerData)
       .then(function(res) {
-        vm.isSearching = false;
         var data = res.data;
         if(data.success) {
+          if(!data.result || data.result.length == 0)
+            $rootScope.alerts.push({ type: 'info', msg: '無任何結果' });
           vm.farmers = data.result;
         }
         else {
           vm.farmers = [];
-          //TODO: show on web page
-          console.log(data.message);
+          $rootScope.alerts.push({ msg: data.message });
         }
       })
       .catch(function(err) {
-        vm.isSearching = false;
-        //TODO: show on web page
+        $rootScope.alerts.push({ msg: '系統似乎出現一些錯誤' });
         console.log(err);
+      })
+      .finally(function() {
+        vm.isSearching = false;
       });
 
     }

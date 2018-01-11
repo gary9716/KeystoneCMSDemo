@@ -41,7 +41,7 @@ exports.create = function(req, res) {
         _id: newAccount_id,
         accountID: newAccountID,
         farmer: farmer._id,
-        accountUser: form.accountUser,
+        accountUser: form.accountUser ? form.accountUser : '',
         createdAt: createDate,
         active: true,
         lastRecord: newRec_id

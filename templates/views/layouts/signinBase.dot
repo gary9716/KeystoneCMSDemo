@@ -80,7 +80,13 @@
         //- you can upgrade to 2.1.4 (also bundled) for better performance.
       --> 
       <!-- put library before body template in case that there is some code in body template -->
-      <script src="/js/all-lib.js"></script>
+      
+      <!-- may be replaced with angular someday -->
+      <script src="/js/jquery/jquery-1.11.3.min.js"></script>
+      <script src="/js/bootstrap/bootstrap-3.3.5.min.js"></script>
+      <script src="/js/jquery/jquery.form.min.js"></script>
+      <script src="/js/bootstrap/validator.min.js"></script>
+
       <script>
         <!-- expose locals -->
         [[var locals = JSON.stringify(model._locals);]]

@@ -28,6 +28,20 @@ exports.register = function(req, res) {
     form.teleNum2 = middleware.getPureNumStr(form.teleNum2);
   }
 
+  let finalData = {
+    name: form.name ? form.name:'',
+    pid: form.pid ? form.pid:'',
+    birth: form.birth ? form.birth:'',
+    teleNum1: form.teleNum1 ? form.teleNum1:'',
+    teleNum2: form.teleNum2 ? form.teleNum2:'',
+    city: form.city ? form.city:'',
+    dist: form.dist ? form.dist:'',
+    village: form.village ? form.village:'',
+    addr: form.addr ? form.addr:''
+  };
+
+  console.log(finalData);
+
   farmerList.model
     .findOne({
       pid: form.pid
@@ -39,7 +53,7 @@ exports.register = function(req, res) {
         return Promise.reject('已存在相同身分證字號的帳號');
       }
       else {
-        var newFarmer = new farmerList.model(form);
+        var newFarmer = new farmerList.model(finalData);
         newFarmer._req_user = req.user;
         return newFarmer.save();
       }
@@ -182,7 +196,6 @@ exports.getAndPopulate = function(req, res) {
   var farmer;
   farmerList.model
     .findOne({ pid: form.farmerPID })
-    .select('_id name pid teleNum1 teleNum2 addr')
     .lean()
     .exec()
     .then(function(_farmer) {

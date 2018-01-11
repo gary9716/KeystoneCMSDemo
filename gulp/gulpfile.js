@@ -51,15 +51,13 @@ gulp.task('concat-angular-app-scripts', function(cb) {
 gulp.task('concatLib', function(cb){
   var libPrefx = '../public/js/'
   var libSrcs = ([
-    'jquery/jquery-1.11.3.min.js',
-    'jquery/jquery.form.min.js',
-    
-    'bootstrap/bootstrap-3.3.5.min.js',
-    'bootstrap/validator.min.js',
-    
+    //'jquery/jquery-1.11.3.min.js',
+    //'jquery/jquery.form.min.js',
+    //'bootstrap/bootstrap-3.3.5.min.js',
+    //'bootstrap/validator.min.js',
     'lodash/lodash.min.js',
-
     'angular/angular.min.js', 
+    'angular/angular-locale_zh-tw.js',
     'angular/angular-ui-router.min.js',
     'angular/angular-filter.min.js',
     'angular/angular-animate.min.js',
