@@ -6,7 +6,8 @@ angular.module('mainApp', [
   'ngAnimate',
   'ui.router',
   'angular.filter',
-  'ui.bootstrap'
+  'ui.bootstrap',
+  'ngCart'
 ])
 .constant('appRootPath',(function() {
   if(locals && locals.env) {
@@ -42,7 +43,6 @@ angular.module('mainApp')
       templateUrl: appRootPath + 'farmer/index.html',
       url: '/farmer'
     })
-
     .state({
       name: 'farmerRegister',
       templateUrl: appRootPath + 'farmer/register.html',
@@ -62,7 +62,6 @@ angular.module('mainApp')
       }
 
     })
-
     .state({
       name: 'farmerSearch',
       templateUrl: appRootPath + 'farmer/search.html',
@@ -82,7 +81,6 @@ angular.module('mainApp')
       }
 
     })
-
     .state({
       name: 'farmerDetail',
       templateUrl: appRootPath + 'farmer/detail.html',
@@ -109,6 +107,23 @@ angular.module('mainApp')
       }
 
     })
+    .state({
+      name: 'product',
+      templateUrl: appRootPath + 'product/index.html',
+      url: '/product',
+      controller: 'ProductPageCtrler as ctrler',
+      resolve: {
+        condition1 : ['myValidation', function(myValidation) {
+          //if this promise is rejected, then the transition will fail
+          return myValidation.checkPermission([
+              {
+                listName: 'Product',
+                opName: 'read'
+              },
+            ]); 
+        }]
+      }
+    })
 
     .state({
       name: '403',
@@ -126,6 +141,9 @@ angular.module('mainApp')
   function ($state, $http, $rootScope, $transitions, myValidation) {
     console.log('config end, angular app start to run');
     //console.log(locals);
+    $rootScope.isProductPage = function(){
+      return $state.current.name.includes('product');
+    }
     
     $transitions.onError({}, function(transition) {
       if(!transition)

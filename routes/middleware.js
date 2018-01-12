@@ -43,8 +43,9 @@ exports.blockRoute = function (req, res, next) {
 */
 exports.initLocals = function (req, res, next) {
   res.locals.navLinks = [
-		{ label: 'Home', state: 'home' },
-    { label: 'FarmerPage', state: 'farmer' }
+		{ label: '首頁', state: 'home' },
+    { label: '農民服務', state: 'farmer' },
+    { label: '商品頁面', state: 'product' },
 	];
 
 	res.locals.env = keystone.get('env');

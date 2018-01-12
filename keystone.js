@@ -47,8 +47,8 @@ dotEngine.settings.dot = {
 */
 
 keystone.init({
-	'name': 'testProj',
-	'brand': 'testProj',
+	'name': '白米兌換管理系統',
+	'brand': '白米兌換管理系統',
 
 	'less': 'public',
 	'static': 'public',
@@ -194,6 +194,8 @@ var roller = Fawn.Roller();
 roller.roll()
 .then(function(){
 	console.log('rollback process complete');	
+	//do db updates here
+	require('./DBUpdate')(); //manually do db update after some incomplete transaction rollback completed
 });
 
 keystone.start();

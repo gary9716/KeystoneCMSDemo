@@ -11,6 +11,7 @@
   background-color: #c9d4e2;
 }
 </style>
+<div class="container">
 <div class="table-responsive" ng-init="ctrler.getDetail()">
   <table class="table table-striped table-bordered table-hover" style="width: 80%; margin: 0px auto 20px;">
     <tbody>
@@ -41,7 +42,7 @@
       </tr>
 
       <!-- use collaspable ui to show detail -->
-      <tr ng-repeat="account in ctrler.accounts track by account._id" ng-click="ctrler.openAccountDetail(account)" class="hightlight">
+      <tr ng-repeat="account in ctrler.accounts track by account._id" ng-click="ctrler.openAccountDetail(account)" class="hightlight clickable">
           <td class="fr-col1">存摺{{::$index + 1}}編號</td>
           <td class="fr-col2">{{::account.accountID}}</td>
       </tr>
@@ -143,3 +144,4 @@
     <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()">關閉</button>
 </div>
 </script>
+</div> <!-- /div.container -->

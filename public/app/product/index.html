@@ -1,0 +1,35 @@
+<!-- templates start -->
+<script type="text/ng-template" id="product-layout-v1.html">
+  <div class="thumbnail" style="padding: 5px 40px 20px;">
+    <img src="{{::product.image}}" alt="" class="img-responsive">
+    <div class="caption">
+      <h4 class="pull-right">每包重{{::product.weight}}kg</h4>
+      <h4><a class="clickable" ng-click="ctrler.viewDetail()">{{::product.name}}</a></h4>
+      <div class="text-center">
+      <h5 style="font-size: 23px;">價格方案</h5>
+      <div>定價{{::product.marketPrice}}</div>
+      <div>兌換價{{::product.exchangePrice}}</div>
+      <div>折扣價{{::product.discountPrice}}</div>
+      </div>
+    </div>
+    <div style="padding: 10px 0;"></div>
+    <div class="btn-ground text-center" ng-init="product.added=false;">
+        <button ng-hide="product.added" ng-click="product.added=true;" type="button" class="btn btn-primary"><i class="fa fa-shopping-cart"></i> 加到購物車</button>
+        <button ng-show="product.added" ng-click="product.added=false;" type="button" class="btn btn-danger"><i class="fa fa-times"></i> 從購物車移除</button>
+    </div>
+  </div>
+</script>
+<!-- templates end -->
+
+<!-- floating shopping cart
+<button style="position:fixed; right:100px; top:100px;"><i class="fa fa-shopping-cart" aria-hidden="true"></i> 購物車</button>
+-->
+
+<div class="container">
+  <!-- dont directly apply listTo2DMat filter to ng-repeat expression here. 
+    it's unstable -->
+  <div class="row" ng-repeat="productsPerRow in ctrler.products">
+    <div class="col-md-4" ng-repeat="product in productsPerRow" ng-include="'product-layout-v1.html'"></div>
+  </div>
+</div> <!-- .container -->
+    

@@ -1,3 +1,4 @@
+<div class="container">
 <button type="button" class="btn btn-default" ng-click="ctrler.isCollapsed = !ctrler.isCollapsed">{{ctrler.isCollapsed? "開啟搜尋頁面": "關閉搜尋頁面"}}</button>
 <hr>
 <div class="well well-lg" uib-collapse="ctrler.isCollapsed">
@@ -91,7 +92,7 @@
         <th class="fr-col5">行動電話</th>
       </tr>
       <!-- use collaspable ui to show detail -->
-      <tr ui-sref="farmerDetail({farmerPID: farmer.pid})" ng-repeat="farmer in ctrler.farmers track by farmer.pid">
+      <tr class="clickable" ui-sref="farmerDetail({farmerPID: farmer.pid})" ng-repeat="farmer in ctrler.farmers track by farmer.pid">
           <td class="fr-col1">{{::farmer.name}}</td>
           <td class="fr-col2">{{::farmer.pid}}</td>
           <td class="fr-col3">{{::farmer.addr}}</td>
@@ -104,3 +105,4 @@
   </table>
 
 </div>
+</div> <!-- /div.container -->
