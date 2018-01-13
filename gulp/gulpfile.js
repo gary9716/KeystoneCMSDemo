@@ -67,8 +67,6 @@ gulp.task('concatLib', function(cb){
     return libPrefx + path;
   });
 
-  libSrcs.push('../bower_components/ngCart/dist/ngCart.min.js');
-
   return pump([gulp.src(libSrcs),
     concat('all-lib.js'),
     gulp.dest('../public/js/'),

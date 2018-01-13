@@ -134,6 +134,7 @@
     <script src="/app/farmer/FarmerPageCtrler.js"></script>
     <script src="/app/farmer/AccountPageCtrler.js"></script>
     <script src="/app/product/ProductPageCtrler.js"></script>
+    <script src="/app/product/myNgCart.js"></script>
     [[?]]
     
     <div class="container">
