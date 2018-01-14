@@ -1,7 +1,7 @@
 angular.module('mainApp')
 .controller('ProductPageCtrler', 
-  ['$http', '$window', '$state', 'ngCart', '$filter',
-  function($http, $window, $state, ngCart, $filter) {
+  ['$http', '$window', '$state', 'ngCart', '$filter', '$rootScope', '$uibModal', 'ngCartItem', '$scope', 'lodash',
+  function($http, $window, $state, ngCart, $filter, $rootScope, $uibModal, ngCartItem, $scope, _ ) {
     //TODO:
     
     //1. create product
@@ -12,6 +12,8 @@ angular.module('mainApp')
     var cartKey = 'riceShop';
     if(locals && locals.user)
         cartKey = locals.user.userID + "-cart";
+
+    $rootScope.productPageCtrler = this;
 
     ngCart.init(cartKey);
     ngCart.$restore();
@@ -32,21 +34,31 @@ angular.module('mainApp')
     var discounts = [0.85, 0.8, 0.95, 0.9];
 
     var dummy = names.map(function(name, index) { 
-      var productInfo = {
-        _id: (index + 1),
+      
+      var productInfo = { //this should be pull from DB
+        _id: index + 1,
         name: name,
         weight: weights[index],
         marketPrice: mPrices[index],
         exchangePrice: exPrices[index],
         discountPrice: Math.round(discounts[index] * mPrices[index]),
         image: 'images/test-rice' + (index+1).toString() + '.jpg',
-      }; 
+      };
 
-      //default values
-      productInfo.price = productInfo.marketPrice;
-      productInfo.quantity = 1;
-
-      return productInfo;
+      var item = ngCart.getItemById(productInfo._id);
+      var productItem;
+    
+      if(item) {
+        _.assign(item, productInfo); //preserve price and quantity
+        productItem = item;
+      }
+      else {
+        productInfo.price = productInfo.marketPrice;
+        productInfo.quantity = 1;
+        productItem = new ngCartItem(productInfo);
+      }
+        
+      return productItem;
     });
 
     //refresh product state after restore cart record from localstorage
@@ -54,8 +66,8 @@ angular.module('mainApp')
         var item = ngCart.getItemById(product._id);
         if(item) {
             product.isInCart = true;
-            product.quantity = item.getQuantity();
-            product.price = item.getPrice();
+            //product.quantity = item.getQuantity();
+            //product.price = item.getPrice();
         }
         else {
             product.isInCart = false;
@@ -69,6 +81,27 @@ angular.module('mainApp')
         //TODO: show product detail in modal view
     };
 
+    vm.openShopCart = function() {
+        var modalInstance = $uibModal.open({
+            templateUrl: 'cart-and-checkout.html',
+            controller: 'ShopCartModalCtrler as ctrler',
+            size: 'lg', //'md','lg','sm'
+            resolve: {
+                curShopCart: function() {
+                    return ngCart;
+                }
+            }
+          });
+
+          modalInstance.result
+          .then(function () { //after pressing checkout
+            console.log('do checkout');
+          })
+          .catch(function () { //dismissed by user
+            modalInstance.close(); 
+          });
+    }
+
     /*
     var dumpItems = function() {
         console.log(ngCart.getItems());
@@ -76,13 +109,7 @@ angular.module('mainApp')
     */
 
     vm.addItemToCart = function(product) {
-        ngCart.addItem(
-            product._id,
-            product.name,
-            product.price,
-            product.quantity,
-            product
-        );
+        ngCart.addItem(product);
         product.isInCart = true;
     }
 
@@ -105,5 +132,46 @@ angular.module('mainApp')
         }
     }
 
+  }]
+)
+.controller('ShopCartModalCtrler', 
+  ['$uibModalInstance', 'curShopCart',
+  function($uibModalInstance, curShopCart) {
+    var vm = this;
+
+    vm.getCartItems = function() {
+        return curShopCart.getItems();
+    }
+    
+    vm.rmItemFromCart = function(item) {
+        curShopCart.removeItemById(item._id);
+        item.isInCart = false;
+    }
+
+    vm.saveCart = function() {
+        curShopCart.$save();
+    }
+
+    vm.checkout = function () {
+      $uibModalInstance.close();
+    };
+
+    vm.cancel = function () {
+      $uibModalInstance.dismiss('cancel');
+    };
+
+    vm.cartEmpty = function() {
+      return curShopCart.getItems().length === 0;
+    }
+
+    vm.changeQty = function(item, val) {
+        if(!isNaN(item.quantity)) {
+            item.quantity += val;
+        }
+    }
+
+    vm.getTotalPrice = function() {
+        return curShopCart.getSubTotal();
+    } 
   }]
 );

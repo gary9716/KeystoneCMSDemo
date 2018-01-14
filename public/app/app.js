@@ -7,7 +7,8 @@ angular.module('mainApp', [
   'ui.router',
   'angular.filter',
   'ui.bootstrap',
-  'ngCart'
+  'ngCart',
+  'LocalStorageModule'
 ])
 .constant('appRootPath',(function() {
   if(locals && locals.env) {
@@ -21,11 +22,12 @@ angular.module('mainApp', [
   else {
     return '/app/';
   }
-})());//to inject into config, we need to register this value as constant
+})())
+.constant('cachedFarmersKey', 'mainApp:cachedFarmers');//to inject into config, we need to register this value as constant
 
 angular.module('mainApp')
-.config(['appRootPath', '$stateProvider', '$urlRouterProvider',  
-  function (appRootPath, $stateProvider, $urlRouterProvider){
+.config(['appRootPath', '$stateProvider', '$urlRouterProvider', 'localStorageServiceProvider',
+  function (appRootPath, $stateProvider, $urlRouterProvider, localStorageServiceProvider){
     $stateProvider
     .state({
       name: 'home',
@@ -136,15 +138,39 @@ angular.module('mainApp')
       return false;
     });
 
+    localStorageServiceProvider.setPrefix('mainApp').setNotify(false, false);
+
 }])
-.run(['$state', '$http', '$rootScope', '$transitions', 'myValidation',
-  function ($state, $http, $rootScope, $transitions, myValidation) {
+.run(['$state', '$window', '$http', '$uibModal', '$rootScope', '$transitions', 'myValidation', 'cachedFarmersKey', 'appRootPath',
+  function ($state, $window, $http, $uibModal, $rootScope, $transitions, myValidation, cachedFarmersKey, appRootPath) {
     console.log('config end, angular app start to run');
-    //console.log(locals);
+    
+    var localStorage = $window.localStorage;
+
+
     $rootScope.isProductPage = function(){
       return $state.current.name.includes('product');
     }
+
+    $rootScope.openShopCart = function() {
+      if($rootScope.productPageCtrler) {
+        $rootScope.productPageCtrler.openShopCart();
+      }
+    }
     
+    $rootScope.openCachedFarmerList = function() {
+      var modalInstance = $uibModal.open({
+        templateUrl: appRootPath + 'farmer/farmerList.html',
+        controller: 'CachedFarmerListCtrler as ctrler',
+        size: 'lg', //'md','lg','sm'
+      });
+
+      modalInstance.result
+      .catch(function () {
+        modalInstance.close(); 
+      });
+    }
+
     $transitions.onError({}, function(transition) {
       if(!transition)
         return;

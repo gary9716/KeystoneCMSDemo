@@ -27,7 +27,7 @@ Product.add({
   discount: { type: Number, label: '折扣(0~1)', default: 1, initial: true },
   weight : { type: Number, label: '每包重(KG)', default: 0, required: true, initial: true },
   canSale: { type: Boolean, label: '上架中', default: false, initial: true },
-  startSaleDate: { type: Types.Datetime, label: '上架時間', initial: true }
+  startSaleDate: { type: Types.Datetime, format: 'YYYY-MM-DD kk:mm:ss', label: '上架時間', initial: true }
 });
 Product.defaultColumns = 'pid, name, pType, marketPrice, exchangePrice, discount, weight, canSale, startSaleDate';
 Product.register();

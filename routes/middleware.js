@@ -111,7 +111,7 @@ var htmlMinify = function (err, html) {
 }
 
 var renderFunc = function (err, req, res) {
-	if(err) return res.status(500).send({ error: 'something blew up' });
+	if(err) return res.status(500).send({ error: '[middleware renderFunc] something blew up' });
 	var cb = htmlMinify.bind(res); //apply minify middleware
 	res.render(res.locals.viewPath,null,cb); //this would be bound in getRenderFunc
 }

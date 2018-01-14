@@ -12,8 +12,8 @@ Account.add({
   farmer: { type: Types.Relationship, label:'擁有者', ref: Constants.FarmerListName, index: true, required: true, noedit:true, initial: true },
   accountUser: { type: String, label:'使用者', index: true, trim: true },
   active: { type: Boolean, label:'未結清', index: true, default: true, initial: true },
-  createdAt: { type: Types.Datetime, label: '開戶時間', noedit: true, required: true, initial: true },
-  closedAt: { type: Types.Datetime, label: '結清時間', noedit: true },
+  createdAt: { type: Types.Datetime, format: 'YYYY-MM-DD kk:mm:ss', label: '開戶時間', noedit: true, required: true, initial: true },
+  closedAt: { type: Types.Datetime, format: 'YYYY-MM-DD kk:mm:ss', label: '結清時間', noedit: true },
   lastRecord: { type: Types.Relationship, label: '最後的紀錄', ref: Constants.AccountRecordListName, initial: true },
   balance: { type: Types.Money, label:'餘額', noedit: true, default: 0 }
 });

@@ -31,18 +31,42 @@
               </button>
               <a href="/" class="navbar-brand">白米兌換管理系統</a>
             </div>
-            <div class="collapse navbar-collapse">
-              <ul class="nav navbar-nav navbar-left">
-                  [[~ model.navLinks:link]]
-                  <li>
-                    <a ui-sref=[[=link.state]]>[[=link.label]]</a>
-                  </li>
-                  [[~]]
-              </ul>
-            </div>
         </div>
         <!-- /.container -->
     </nav>
+
+
+    <!--
+    Flash messages allow you to display once-off status messages to users, e.g. form
+    validation errors, success messages, etc
+    --> 
+    <div id="flash-messages" class="container">
+      [[?model.messages.info && model.messages.info.length]]
+      <div class="alert alert-info">
+          [[var msg = helpers.flashMessages(model.messages.info);]]
+          [[=msg]]
+      </div>
+      [[?]]
+      [[?model.messages.success && model.messages.success.length]]
+      <div class="alert alert-success">
+          [[var msg = helpers.flashMessages(model.messages.success);]]
+          [[=msg]]
+      </div>
+      [[?]]
+      [[?model.messages.warning && model.messages.warning.length]]
+      <div class="alert alert-warning">
+          [[var msg = helpers.flashMessages(model.messages.warning);]]
+          [[=msg]]
+      </div>
+      [[?]]
+      [[?model.messages.error && model.messages.error.length]]
+      <div class="alert alert-danger">
+          [[var msg = helpers.flashMessages(model.messages.error);]]
+          [[=msg]]
+      </div>
+      [[?]]
+    </div>  
+
 
     <!-- This file provides the default styling for the KeystoneJS Content Editor
       - only renders when user is logged in and admin-->

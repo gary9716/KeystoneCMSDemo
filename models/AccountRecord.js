@@ -21,7 +21,7 @@ AccountRecord.add({
     { value: 'close', label: '結清' },
   ], index: true, required: true, trim: true },
   amount: { type: Types.Money, label: '金額', default: 0 },
-  date: { type: Types.Datetime, label: '記錄時間', default: Date.now },
+  date: { type: Types.Datetime, format: 'YYYY-MM-DD kk:mm:ss', label: '記錄時間', default: Date.now },
   operator: { type: Types.Relationship, ref: Constants.UserListName, label: '操作者' },
 
   transaction: { type: Types.Relationship, ref: Constants.TransactionListName, dependsOn: { opType: 'transaction' } }
