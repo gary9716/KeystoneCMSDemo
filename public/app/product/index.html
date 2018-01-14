@@ -9,40 +9,80 @@
       appearance: none;
       margin: 0; 
   }
+  .product-info-row {
+    display: flex; align-items: center;
+  }
+
+  table.product-table {
+    padding: 0;
+  }
+
+  table.product-table td {
+    background-color: white;
+  }
+
+  table.product-table td.price-col {
+    padding-left: 1em;
+    
+  }
+
   </style>
   
-  <div class="thumbnail" style="padding: 5px 40px 20px;">
+  <div class="thumbnail" style="padding: 5px 30px 20px;">
     <img src="{{::product.image}}" alt="" class="img-responsive">
-    <div class="caption">
-      <h4 class="pull-right">每包重{{::product.weight}}kg</h4>
-      <h4><a class="clickable" ng-click="ctrler.viewDetail()">{{::product.name}}</a></h4>
-      <div class="text-center">
-        <h5 style="font-size: 23px;">價格方案</h5>
-        <div>定價{{::product.marketPrice}}</div>
-        <div>兌換價{{::product.exchangePrice}}</div>
-        <div>折扣價{{::product.discountPrice}}</div>
-      
-        <div class="form-group form-inline" style="min-height: 3em; margin: 10px auto;">
-          <label>{{product.isInCart?'已加包數':'欲加包數'}}：</label>
-          <!-- quantity selector -->
-          <div class="input-group number-spinner col-md-7" ng-hide="product.isInCart">
-            <span class="input-group-btn data-dwn">
-              <button class="btn btn-default btn-info" ng-click="ctrler.changeQty(product,-1);"><span class="fa fa-minus"></span></button>
-            </span>
-            <input type="number" ng-model="product.quantity" ng-model-options="{ debounce: 200 }" class="form-control text-center" min="1" required>
-            <span class="input-group-btn data-up">
-              <button class="btn btn-default btn-info" ng-click="ctrler.changeQty(product,1);"><span class="fa fa-plus"></span></button>
-            </span>
+    <form name="pForm">
+      <div class="caption">
+        <h4 class="pull-right">每包重{{::product.weight}}kg</h4>
+        <h4><a class="clickable" ng-click="ctrler.viewDetail()">{{::product.name}}</a></h4>
+        
+          <div class="form-group product-info-row">
+            <label>價格方案：</label>
+            <div class="col-md-7" style="padding: 5px 5px;">
+              <table class="product-table table-striped table-responsive">
+                <tr>
+                  <td class="txt-col"><input type="radio" ng-value="product.marketPrice" ng-model="product.price" ng-model-options="{ debounce: 100 }" ng-hide="product.isInCart">定價</td> 
+                  <td class="price-col">{{::product.marketPrice}}</td>
+                </tr>
+                <tr>
+                  <td class="txt-col"><input type="radio" ng-value="product.exchangePrice" ng-model="product.price" ng-model-options="{ debounce: 100 }" ng-hide="product.isInCart">兌換價</td> 
+                  <td class="price-col">{{::product.exchangePrice}}</td>
+                </tr>
+                <tr>
+                  <td class="txt-col"><input type="radio" ng-value="product.discountPrice" ng-model="product.price" ng-model-options="{ debounce: 100 }" ng-hide="product.isInCart">折扣價</td> 
+                  <td class="price-col">{{::product.discountPrice}}</td>
+                </tr>
+              </table>
+            </div>
           </div>
-          <label class="input-group col-md-4" ng-hide="!product.isInCart">{{product.quantity}} 包</label>
-        </div>
+
+          <div class="form-group product-info-row" style="min-height: 2em;">
+            <label>最終價格：</label>
+            <input type="number" name="price" ng-model="product.price" ng-model-options="{ debounce: 100 }" class="col-sm-4 col-md-7 text-center" ng-hide="product.isInCart" required>
+            <label class="col-sm-4 col-md-7 text-center" ng-show="product.isInCart">{{product.price}}</label>
+          </div>
+          <div class="form-group product-info-row" style="min-height: 3em; margin: 10px auto;">
+            <label>{{product.isInCart?'已加包數':'欲加包數'}}：</label>
+            <!-- quantity selector -->
+            <div class="input-group col-sm-4 col-md-7" ng-hide="product.isInCart">
+              <span class="input-group-btn data-dwn">
+                <button class="btn btn-default btn-info" ng-click="ctrler.changeQty(product,-1);"><span class="fa fa-minus"></span></button>
+              </span>
+              <input type="number" name="qty" ng-model="product.quantity" ng-model-options="{ debounce: 100 }" class="form-control text-center" min="1" required>
+              <span class="input-group-btn data-up">
+                <button class="btn btn-default btn-info" ng-click="ctrler.changeQty(product,1);"><span class="fa fa-plus"></span></button>
+              </span>
+            </div>
+            <label class="col-sm-4 col-md-7 text-center" ng-show="product.isInCart">{{product.quantity}}</label>
+          </div>
+          
+        
       </div>
-    </div>
     
-    <div class="btn-ground text-center">
-        <button ng-hide="product.isInCart" ng-click="ctrler.addItemToCart(product)" type="button" class="btn btn-primary"><i class="fa fa-shopping-cart"></i> 加到購物車</button>
-        <button ng-show="product.isInCart" ng-click="ctrler.rmItemFromCart(product)" type="button" class="btn btn-danger"><i class="fa fa-times"></i> 從購物車移除</button>
-    </div>
+      <div class="btn-ground text-center">
+          <button ng-hide="product.isInCart" ng-click="ctrler.addItemToCart(product)" type="button" class="btn btn-primary"><i class="fa fa-shopping-cart"></i> 加到購物車</button>
+          <button ng-show="product.isInCart" ng-click="ctrler.rmItemFromCart(product)" type="button" class="btn btn-danger"><i class="fa fa-times"></i> 從購物車移除</button>
+      </div>
+    </form>
   </div>
   
 </script>
