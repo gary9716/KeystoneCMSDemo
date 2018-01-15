@@ -93,8 +93,9 @@
       [[?]]
     </div>
     -->
-
+    <div class="container">
     <div uib-alert ng-repeat="alert in alerts track by $index" ng-class="'alert-' + (alert.type || 'warning')" dismiss-on-timeout="3000" close="alerts.splice(alerts.indexOf(alert),1);">{{::alert.msg}}</div>
+    </div>
     <section ui-view></section>
 
     <!-- This file provides the default styling for the KeystoneJS Content Editor

@@ -1,9 +1,9 @@
 <style>
-.fr-col1 {
+.detail-col1 {
   width: 30%;
 }
 
-.fr-col2 {
+.detail-col2 {
   width: 70%;
 }
 
@@ -16,35 +16,35 @@
   <table class="table table-striped table-bordered table-hover" style="width: 80%; margin: 0px auto 20px;">
     <tbody>
       <tr>
-          <td class="fr-col1">姓名</td>
-          <td class="fr-col2">{{::ctrler.farmer.name}}</td>
+          <td class="detail-col1">姓名</td>
+          <td class="detail-col2">{{::ctrler.farmer.name}}</td>
       </tr>
       
       <tr>
-          <td class="fr-col1">身分證字號</td>
-          <td class="fr-col2">{{::ctrler.farmer.pid}}</td>
+          <td class="detail-col1">身分證字號</td>
+          <td class="detail-col2">{{::ctrler.farmer.pid}}</td>
       </tr>
 
       <tr>
-          <td class="fr-col1">住家電話</td>
-          <td class="fr-col2">{{::ctrler.farmer.teleNum1}}</td>
+          <td class="detail-col1">住家電話</td>
+          <td class="detail-col2">{{::ctrler.farmer.teleNum1}}</td>
       </tr>
       
       <tr>
-          <td class="fr-col1">行動電話</td>
-          <td class="fr-col2">{{::ctrler.farmer.teleNum2}}</td>
+          <td class="detail-col1">行動電話</td>
+          <td class="detail-col2">{{::ctrler.farmer.teleNum2}}</td>
       </tr>
       
 
       <tr>
-          <td class="fr-col1">地址</td>
-          <td class="fr-col2">{{::ctrler.farmer.addr}}</td>
+          <td class="detail-col1">地址</td>
+          <td class="detail-col2">{{::ctrler.farmer.addr}}</td>
       </tr>
 
       <!-- use collaspable ui to show detail -->
       <tr ng-repeat="account in ctrler.accounts track by account._id" ng-click="ctrler.openAccountDetail(account)" class="hightlight clickable">
-          <td class="fr-col1">存摺{{::$index + 1}}編號</td>
-          <td class="fr-col2">{{::account.accountID}}</td>
+          <td class="detail-col1">存摺{{::$index + 1}}編號</td>
+          <td class="detail-col2">{{::account.accountID}}</td>
       </tr>
     </tbody>
     
