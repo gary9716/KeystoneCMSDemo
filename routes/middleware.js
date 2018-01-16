@@ -18,7 +18,6 @@ var htmlmin = require('htmlmin');
 var keystonePathPrefix = '/'+ keystone.get('admin path');
 
 var routesToBlock = [keystonePathPrefix + '/signin', keystonePathPrefix + '/api/session/signin'];
-var navLinks = require(__base + 'NavLinkInfo');
 
 exports.blockRoute = function (req, res, next) {
   var urlPattern = new UrlPattern(req.path);
@@ -43,9 +42,12 @@ exports.blockRoute = function (req, res, next) {
 	or replace it with your own templates / logic.
 */
 exports.initLocals = function (req, res, next) {
-  res.locals.navLinks = navLinks;
 
-	res.locals.env = keystone.get('env');
+  res.locals.navLinks = require(__base + 'NavLinkInfo');
+
+  res.locals.env = keystone.get('env');
+
+  res.locals.sys = keystone.get('sysParams');
 
 	var from = req.query["from"];
   if(from) {
@@ -430,5 +432,37 @@ exports.getRegExp = function(data, type) {
 exports.okResponse = function(req, res) {
   res.json({
     success: true
+  });
+}
+
+exports.refreshSysInfo = function(req, res, next) {
+  keystone.list(Constants.SystemListName).model
+  .find()
+  .sort({$natural:-1}) //newest to oldest
+  .limit(1)
+  .then(function(results) {
+    var result;
+    if(results instanceof Array && results.length > 0)
+      result = results[0];
+    else
+      result = results;
+
+    if(result) {
+      keystone.set('sysParams', result);
+      next();
+    }
+    else {
+      return Promise.reject('no system params found');
+    }
+
+  })
+  .catch(function(err) {
+    if(res)
+        res.json({
+          success: false,
+          message: err.toString()
+        });
+    else
+      next(err.toString());
   });
 }

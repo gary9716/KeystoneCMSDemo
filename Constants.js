@@ -14,4 +14,5 @@ exports = module.exports = {
   CityListName: 'City',
   AddrPrefixListName: 'AddrPrefix',
   VillageListName: 'Village',
+  SystemListName: 'System'
 };

@@ -62,13 +62,6 @@ exports = module.exports = (function() {
 		}
 	];
 
-	var jsonData = JSON.parse(fs.readFileSync(__base + 'initData/zipCodeAndDist.json', 'utf8'));
-	
-	dataCollection[Constants.CityListName] = jsonData.cities;
-	dataCollection[Constants.AddrPrefixListName] = jsonData.dists;
-	dataCollection[Constants.VillageListName] = jsonData.villages;
-	
-
 	return {
 		create: dataCollection
 

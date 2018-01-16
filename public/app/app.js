@@ -113,7 +113,7 @@ angular.module('mainApp')
       name: 'productSell',
       templateUrl: appRootPath + 'product/index.html',
       url: '/product/sell',
-      controller: 'ProductPageCtrler as ctrler',
+      controller: 'ProductSellPageCtrler as ctrler',
       resolve: {
         condition1 : ['myValidation', function(myValidation) {
           //if this promise is rejected, then the transition will fail
@@ -121,6 +121,24 @@ angular.module('mainApp')
               {
                 listName: 'Product',
                 opName: 'read'
+              },
+            ]); 
+        }]
+      }
+    })
+
+    .state({
+      name: 'productManage',
+      templateUrl: appRootPath + 'product/manage.html',
+      url: '/product/manage',
+      controller: 'ProductManagePageCtrler as ctrler',
+      resolve: {
+        condition1 : ['myValidation', function(myValidation) {
+          //if this promise is rejected, then the transition will fail
+          return myValidation.checkPermission([
+              {
+                listName: 'Product',
+                opName: ['create', 'update']
               },
             ]); 
         }]
@@ -148,8 +166,7 @@ angular.module('mainApp')
   function ($state, $window, $http, $uibModal, $rootScope, $transitions, myValidation, cachedFarmersKey, appRootPath) {
     console.log('config end, angular app start to run');
     
-    var localStorage = $window.localStorage;
-
+    $rootScope.locals = locals; //access global variable locals in $rootScope 
 
     $rootScope.alerts = [];
     $rootScope.pubSuccessMsg = function(msg) {

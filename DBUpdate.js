@@ -1,4 +1,4 @@
-module.exports = function() {
+module.exports = function(next) {
 
   console.log('start db update');
 
@@ -6,6 +6,7 @@ module.exports = function() {
   keystone.applyUpdates(function(err) {
     if(err) throw err;
     console.log('DB update complete');
+    next();
   })
 
 };

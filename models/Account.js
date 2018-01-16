@@ -1,6 +1,6 @@
 var keystone = require('keystone');
 var Types = keystone.Field.Types;
-var Constants = require('../Constants');
+var Constants = require(__base + 'Constants');
 
 //console.log(Constants.AccountListName);
 var Account = new keystone.List(Constants.AccountListName,{

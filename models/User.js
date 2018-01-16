@@ -1,6 +1,6 @@
 var keystone = require('keystone');
 var Types = keystone.Field.Types;
-var Constants = require('../Constants');
+var Constants = require(__base + 'Constants');
 
 //console.log(Constants.ShopListName);
 var Shop = new keystone.List(Constants.ShopListName, {
@@ -16,7 +16,7 @@ Shop.add({
  * ==========
  */
 var User = new keystone.List(Constants.UserListName, {
-  label: '系統操作者'
+  label: '系統使用者'
 });
 
 User.add(

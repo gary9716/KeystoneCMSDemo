@@ -1,11 +1,11 @@
 angular.module('mainApp')
-.controller('TransactionPageCtrler', 
+.controller('ProductManagePageCtrler', 
   ['$http', '$window', '$state', 
   function($http, $window, $state) {
     //TODO:
     
-    //1. create transaction
-    //2. read transaction
+    //1. create product
+    //2. update product
     
   }]
 );

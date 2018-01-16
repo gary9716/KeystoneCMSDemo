@@ -1,6 +1,6 @@
 var keystone = require('keystone');
 var Types = keystone.Field.Types;
-var Constants = require('../Constants');
+var Constants = require(__base + 'Constants');
 
 //console.log(Constants.ProductTypeListName);
 var ProductType = new keystone.List(Constants.ProductTypeListName, {

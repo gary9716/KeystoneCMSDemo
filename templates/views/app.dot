@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>{{pageTitle || "白米兌換系統"}}</title>
+    <title>[[=model.sys.sysName]]</title>
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
     <link href="/styles/site.min.css" rel="stylesheet">   
     <style>
@@ -136,8 +136,10 @@
     <script src="/app/farmer/FarmerPageCtrler.js"></script>
     <script src="/app/farmer/AccountPageCtrler.js"></script>
     <script src="/app/farmer/CachedFarmerListCtrler.js"></script>
-    <script src="/app/product/ProductPageCtrler.js"></script>
+    <script src="/app/product/ProductSellPageCtrler.js"></script>
+    <script src="/app/product/ProductManagePageCtrler.js"></script>
     <script src="/app/product/myNgCart.js"></script>
+    <script src="/app/purchase/PurchasePageCtrler.js"></script>
     [[?]]
     
     <div class="container">

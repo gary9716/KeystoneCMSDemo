@@ -4,7 +4,7 @@
     <div class="container">
         <div class="row">
             <div class="col-lg-12">
-                <h1 class="tagline">歡迎來到白米兌換管理系統</h1>
+                <h1 class="tagline">歡迎來到{{::locals.sys.sysName}}</h1>
             </div>
         </div>
     </div>
@@ -17,25 +17,19 @@
 
     <div class="row">
         <div class="col-sm-8">
-            <h2>What We Do</h2>
+            <h2>宗旨</h2>
             <p>Introduce the visitor to the business using clear, informative text. Use well-targeted keywords within your sentences to make sure search engines can find the business.</p>
             <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Et molestiae similique eligendi reiciendis sunt distinctio odit? Quia, neque, ipsa, adipisci quisquam ullam deserunt accusantium illo iste exercitationem nemo voluptates asperiores.</p>
-            <p>
-                <a class="btn btn-default btn-lg" href="#">Call to Action &raquo;</a>
-            </p>
         </div>
         <div class="col-sm-4">
-            <h2>Contact Us</h2>
+            <h2>{{::locals.sys.farmName}}</h2>
             <address>
-                <strong>Start Bootstrap</strong>
-                <br>3481 Melrose Place
-                <br>Beverly Hills, CA 90210
-                <br>
+                {{::locals.sys.farmAddr}}
             </address>
             <address>
-                <abbr title="Phone">P:</abbr>(123) 456-7890
+                <label title="Phone">電話:</label> {{::locals.sys.farmTel}}
                 <br>
-                <abbr title="Email">E:</abbr> <a href="mailto:#">name@example.com</a>
+                <label title="Email">電子信箱:</label> <a href="mailto:#">{{::locals.sys.farmEmail}}</a>
             </address>
         </div>
     </div>

@@ -5,11 +5,11 @@ global.__base = __dirname + '/';
 
 // Require keystone
 var keystone = require('keystone');
-//var handlebars = require('express-handlebars');
 var dotEngine = require('express-dot-engine');
 var async = require('async');
 var helperFuncs = require('./templates/views/helpers/index');
 var _ = require('lodash');
+var middleware = require('./routes/middleware');
 var Constants = require(__base + 'Constants');
 
 keystone.set('defaultState', process.env.DEFAULT_STATE || 'home' );
@@ -92,7 +92,6 @@ keystone.set('locals', {
 	editable: keystone.content.editable,
 	helpers: helperFuncs()
 });
-
 
 // Use our own sign in and sign out route
 keystone.set('signin url', '/auth');
@@ -192,10 +191,19 @@ Fawn.init(keystone.get('mongoose'));
 
 var roller = Fawn.Roller();
 roller.roll()
-.then(function(){
+.then(function() {
 	console.log('rollback process complete');	
+	
 	//do db updates here
-	require('./DBUpdate')(); //manually do db update after some incomplete transaction rollback completed
+	//manually do db update after some incomplete transaction rollback completed
+	require('./DBUpdate')(function() {
+		//set system parameters after DB update
+		middleware.refreshSysInfo(null, null, function(err) {
+			if(err) throw err;
+			console.log('sys parameters set');
+		});
+	});
+
 });
 
 keystone.start();

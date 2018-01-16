@@ -1,5 +1,5 @@
 angular.module('mainApp')
-.controller('ProductPageCtrler', 
+.controller('ProductSellPageCtrler', 
   ['$http', '$window', '$state', 'ngCart', '$filter', '$rootScope', '$uibModal', 'ngCartItem', '$scope', 'lodash',
   function($http, $window, $state, ngCart, $filter, $rootScope, $uibModal, ngCartItem, $scope, _ ) {
     //TODO:

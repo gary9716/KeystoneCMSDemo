@@ -12,51 +12,50 @@
 }
 </style>
 <div class="container">
-<div class="table-responsive" ng-init="ctrler.getDetail()">
-  <table class="table table-striped table-bordered table-hover" style="width: 80%; margin: 0px auto 20px;">
-    <tbody>
-      <tr>
-          <td class="detail-col1">姓名</td>
-          <td class="detail-col2">{{::ctrler.farmer.name}}</td>
-      </tr>
-      
-      <tr>
-          <td class="detail-col1">身分證字號</td>
-          <td class="detail-col2">{{::ctrler.farmer.pid}}</td>
-      </tr>
+  <div class="form-group" ng-init="ctrler.getDetail()">
+    <table class="table-responsive table table-striped table-bordered table-hover" style="width: 80%; margin: auto;">
+      <tbody>
+        <tr>
+            <td class="detail-col1">姓名</td>
+            <td class="detail-col2">{{::ctrler.farmer.name}}</td>
+        </tr>
+        
+        <tr>
+            <td class="detail-col1">身分證字號</td>
+            <td class="detail-col2">{{::ctrler.farmer.pid}}</td>
+        </tr>
 
-      <tr>
-          <td class="detail-col1">住家電話</td>
-          <td class="detail-col2">{{::ctrler.farmer.teleNum1}}</td>
-      </tr>
-      
-      <tr>
-          <td class="detail-col1">行動電話</td>
-          <td class="detail-col2">{{::ctrler.farmer.teleNum2}}</td>
-      </tr>
-      
+        <tr>
+            <td class="detail-col1">住家電話</td>
+            <td class="detail-col2">{{::ctrler.farmer.teleNum1}}</td>
+        </tr>
+        
+        <tr>
+            <td class="detail-col1">行動電話</td>
+            <td class="detail-col2">{{::ctrler.farmer.teleNum2}}</td>
+        </tr>
+        
 
-      <tr>
-          <td class="detail-col1">地址</td>
-          <td class="detail-col2">{{::ctrler.farmer.addr}}</td>
-      </tr>
+        <tr>
+            <td class="detail-col1">地址</td>
+            <td class="detail-col2">{{::ctrler.farmer.addr}}</td>
+        </tr>
 
-      <!-- use collaspable ui to show detail -->
-      <tr ng-repeat="account in ctrler.accounts track by account._id" ng-click="ctrler.openAccountDetail(account)" class="hightlight clickable">
-          <td class="detail-col1">存摺{{::$index + 1}}編號</td>
-          <td class="detail-col2">{{::account.accountID}}</td>
-      </tr>
-    </tbody>
-    
-  </table>
-
-  <div class="form-group">
-    <div class="col-md-8 col-md-offset-5">
-      <button class="btn btn-primary" ng-click="ctrler.openCreateAccountModal()">開立存摺</button>
-      <button class="btn btn-primary" ng-click="ctrler.addFarmerToCache()">加入暫存</button>
-    </div>
+        <!-- use collaspable ui to show detail -->
+        <tr ng-repeat="account in ctrler.accounts track by account._id" ng-click="ctrler.openAccountDetail(account)" class="hightlight clickable">
+            <td class="detail-col1">存摺{{::$index + 1}}編號</td>
+            <td class="detail-col2">{{::account.accountID}}</td>
+        </tr>
+      </tbody>
+    </table>  
   </div>
-</div>
+  <div class="form-group">
+      <div class="col-md-offset-5">
+        <button class="btn btn-primary" ng-click="ctrler.openCreateAccountModal()">開立存摺</button>
+        <button class="btn btn-primary" ng-click="ctrler.addFarmerToCache()">加入暫存</button>
+      </div>
+  </div>
+</div> <!-- /div.container -->
 
 <!-- Modal templates -->
 <!--開立存摺用對話框-->
@@ -144,4 +143,3 @@
     <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()">關閉</button>
 </div>
 </script>
-</div> <!-- /div.container -->

@@ -1,9 +1,9 @@
 var keystone = require('keystone');
-var Constants = require('../Constants');
+var Constants = require(__base + 'Constants');
 
 //console.log(Constants.RoleListName);
 var Role = new keystone.List(Constants.RoleListName, {
-    label: '角色名',
+    label: '非系統管理者角色',
 });
 
 Role.add({

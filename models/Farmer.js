@@ -1,8 +1,10 @@
 var keystone = require('keystone');
-var Constants = require('../Constants');
+var Constants = require(__base + 'Constants');
 var Types = keystone.Field.Types;
 
-var Farmer = new keystone.List(Constants.FarmerListName);
+var Farmer = new keystone.List(Constants.FarmerListName, {
+  label: '農夫'
+});
 Farmer.add({
   name: { type:String, index: true, required: true, initial: true, trim: true },
   pid: { type:String, index: true, unique: true, required: true, initial: true, trim: true },

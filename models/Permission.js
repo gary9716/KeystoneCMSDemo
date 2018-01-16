@@ -1,10 +1,11 @@
 var keystone = require('keystone');
 var Types = keystone.Field.Types;
-var _ = require('underscore');
-var Constants = require('../Constants');
+var Constants = require(__base + 'Constants');
 
 //console.log(Constants.PermissionListName);
-var Permission = new keystone.List(Constants.PermissionListName);
+var Permission = new keystone.List(Constants.PermissionListName, {
+  label: '權限'
+});
 
 Permission.add({
     name: { type: String, required: true, index: true, trim: true },

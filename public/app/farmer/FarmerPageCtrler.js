@@ -3,11 +3,16 @@ angular.module('mainApp')
   ['myValidation', '$http', '$window', '$state', '$rootScope',
   function(myValidation, $http, $window, $state, $rootScope) {
     var vm = this;
+
+    //for register page
+    vm.birth = new Date(1980, 0 , 1);
     vm.showRegisterTable = false;
     vm.isRegistering = false;
-    vm.isSearching = false;
-    vm.birth = new Date(1980, 0 , 1);
     
+    //for search page
+    vm.isSearching = false;
+
+    //common
     var dataCache = {
       dists: {},
       villages: {}

@@ -57,6 +57,8 @@ exports = module.exports = function (app) {
     }),
     routes.api.CRUDOp.read);
 
+  app.get('/api/sys/refresh',middleware.refreshSysInfo,middleware.okResponse);
+
   app.post('/api/permission',middleware.permissionCheck,middleware.okResponse);
 
   app.post('/api/user/register',routes.api.UserService.register);

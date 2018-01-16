@@ -59,19 +59,19 @@
 </div>
 <!-- confirm table -->
 <style>
-.fr-col1 {
+.farmer-search-col1 {
   width: 10%;
 }
-.fr-col2 {
+.farmer-search-col2 {
   width: 20%;
 }
-.fr-col3 {
+.farmer-search-col3 {
   width: 40%;
 }
-.fr-col4 {
+.farmer-search-col4 {
   width: 15%;
 }
-.fr-col5 {
+.farmer-search-col5 {
   width: 15%;
 }
 
@@ -85,19 +85,19 @@
   <table class="table table-striped table-bordered table-hover" style="width: 100%; margin: 0px auto 20px;">
     <tbody>
       <tr>
-        <th class="fr-col1">姓名</th>
-        <th class="fr-col2">身分證字號</th>
-        <th class="fr-col3">地址</th>
-        <th class="fr-col4">住家電話</th>
-        <th class="fr-col5">行動電話</th>
+        <th class="farmer-search-col1">姓名</th>
+        <th class="farmer-search-col2">身分證字號</th>
+        <th class="farmer-search-col3">地址</th>
+        <th class="farmer-search-col4">住家電話</th>
+        <th class="farmer-search-col5">行動電話</th>
       </tr>
       <!-- use collaspable ui to show detail -->
       <tr class="clickable" ui-sref="farmerDetail({farmerPID: farmer.pid})" ng-repeat="farmer in ctrler.farmers track by farmer.pid">
-          <td class="fr-col1">{{::farmer.name}}</td>
-          <td class="fr-col2">{{::farmer.pid}}</td>
-          <td class="fr-col3">{{::farmer.addr}}</td>
-          <td class="fr-col4">{{::farmer.teleNum1}}</td>
-          <td class="fr-col5">{{::farmer.teleNum2}}</td>
+          <td class="farmer-search-col1">{{::farmer.name}}</td>
+          <td class="farmer-search-col2">{{::farmer.pid}}</td>
+          <td class="farmer-search-col3">{{::farmer.addr}}</td>
+          <td class="farmer-search-col4">{{::farmer.teleNum1}}</td>
+          <td class="farmer-search-col5">{{::farmer.teleNum2}}</td>
       </tr>
 
     </tbody>
