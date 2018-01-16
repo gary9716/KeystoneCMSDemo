@@ -1,6 +1,16 @@
-<!-- templates start -->
-<script type="text/ng-template" id="product-layout-v1.html">
-  <style>
+<!-- floating shopping cart
+<button style="position:fixed; right:100px; top:100px;"><i class="fa fa-shopping-cart" aria-hidden="true"></i> 購物車</button>
+-->
+
+<div class="container">
+  <!-- dont directly apply listTo2DMat filter to ng-repeat expression here. 
+    it's unstable -->
+  <div class="row" ng-repeat="productsPerRow in ctrler.products">
+    <div class="col-md-4" ng-repeat="product in productsPerRow track by product._id" ng-include="'product-layout-v1.html'"></div>
+  </div>
+</div> <!-- .container -->
+
+<style>
   /* hide input number's arrows */
   input[type=number]::-webkit-inner-spin-button, 
   input[type=number]::-webkit-outer-spin-button { 
@@ -26,10 +36,22 @@
     
   }
 
-  </style>
-  
-  <div class="thumbnail" style="padding: 5px 30px 20px;">
-    <img src="{{::product.image}}" alt="" class="img-responsive">
+  table.product-table input.price-radio, 
+  form#cart-form input.opt-radio {
+    width:0.85em; height:0.85em;
+  }
+
+  .balance-not-enough {
+    color: red;
+  }
+
+</style>
+
+<!-- templates start -->
+<!-- product layout -->
+<script type="text/ng-template" id="product-layout-v1.html">
+  <div class="thumbnail" style="padding: 5px 20px 20px;">
+    <img ng-src="{{::product.image}}" alt="" class="img-responsive">
     <form name="pForm">
       <div class="caption">
         <h4 class="pull-right">每包重{{::product.weight}}kg</h4>
@@ -37,18 +59,18 @@
         
           <div class="form-group product-info-row">
             <label>價格方案：</label>
-            <div class="col-md-7" style="padding: 5px 5px;">
+            <div class="col-md-8" style="padding: 5px 5px;">
               <table class="product-table table-striped table-responsive">
                 <tr>
-                  <td class="txt-col"><input type="radio" ng-value="product.marketPrice" ng-model="product.price" ng-model-options="{ debounce: 100 }" ng-hide="product.isInCart">定價</td> 
+                  <td class="txt-col"><label><input type="radio" class="price-radio" ng-value="product.marketPrice" ng-model="product.price" ng-model-options="{ debounce: 100 }" ng-hide="product.isInCart">定價</label></td> 
                   <td class="price-col">{{::product.marketPrice}}</td>
                 </tr>
                 <tr>
-                  <td class="txt-col"><input type="radio" ng-value="product.exchangePrice" ng-model="product.price" ng-model-options="{ debounce: 100 }" ng-hide="product.isInCart">兌換價</td> 
+                  <td class="txt-col"><label><input type="radio" class="price-radio" ng-value="product.exchangePrice" ng-model="product.price" ng-model-options="{ debounce: 100 }" ng-hide="product.isInCart">兌換價</label></td> 
                   <td class="price-col">{{::product.exchangePrice}}</td>
                 </tr>
                 <tr>
-                  <td class="txt-col"><input type="radio" ng-value="product.discountPrice" ng-model="product.price" ng-model-options="{ debounce: 100 }" ng-hide="product.isInCart">折扣價</td> 
+                  <td class="txt-col"><label><input type="radio" class="price-radio" ng-value="product.discountPrice" ng-model="product.price" ng-model-options="{ debounce: 100 }" ng-hide="product.isInCart">折扣價</label></td> 
                   <td class="price-col">{{::product.discountPrice}}</td>
                 </tr>
               </table>
@@ -57,44 +79,164 @@
 
           <div class="form-group product-info-row" style="min-height: 2em;">
             <label>最終價格：</label>
-            <input type="number" name="price" ng-model="product.price" ng-model-options="{ debounce: 100 }" class="col-sm-4 col-md-7 text-center" ng-hide="product.isInCart" required>
-            <label class="col-sm-4 col-md-7 text-center" ng-show="product.isInCart">{{product.price}}</label>
+            <input type="number" name="price" ng-model="product.price" ng-model-options="{ debounce: 200 }" class="col-sm-4 col-md-7 text-center" ng-hide="product.isInCart" required>
+            <label class="col-sm-4 col-md-7 text-center" ng-show="product.isInCart">{{product.price}} 元</label>
           </div>
           <div class="form-group product-info-row" style="min-height: 3em; margin: 10px auto;">
             <label>{{product.isInCart?'已加包數':'欲加包數'}}：</label>
             <!-- quantity selector -->
             <div class="input-group col-sm-4 col-md-7" ng-hide="product.isInCart">
-              <span class="input-group-btn data-dwn">
+              <span class="input-group-btn">
                 <button class="btn btn-default btn-info" ng-click="ctrler.changeQty(product,-1);"><span class="fa fa-minus"></span></button>
               </span>
-              <input type="number" name="qty" ng-model="product.quantity" ng-model-options="{ debounce: 100 }" class="form-control text-center" min="1" required>
-              <span class="input-group-btn data-up">
+              <input type="number" name="qty" ng-model="product.quantity" ng-model-options="{ debounce: 200 }" class="form-control text-center" min="1" required>
+              <span class="input-group-btn">
                 <button class="btn btn-default btn-info" ng-click="ctrler.changeQty(product,1);"><span class="fa fa-plus"></span></button>
               </span>
             </div>
-            <label class="col-sm-4 col-md-7 text-center" ng-show="product.isInCart">{{product.quantity}}</label>
+            <label class="col-sm-4 col-md-7 text-center" ng-show="product.isInCart">{{product.quantity}} 包</label>
           </div>
-          
-        
       </div>
-    
       <div class="btn-ground text-center">
-          <button ng-hide="product.isInCart" ng-click="ctrler.addItemToCart(product)" type="button" class="btn btn-primary"><i class="fa fa-shopping-cart"></i> 加到購物車</button>
+          <button ng-hide="product.isInCart" ng-click="ctrler.addItemToCart(product)" ng-disabled="pForm.$invalid" type="button" class="btn btn-primary"><i class="fa fa-shopping-cart"></i> 加到購物車</button>
           <button ng-show="product.isInCart" ng-click="ctrler.rmItemFromCart(product)" type="button" class="btn btn-danger"><i class="fa fa-times"></i> 從購物車移除</button>
       </div>
     </form>
   </div>
-  
+</script>
+
+<!-- checkout modal -->
+<script type="text/ng-template" id="cart-and-checkout.html">
+<div class="form-group text-center" ng-show="ctrler.cartEmpty()">
+<h3>購物車目前是空的</h3>
+<button type="button" class="btn btn-primary" ng-click="ctrler.cancel()">關閉</button>
+</div>
+<form name="cartForm" class="modal-body" id="cart-form" ng-hide="ctrler.cartEmpty()">
+        <section>
+        <h4>購物車資訊</h4>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>商品</th>
+                    <th class="text-center">數量</th>
+                    <th class="text-center">單價</th>
+                    <th class="text-center">總價</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="item in ctrler.cartItems track by item._id">
+                    <td class="col-sm-4 col-md-4">
+                      <div class="media">
+                          <img class="img-responsive" ng-src="{{::item.image}}" alt="" style="float:left; max-width: 100px; max-height: 100px;">
+                          <div class="media-body">
+                              <h4 class="media-heading">{{::item.name}}</h4>
+                              <span>每包重: {{::item.weight}} kg</span>
+                          </div>
+                      </div>
+                    </td>
+                    
+                    <td class="col-sm-3 col-md-3 text-center">
+                    <div class="input-group">
+                      <span class="input-group-btn">
+                        <button class="btn btn-default btn-info" ng-click="ctrler.changeQty(item,-1);"><span class="fa fa-minus"></span></button>
+                      </span>
+                      <input type="number" name="qty" ng-model="item.quantity" ng-model-options="{ debounce: 200 }" ng-change="ctrler.saveCart()" class="form-control text-center" min="1" required>
+                      <span class="input-group-btn">
+                        <button class="btn btn-default btn-info" ng-click="ctrler.changeQty(item,1);"><span class="fa fa-plus"></span></button>
+                      </span>
+                    </div>
+                    </td>
+                    
+                    <td class="col-sm-2 col-md-2 text-center">
+                    <strong>{{::item.price}}</strong>
+                    </td>
+                    
+                    <td class="col-sm-2 col-md-2 text-center">
+                    <strong>{{item.getTotal()}}</strong>
+                    </td>
+
+                    <td class="col-sm-1 col-md-1 text-center">
+                    <button ng-click="ctrler.rmItemFromCart(item)" class="btn btn-danger"><i class="fa fa-times"></i> 移除</button>
+                    </td>
+
+                  </tr>
+            </tbody>
+        </table>
+        
+        <!-- subtotal(not including tax, shipping cost)-->
+        <div class="form-group">
+        <h3 class="text-right">合計 <strong>{{ctrler.getTotalPrice()}}元</strong></h3>
+        </div>
+
+        </section>
+        
+
+        
+
+        <!-- account data -->
+        <section class="row form-group" style="width:100%; margin: 0px;" ng-init="ctrler.accountSrcOpt='viaCachedList';">
+          <!-- hidden inputs for form validation-->
+          <input type="hidden" name="accountData" ng-model="ctrler.selectedAccount" required>
+          
+          <h4>存摺資訊</h4>
+          
+          <div class="form-group">
+            <label><input type="radio" class="opt-radio" value="viaCachedList" ng-model="ctrler.accountSrcOpt" ng-change="ctrler.selectedAccount=null;">使用暫存列表</label>
+            <label><input type="radio" class="opt-radio" value="viaAccountID" ng-model="ctrler.accountSrcOpt" ng-change="ctrler.selectedAccount=null;">輸入存摺編號</label>
+          </div>
+
+          <!-- cache list UI -->
+          <div ng-show="ctrler.isViaCachedList()" class="form-group">
+            <div class="container">
+              <div class="row">
+                <label>農民：</label>
+                <select style="min-width:5em;" ng-model="ctrler.selectedFarmer" ng-change="ctrler.farmerSelected()">
+                  <option ng-repeat="farmer in ctrler.cachedFarmers track by farmer.pid" ng-value="farmer">{{::farmer.name}}</option>
+                </select>
+              </div>
+              <div class="row">
+                <label>存摺：</label>
+                <select style="min-width:9em;" ng-model="ctrler.selectedAccount" ng-change="ctrler.accountSelected()">
+                  <option ng-repeat="account in ctrler.accounts | filter:{active: true}:strict track by account._id" ng-value="account">{{::account.accountID}}</option>
+                </select>
+                <button type="button" style="margin-left:5px;" class="btn btn-primary" ng-click="ctrler.updateAccountsInfo()" ng-disabled="ctrler.isUpdatingAccount">更新存摺資訊</button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- account ID UI -->
+          <div ng-show="ctrler.isViaAccountID()" class="form-group">
+            <label>存摺編號：</label>
+            <input type="text" name="inputAccID" ng-model="ctrler.inputAccID" ng-trim="true" ng-keypress="ctrler.keyPressedInAccIDInput($event)">
+            <button ng-click="ctrler.setSelectedAccount()" class="btn btn-primary" style="margin-left:5px;" ng-disabled="ctrler.isUpdatingAccount">設定</button>
+          </div>
+          
+          <div class="form-group">
+          <table class="table table-bordered pull-right" style="width: 50%;" ng-show="ctrler.selectedAccount" >
+            <tr>
+              <td>存摺</td>
+              <td>{{ctrler.selectedAccount.accountID}}</td>
+            </tr>
+            <tr>
+              <td>當前餘額</td>
+              <td><span ng-class="{ 'balance-not-enough': ctrler.isBalanceNotEnough() }">{{ctrler.selectedAccount.balance}}</span></td>
+            </tr>
+            <tr ng-show="ctrler.getAfterBalance() > 0">
+              <td>兌換後餘額</td>
+              <td>{{ctrler.getAfterBalance()}}</td>
+            </tr>
+          </table>
+          </div>
+          
+        </section>
+
+        <!-- buttons -->
+        <section class="row form-group text-right" style="margin:0px;">
+          <button type="button" class="btn btn-primary" ng-click="ctrler.cancel()"><span class="fa fa-shopping-cart"></span> 繼續購物</button>
+          <button type="button" class="btn btn-success" ng-disabled="cartForm.$invalid" ng-click="ctrler.checkout()">結帳 <span class="fa fa-play"></span></button>
+        </section>
+    
+</form>
 </script>
 <!-- templates end -->
-
-<!-- floating shopping cart
-<button style="position:fixed; right:100px; top:100px;"><i class="fa fa-shopping-cart" aria-hidden="true"></i> 購物車</button>
--->
-<div class="container">
-  <!-- dont directly apply listTo2DMat filter to ng-repeat expression here. 
-    it's unstable -->
-  <div class="row" ng-repeat="productsPerRow in ctrler.products">
-    <div class="col-md-4" ng-repeat="product in productsPerRow" ng-include="'product-layout-v1.html'"></div>
-  </div>
-</div> <!-- .container -->

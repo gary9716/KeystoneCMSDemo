@@ -13,7 +13,7 @@ var Transaction = new keystone.List(Constants.TransactionListName, {
 });
 
 Transaction.add({
-  date: { type: Types.Datetime, label: '交易時間' },
+  date: { type: Types.Datetime, format: 'YYYY-MM-DD kk:mm:ss', label: '交易時間' },
   account: { type: Types.Relationship, ref: Constants.AccountListName, label: '存摺' },
   amount: { type: Types.Money, label: '交易金額' },
   shop: { type: Types.Relationship, ref: Constants.ShopListName, label: '兌領處' },

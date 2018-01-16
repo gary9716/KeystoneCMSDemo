@@ -6,7 +6,7 @@ var Farmer = new keystone.List(Constants.FarmerListName);
 Farmer.add({
   name: { type:String, index: true, required: true, initial: true, trim: true },
   pid: { type:String, index: true, unique: true, required: true, initial: true, trim: true },
-  birth: { type:Types.Date, initial: true },
+  birth: { type:Types.Date, format:'YYYY-MM-DD', initial: true },
   teleNum1: { type:String, index: true, initial: true, trim: true },
   teleNum2: { type:String, index: true, initial: true, trim: true },
   city : { type:Types.Relationship, ref:Constants.CityListName, required: true, index: true, initial: true },

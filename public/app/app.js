@@ -7,7 +7,8 @@ angular.module('mainApp', [
   'ui.router',
   'angular.filter',
   'ui.bootstrap',
-  'ngCart'
+  'ngCart',
+  'LocalStorageModule'
 ])
 .constant('appRootPath',(function() {
   if(locals && locals.env) {
@@ -21,11 +22,12 @@ angular.module('mainApp', [
   else {
     return '/app/';
   }
-})());//to inject into config, we need to register this value as constant
+})())
+.constant('cachedFarmersKey', 'mainApp:cachedFarmers');//to inject into config, we need to register this value as constant
 
 angular.module('mainApp')
-.config(['appRootPath', '$stateProvider', '$urlRouterProvider',  
-  function (appRootPath, $stateProvider, $urlRouterProvider){
+.config(['appRootPath', '$stateProvider', '$urlRouterProvider', 'localStorageServiceProvider',
+  function (appRootPath, $stateProvider, $urlRouterProvider, localStorageServiceProvider){
     $stateProvider
     .state({
       name: 'home',
@@ -108,9 +110,9 @@ angular.module('mainApp')
 
     })
     .state({
-      name: 'product',
+      name: 'productSell',
       templateUrl: appRootPath + 'product/index.html',
-      url: '/product',
+      url: '/product/sell',
       controller: 'ProductPageCtrler as ctrler',
       resolve: {
         condition1 : ['myValidation', function(myValidation) {
@@ -136,15 +138,62 @@ angular.module('mainApp')
       return false;
     });
 
+    //$urlRouterProvider.when('', '/');
+    $urlRouterProvider.otherwise('/');
+
+    localStorageServiceProvider.setPrefix('mainApp').setNotify(false, false);
+
 }])
-.run(['$state', '$http', '$rootScope', '$transitions', 'myValidation',
-  function ($state, $http, $rootScope, $transitions, myValidation) {
+.run(['$state', '$window', '$http', '$uibModal', '$rootScope', '$transitions', 'myValidation', 'cachedFarmersKey', 'appRootPath',
+  function ($state, $window, $http, $uibModal, $rootScope, $transitions, myValidation, cachedFarmersKey, appRootPath) {
     console.log('config end, angular app start to run');
-    //console.log(locals);
+    
+    var localStorage = $window.localStorage;
+
+
+    $rootScope.alerts = [];
+    $rootScope.pubSuccessMsg = function(msg) {
+      $rootScope.alerts.push({ type:'success', msg: msg });
+    }
+
+    $rootScope.pubWarningMsg = function(msg) {
+      $rootScope.alerts.push({ type:'warning', msg: msg }); 
+    }
+
+    $rootScope.pubInfoMsg = function(msg) {
+      $rootScope.alerts.push({ type:'info', msg: msg }); 
+    }
+
+    $rootScope.pubErrorMsg = function(msg) {
+      $rootScope.alerts.push({ type:'danger', msg: msg }); 
+    }
+
+
+
     $rootScope.isProductPage = function(){
       return $state.current.name.includes('product');
     }
+
+    //buttons on nav bar
+    $rootScope.openShopCart = function() {
+      if($rootScope.productPageCtrler) {
+        $rootScope.productPageCtrler.openShopCart();
+      }
+    }
     
+    $rootScope.openCachedFarmerList = function() {
+      var modalInstance = $uibModal.open({
+        templateUrl: appRootPath + 'farmer/farmerList.html',
+        controller: 'CachedFarmerListCtrler as ctrler',
+        size: 'lg', //'md','lg','sm'
+      });
+
+      modalInstance.result
+      .catch(function () {
+        modalInstance.close(); 
+      });
+    }
+
     $transitions.onError({}, function(transition) {
       if(!transition)
         return;
@@ -155,6 +204,5 @@ angular.module('mainApp')
       
     });
 
-    $state.go(locals.state);
 }]);
 

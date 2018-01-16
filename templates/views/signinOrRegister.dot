@@ -3,42 +3,9 @@ layout: layouts/signinBase.dot
 title: 登入頁面
 ---
 [[##body:
-  <!--
-    Flash messages allow you to display once-off status messages to users, e.g. form
-    validation errors, success messages, etc
-  --> 
-  <div id="flash-messages" class="container">
-    [[?model.messages.info && model.messages.info.length]]
-    <div class="alert alert-info">
-        [[var msg = helpers.flashMessages(model.messages.info);]]
-        [[=msg]]
-    </div>
-    [[?]]
-    [[?model.messages.success && model.messages.success.length]]
-    <div class="alert alert-success">
-        [[var msg = helpers.flashMessages(model.messages.success);]]
-        [[=msg]]
-    </div>
-    [[?]]
-    [[?model.messages.warning && model.messages.warning.length]]
-    <div class="alert alert-warning">
-        [[var msg = helpers.flashMessages(model.messages.warning);]]
-        [[=msg]]
-    </div>
-    [[?]]
-    [[?model.messages.error && model.messages.error.length]]
-    <div class="alert alert-danger">
-        [[var msg = helpers.flashMessages(model.messages.error);]]
-        [[=msg]]
-    </div>
-    [[?]]
-  </div>   
   <div class="container">
     <div id="ajax-msg"></div>
   </div>
-
-  <div style="height:10%; clear:both;"></div>
-
   <div class="container">
       <div class="row">
       <div class="col-md-6 col-md-offset-3">
@@ -146,7 +113,12 @@ title: 登入頁面
 
   <script>
     (function() {
-      
+      //clear localstorage after logout
+      if(locals.isLogout) {
+        if(localStorage)
+          localStorage.clear();
+      }
+
       $('#login-form-link').click(function(e) {
         $("#login-form").delay(100).fadeIn(100);
         $("#register-form").fadeOut(100);

@@ -7,8 +7,7 @@ angular.module('mainApp')
     vm.isRegistering = false;
     vm.isSearching = false;
     vm.birth = new Date(1980, 0 , 1);
-    $rootScope.alerts = [];
-
+    
     var dataCache = {
       dists: {},
       villages: {}
@@ -125,15 +124,15 @@ angular.module('mainApp')
         var data = res.data;
         if(data.success) {
           console.log('register farmer success');
-          $rootScope.alerts.push({ type: 'success', msg: '註冊成功' });
+          $rootScope.pubSuccessMsg('註冊成功');
           $state.go('farmer');
         }
         else {
-          $rootScope.alerts.push({ msg: data.message });
+          $rootScope.pubWarningMsg(data.message);
         }
       })
       .catch(function(err) {
-        $rootScope.alerts.push({ msg: '系統似乎出現一些錯誤' });
+        $rootScope.pubErrorMsg('系統似乎出現一些錯誤');
         console.log(err);
       })
       .finally(function() {
@@ -151,11 +150,11 @@ angular.module('mainApp')
           vm.cities = data.result;
         }
         else {
-          $rootScope.alerts.push({ msg: data.message });
+          $rootScope.pubWarningMsg(data.message);
         }
       })
       .catch(function(err) {
-        $rootScope.alerts.push({ msg: '系統似乎出現一些錯誤' });
+        $rootScope.pubErrorMsg('系統似乎出現一些錯誤');
         console.log(err);
       });
     }
@@ -177,16 +176,16 @@ angular.module('mainApp')
         var data = res.data;
         if(data.success) {
           if(!data.result || data.result.length == 0)
-            $rootScope.alerts.push({ type: 'info', msg: '無任何結果' });
+            $rootScope.pubInfoMsg('無任何結果');
           vm.farmers = data.result;
         }
         else {
           vm.farmers = [];
-          $rootScope.alerts.push({ msg: data.message });
+          $rootScope.pubWarningMsg(data.message);
         }
       })
       .catch(function(err) {
-        $rootScope.alerts.push({ msg: '系統似乎出現一些錯誤' });
+        $rootScope.pubErrorMsg('系統似乎出現一些錯誤');
         console.log(err);
       })
       .finally(function() {

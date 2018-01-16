@@ -18,6 +18,7 @@ var htmlmin = require('htmlmin');
 var keystonePathPrefix = '/'+ keystone.get('admin path');
 
 var routesToBlock = [keystonePathPrefix + '/signin', keystonePathPrefix + '/api/session/signin'];
+var navLinks = require(__base + 'NavLinkInfo');
 
 exports.blockRoute = function (req, res, next) {
   var urlPattern = new UrlPattern(req.path);
@@ -42,11 +43,7 @@ exports.blockRoute = function (req, res, next) {
 	or replace it with your own templates / logic.
 */
 exports.initLocals = function (req, res, next) {
-  res.locals.navLinks = [
-		{ label: '首頁', state: 'home' },
-    { label: '農民服務', state: 'farmer' },
-    { label: '商品頁面', state: 'product' },
-	];
+  res.locals.navLinks = navLinks;
 
 	res.locals.env = keystone.get('env');
 
@@ -111,7 +108,7 @@ var htmlMinify = function (err, html) {
 }
 
 var renderFunc = function (err, req, res) {
-	if(err) return res.status(500).send({ error: 'something blew up' });
+	if(err) return res.status(500).send({ error: '[middleware renderFunc] something blew up' });
 	var cb = htmlMinify.bind(res); //apply minify middleware
 	res.render(res.locals.viewPath,null,cb); //this would be bound in getRenderFunc
 }

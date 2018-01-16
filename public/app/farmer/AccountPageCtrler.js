@@ -1,24 +1,31 @@
 angular.module('mainApp')
 .controller('AccountPageCtrler', 
-  ['$http', '$window', '$state', '$rootScope', '$uibModal',
-  function($http, $window, $state, $rootScope, $uibModal) {
+  ['$http', '$window', '$state', '$rootScope', '$uibModal', 'cachedFarmersKey', 'lodash','localStorageService',
+  function($http, $window, $state, $rootScope, $uibModal, cachedFarmersKey, _ , localStorageService) {
 
     var vm = this;
-    $rootScope.alerts = [];
+    const farmerPIDKey = 'farmerDetail:farmerPID';
 
     if(!$state.params) {
       console.log('error: no params');
       return;
     }
 
-    vm.farmerPID = $state.params.farmerPID;
+    var farmerPID = $state.params.farmerPID;
+    if(farmerPID) {
+      localStorageService.set(farmerPIDKey, farmerPID);
+    }
+    else {
+      farmerPID = localStorageService.get(farmerPIDKey);
+    }
+
     vm.accountUser = '';
 
     vm.getDetail = function() {
 
       $http.post('/api/farmer/get-and-populate',
       {
-        farmerPID: vm.farmerPID
+        farmerPID: farmerPID
       })
       .then(function(res) {
         var data = res.data;
@@ -27,10 +34,12 @@ angular.module('mainApp')
           vm.accounts = data.result.accounts;
         }
         else {
+          $rootScope.pubWarningMsg(data.message);
           console.log(data.message);
         }
       })
       .catch(function(err) {
+        $rootScope.pubErrorMsg('系統似乎出現一些錯誤');
         console.log(err);
       });
 
@@ -40,7 +49,7 @@ angular.module('mainApp')
 
       $http.post('/api/account/create',
       {
-        farmerPID: vm.farmerPID,
+        farmerPID: farmerPID,
         accountUser: vm.accountUser
       })
       .then(function(res) {
@@ -49,14 +58,16 @@ angular.module('mainApp')
           if(!vm.accounts instanceof Array)
             vm.accounts = [];
 
+          var newAccIndex = vm.accounts.length + 1;
+          $rootScope.pubSuccessMsg('存摺' + newAccIndex.toString() + '開立成功');
           vm.accounts.push(data.result);
         }
         else {
-          $rootScope.alerts.push({ msg: data.message });
+          $rootScope.pubWarningMsg(data.message);
         }
       })
       .catch(function(err) {
-        $rootScope.alerts.push({ msg: '系統似乎出現一些錯誤' });
+        $rootScope.pubErrorMsg('系統似乎出現一些錯誤');
         console.log(err);
       });
 
@@ -98,6 +109,24 @@ angular.module('mainApp')
       });
     };
     
+    vm.addFarmerToCache = function() {
+      if(vm.farmer) {
+        var cachedFarmers = localStorageService.get(cachedFarmersKey);
+        if(!cachedFarmers)
+          cachedFarmers = [];
+
+        if(_.findIndex(cachedFarmers, function(farmer) {
+          return farmer.pid === vm.farmer.pid;
+        }) === -1) { //hasn't been added
+          cachedFarmers.push(vm.farmer);
+          localStorageService.set(cachedFarmersKey,cachedFarmers);
+          $rootScope.pubSuccessMsg('成功把農民加入暫存列表');
+        }
+        else {
+          $rootScope.pubErrorMsg('該農民已在暫存列表');
+        }
+      }
+    }
 
   }]
 )

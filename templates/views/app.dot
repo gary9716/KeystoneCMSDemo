@@ -41,7 +41,8 @@
                   [[~]]
               </ul>
               <ul class="nav navbar-nav navbar-right">
-                <li class="clickable" ng-show="isProductPage()"><a><i class="fa fa-shopping-cart" aria-hidden="true"></i> 購物車</a></li>
+                <li class="clickable"><a ng-click="openCachedFarmerList()"><i class="fa fa-archive"></i> 暫存農夫列表</a></li>
+                <li class="clickable" ng-show="isProductPage()"><a ng-click="openShopCart()"><i class="fa fa-shopping-cart" aria-hidden="true"></i> 購物車</a></li>
                 [[?model.user]]
                 [[var result= helpers.getKeystoneAttr('signout url');]]
                 <li><a href=[[=result]]>Sign Out</a></li>
@@ -92,8 +93,9 @@
       [[?]]
     </div>
     -->
-
+    <div class="container">
     <div uib-alert ng-repeat="alert in alerts track by $index" ng-class="'alert-' + (alert.type || 'warning')" dismiss-on-timeout="3000" close="alerts.splice(alerts.indexOf(alert),1);">{{::alert.msg}}</div>
+    </div>
     <section ui-view></section>
 
     <!-- This file provides the default styling for the KeystoneJS Content Editor
@@ -133,6 +135,7 @@
     <script src="/app/common/service/myValidation.js"></script>
     <script src="/app/farmer/FarmerPageCtrler.js"></script>
     <script src="/app/farmer/AccountPageCtrler.js"></script>
+    <script src="/app/farmer/CachedFarmerListCtrler.js"></script>
     <script src="/app/product/ProductPageCtrler.js"></script>
     <script src="/app/product/myNgCart.js"></script>
     [[?]]

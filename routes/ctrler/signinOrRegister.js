@@ -12,6 +12,7 @@ exports = module.exports = function (req, res, next) {
 
   var status = req.query["status"];
   if(status == "signed_out") {
+    locals.isLogout = true;
     req.flash('info', '你已成功登出');
   }
 
