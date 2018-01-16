@@ -50,7 +50,8 @@ angular.module('mainApp')
       $http.post('/api/account/create',
       {
         farmerPID: farmerPID,
-        accountUser: vm.accountUser
+        accountUser: vm.accountUser,
+        comment: vm.comment
       })
       .then(function(res) {
         var data = res.data;
@@ -83,6 +84,7 @@ angular.module('mainApp')
       modalInstance.result
       .then(function (result) {
         vm.accountUser = result.accountUser;
+        vm.comment = result.comment;
         vm.createAccount();
       })
       .catch(function () { 

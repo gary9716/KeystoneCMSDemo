@@ -14,24 +14,6 @@ exports = module.exports = (function() {
 	
 	var dataCollection = {};
 
-	dataCollection[Constants.RegulatedListName] = ([
-		Constants.RoleListName,
-		Constants.UserListName,
-		Constants.ShopListName,
-		Constants.PermissionListName,
-		Constants.RegulatedListName,
-		Constants.FarmerListName,
-		Constants.TransactionListName,
-		Constants.AccountRecordListName,
-		Constants.AccountListName,
-		Constants.ProductTypeListName,
-		Constants.ProductListName
-	]).map(function(listName) {
-		return {
-			name: listName
-		};
-	});
-
 	dataCollection[Constants.RoleListName] = [
 				{ 
 					name: '農民資料管理者',

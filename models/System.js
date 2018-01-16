@@ -3,7 +3,10 @@ var Constants = require(__base + 'Constants');
 var Types = keystone.Field.Types;
 
 var System = new keystone.List(Constants.SystemListName, {
-  label: '系統參數'
+  label: '系統參數',
+  map: {
+    name: 'sysName'
+  }
 });
 System.add({
   sysName: { type:String, label: '系統名', required: true, initial: true, trim: true },

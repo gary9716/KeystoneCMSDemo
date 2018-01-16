@@ -8,7 +8,7 @@ var mongoose = keystone.get('mongoose');
 var farmerList = keystone.list(Constants.FarmerListName);
 var accountList = keystone.list(Constants.AccountListName);
 var accountRecList = keystone.list(Constants.AccountRecordListName);
-var purchaseList = keystone.list(Constants.PurchaseListName);
+var periodList = keystone.list(Constants.PeriodListName);
 
 var viaSaveOpt = {viaSave: true};
 var viaMongoose = {useMongoose: true};
@@ -52,7 +52,8 @@ exports.create = function(req, res) {
         account: newAccount_id,
         opType: 'create',
         operator: req.user._id,
-        date: createDate
+        date: createDate,
+        comment: form.comment? form.comment: ''
       });
 
       newAccount._req_user = req.user;
@@ -104,6 +105,9 @@ exports.close = function(req, res) {
     if(!account)
       return Promise.reject('未找到存摺');
 
+    if(account.freeze) 
+      return Promise.reject('此存摺被凍結中,無法進行此操作');      
+
     if(!account.active) 
       return Promise.reject('此存摺已被結清');
 
@@ -115,7 +119,8 @@ exports.close = function(req, res) {
       account: account._id,
       opType: 'close',
       date: closeDate,
-      operator: req.user._id
+      operator: req.user._id,
+      comment: form.comment? form.comment: ''
     });
 
     newRec._req_user = req.user;
@@ -142,15 +147,12 @@ exports.close = function(req, res) {
 
 }
 
+exports.setFreeze = function(req, res) {
+
+}
+
 exports.deposit = function(req, res) {
   var form = req.body;
-
-  if(!form.hasOwnProperty("weight")) {
-    return res.json({
-      success: false,
-      message: '沒有欲銷售之重量'
-    });
-  }
 
   var filters = {};
   if(form.hasOwnProperty("accountID")) {
@@ -167,65 +169,82 @@ exports.deposit = function(req, res) {
   }
 
   var nowDate = Date.now();
-  var pricePer100TKG = -1;
+  var period_id = null;
+  var account = null;
 
-  //get purchase price
-  purchaseList.model.find({ priceDate : { $lte: nowDate } })
-  .sort({ priceDate : -1 }) //descending(nearest -> farest past)
-  .limit(1)
-  .select('priceDate price')
-  .lean()
+  accountList.model.findOne(filters)
+  .select("active balance")
   .exec()
-  .then(function(info) {
-    if(!info) {
-      return Promise.reject('沒有過去的收購資訊');
-    }
-
-    pricePer100TKG = info.price;
-    pricePer100TKG = Math.abs(pricePer100TKG);
-
-    return accountList.model.findOne(filters)
-          .select("active balance")
-          .exec();
-      
-  })
-  .then(function(account) {
-    if(!account)
+  .then(function(_account) {
+    if(!_account)
       return Promise.reject('未找到存摺');
 
-    if(!account.active) 
+    if(_account.freeze) 
+      return Promise.reject('此存摺被凍結中,無法進行此操作');
+
+    if(!_account.active) 
       return Promise.reject('此存摺已被結清');
 
-    //parse weight
-    var weight = 0;
-    if(form.weight instanceof String)
-      weight = parseFloat(form.weight);
+    account = _account;
+
+    return;
+  })
+  .then(function() {
+    if(form.hasOwnProperty('period')) {
+      return periodList.model.findOne({
+        name: form.period
+      })
+      .lean()
+      .exec();
+    }
+    else 
+      return 'pass';
+  })
+  .then(function(result) {
+    if(result !== 'pass') {
+      
+      if(result) { //period found
+        return result; //pass to next then
+      }
+      else { //period not found
+        //create new period
+        var newPeriod = new periodList.model({
+          name: form.period
+        });
+
+        return newPeriod.save();  
+      }
+      
+    }
+    else {
+      return result;
+    }
+
+  })
+  .then(function(result) {
+    if(result !== 'pass') {
+      //it should be period id
+      period_id = result._id;
+    }
+
+    return;
+  })
+  .then(function() {
+
+    //parse amount
+    if(form.amount instanceof String)
+      amount = parseInt(form.amount);
     else
-      weight = form.weight;
+      amount = Math.floor(form.amount); //make sure it's integer
 
-    weight = Math.abs(weight);
+    amount = Math.abs(amount); //make sure it's positive
 
-    if(isNaN(weight)) {
-      return Promise.reject('重量資訊錯誤');
+    if(isNaN(amount)) {
+      return Promise.reject('欲入款金額資訊錯誤');
     }
-
-    //kg -> tkg
-    if(form.hasOwnProperty('unit')) {
-
-      if(form.unit === 'kg') {
-        weight = weight * 10 / 6.0;
-      }
-      else { //tkg
-        weight = weight * 1;
-      }
-
+    else if(amount === 0) {
+      return Promise.reject('欲入款金額不得為0');
     }
-    else { //default: tkg
-      weight = weight * 1;
-    }
-
-    //convert to money(amount)
-    var amount = (weight / 100.0) * pricePer100TKG;
 
     var newBalance = account.balance + amount;
     var newRec_id = mongoose.Types.ObjectId();
@@ -236,7 +255,10 @@ exports.deposit = function(req, res) {
       opType: 'deposit',
       amount: amount,
       date: nowDate,
-      operator: req.user._id
+      operator: req.user._id,
+      comment: form.comment? form.comment: '',
+      ioAccount: form.ioAccount? form.ioAccount: '',
+      period: period_id? period_id: ''
     });
 
     newRec._req_user = req.user;
@@ -246,6 +268,12 @@ exports.deposit = function(req, res) {
     return task.update(account, { balance: newBalance, lastRecord: newRec_id }).options(viaSave)
                .save(newRec)
                .run(viaMongoose);
+  })
+  .then(function(results) {
+    return res.json({
+      success: true,
+      result: results[0].toObject()
+    });
   })
   .catch(function(err) {
     return res.json({
@@ -297,7 +325,7 @@ exports.withdraw = function(req, res) {
     if(form.amount instanceof String)
       amount = parseInt(form.amount);
     else
-      amount = Math.floor(form.amount);
+      amount = Math.floor(form.amount); //make sure it's integer
 
     amount = Math.abs(amount);
 
@@ -320,7 +348,9 @@ exports.withdraw = function(req, res) {
       opType: 'withdraw',
       amount: amount,
       date: Date.now(),
-      operator: req.user._id
+      operator: req.user._id,
+      comment: form.comment? form.comment: '',
+      ioAccount: form.ioAccount? form.ioAccount: ''
     });
 
     newRec._req_user = req.user;

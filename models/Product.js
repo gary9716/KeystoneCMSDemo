@@ -29,5 +29,5 @@ Product.add({
   canSale: { type: Boolean, label: '上架中', default: false, initial: true },
   startSaleDate: { type: Types.Datetime, format: 'YYYY-MM-DD kk:mm:ss', label: '上架時間', initial: true }
 });
-Product.defaultColumns = 'pid, name, pType, marketPrice, exchangePrice, discount, weight, canSale, startSaleDate';
+Product.defaultColumns = 'name, pid, pType, marketPrice, exchangePrice, discount, weight, canSale, startSaleDate';
 Product.register();

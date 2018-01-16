@@ -3,7 +3,7 @@ exports = module.exports = {
   ProductTypeListName: 'ProductType',
   AccountListName: 'Account',
   AccountRecordListName: 'AccountRecord',
-  PurchaseListName: 'Purchase',
+  PeriodListName: 'Period',
   TransactionListName: 'Transaction',
   FarmerListName: 'Farmer',
   RoleListName: 'Role',
@@ -11,8 +11,8 @@ exports = module.exports = {
   ShopListName: 'Shop',
   PermissionListName: 'Permission',
   RegulatedListName: 'RegulatedList',
+  SystemListName: 'System',
   CityListName: 'City',
   AddrPrefixListName: 'AddrPrefix',
-  VillageListName: 'Village',
-  SystemListName: 'System'
+  VillageListName: 'Village'
 };

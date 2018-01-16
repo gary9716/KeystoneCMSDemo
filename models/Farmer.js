@@ -3,18 +3,19 @@ var Constants = require(__base + 'Constants');
 var Types = keystone.Field.Types;
 
 var Farmer = new keystone.List(Constants.FarmerListName, {
-  label: '農夫'
+  label: '農夫',
+  nodelete: true,
 });
 Farmer.add({
-  name: { type:String, index: true, required: true, initial: true, trim: true },
-  pid: { type:String, index: true, unique: true, required: true, initial: true, trim: true },
-  birth: { type:Types.Date, format:'YYYY-MM-DD', initial: true },
-  teleNum1: { type:String, index: true, initial: true, trim: true },
-  teleNum2: { type:String, index: true, initial: true, trim: true },
-  city : { type:Types.Relationship, ref:Constants.CityListName, required: true, index: true, initial: true },
-  dist : { type:Types.Relationship, ref:Constants.AddrPrefixListName, required: true, index: true, initial: true },
-  village: { type:Types.Relationship, ref:Constants.VillageListName, required: true, index: true, initial: true },
-  addr : { type:String, initial: true, trim: true },
+  name: { type:String, label:'姓名', index: true, required: true, initial: true, trim: true },
+  pid: { type:String, label:'身分證字號', index: true, unique: true, required: true, initial: true, trim: true },
+  birth: { type:Types.Date, label:'生日', format:'YYYY-MM-DD', initial: true },
+  teleNum1: { type:String, label:'住家電話', index: true, initial: true, trim: true },
+  teleNum2: { type:String, label:'行動電話', index: true, initial: true, trim: true },
+  city : { type:Types.Relationship, label:'直轄縣市', ref:Constants.CityListName, required: true, index: true, initial: true },
+  dist : { type:Types.Relationship, label:'縣市鄉鎮', ref:Constants.AddrPrefixListName, required: true, index: true, initial: true },
+  village: { type:Types.Relationship, label:'里別', ref:Constants.VillageListName, required: true, index: true, initial: true },
+  addr : { type:String, initial: true, trim: true, label:'住址' },
 });
 
 //Mirrored from Account to Farmer

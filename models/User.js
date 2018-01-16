@@ -8,7 +8,9 @@ var Shop = new keystone.List(Constants.ShopListName, {
 });
 Shop.add({
   name: {type: Types.Text, label: '名稱'}
-}).register();
+});
+Shop.defaultColumns = 'name';
+Shop.register();
 
 //console.log(Constants.UserListName);
 /**
@@ -16,7 +18,8 @@ Shop.add({
  * ==========
  */
 var User = new keystone.List(Constants.UserListName, {
-  label: '系統使用者'
+  label: '系統使用者',
+  nodelete: true,
 });
 
 User.add(

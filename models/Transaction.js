@@ -7,9 +7,15 @@ var Schema = mongoose.Schema;
 
 //console.log(Constants.TransactionListName);
 var Transaction = new keystone.List(Constants.TransactionListName, {
+  label: '兌換紀錄',
+  map: {
+    name: 'id'
+  },
   noedit: true,
   nodelete: true,
-  nocreate: true
+  nocreate: true,
+  track: true,
+  defaultSort: '-date'
 });
 
 Transaction.add({
@@ -33,5 +39,5 @@ Transaction.schema.add({
   }
 });
 
-Transaction.defaultColumns = 'date, account, amount, shop, trader, products';
+Transaction.defaultColumns = 'date, account, amount, shop, trader';
 Transaction.register();

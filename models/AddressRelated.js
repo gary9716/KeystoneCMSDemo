@@ -4,7 +4,10 @@ var Types = keystone.Field.Types;
 
 //console.log(Constants.VillageListName);
 var Village = new keystone.List(Constants.VillageListName, {
-  label: '里別' //for ex: 豐圳里
+  label: '里別', //for ex: 豐圳里
+  noedit: true,
+  nodelete: true,
+  nocreate: true,
 })
 Village.add({
   name: { type: String, label: '里名', required: true, initial: true, index: true, trim: true },
@@ -15,7 +18,10 @@ Village.defaultColumns = 'name';
 Village.register();
 
 var City = new keystone.List(Constants.CityListName, {
-  label: '縣市'
+  label: '縣市',
+  noedit: true,
+  nodelete: true,
+  nocreate: true,
 });
 City.add({
     name: { type: String, label: '縣市名', required: true, trim: true }
@@ -28,7 +34,10 @@ var AddrPrefix = new keystone.List(Constants.AddrPrefixListName, {
   map: {
     name: 'dist'
   },
-  label: '縣市鄉鎮郵遞區號'
+  label: '縣市鄉鎮郵遞區號',
+  noedit: true,
+  nodelete: true,
+  nocreate: true,
 });
 AddrPrefix.add({
     city: { type: Types.Relationship, ref: Constants.CityListName, label: '直轄縣市', initial: true, index: true },

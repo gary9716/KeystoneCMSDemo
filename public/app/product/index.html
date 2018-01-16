@@ -51,7 +51,9 @@
 <!-- product layout -->
 <script type="text/ng-template" id="product-layout-v1.html">
   <div class="thumbnail" style="padding: 5px 20px 20px;">
+    <!-- no image
     <img ng-src="{{::product.image}}" alt="" class="img-responsive">
+    -->
     <form name="pForm">
       <div class="caption">
         <h4 class="pull-right">每包重{{::product.weight}}kg</h4>
@@ -128,7 +130,10 @@
                 <tr ng-repeat="item in ctrler.cartItems track by item._id">
                     <td class="col-sm-4 col-md-4">
                       <div class="media">
+                          <!--
                           <img class="img-responsive" ng-src="{{::item.image}}" alt="" style="float:left; max-width: 100px; max-height: 100px;">
+                          -->
+                          
                           <div class="media-body">
                               <h4 class="media-heading">{{::item.name}}</h4>
                               <span>每包重: {{::item.weight}} kg</span>

@@ -2,6 +2,7 @@ var middleware = require('../middleware');
 var Constants = require(__base + 'Constants');
 var keystone = require('keystone');
 var _ = require('lodash');
+var mongoose = keystone.get('mongoose');
 var Fawn = require('fawn');
 var viaSaveOpt = {viaSave: true};
 var viaMongoose = {useMongoose: true};
@@ -376,14 +377,14 @@ exports.transact = function(req, res) {
 
   var products;
 
-  productList.model.find({ _id : { $in: productIDs } })
+  productList.model.find({ _id : { $in: productIDs } }) //get products info from db
   .lean()
   .exec()
   .then(function(_products) {
     products = _products;
 
     if(products.length !== form.products.length) {
-      return Promise.reject('查詢到的商品數量不合');
+      return Promise.reject('查詢到的商品數量不合,請重新選購');
     }
 
     var nowDate = Date.now();
@@ -407,6 +408,9 @@ exports.transact = function(req, res) {
     if(!account)
       return Promise.reject('存摺不存在');
 
+    if(account.freeze) 
+      return Promise.reject('此存摺被凍結中,無法進行此操作');
+
     if(!account.active)
       return Promise.reject('存摺已結清');
 
@@ -422,7 +426,7 @@ exports.transact = function(req, res) {
       });
 
       if(!product)
-        return Promise.reject('商品資訊錯誤');
+        return Promise.reject('商品資訊錯誤,請重新選購');
 
       var price = 0;
       if(formProduct.price === 'exchange') {
@@ -434,12 +438,12 @@ exports.transact = function(req, res) {
       else if(formProduct.price === 'market') {
         price = product.marketPrice;
       }
-      else {
+      else { //self defined price
         if(formProduct.price instanceof String) {
           price = parseInt(formProduct.price);
         }
         else {
-          price = formProduct.price;
+          price = Math.floor(formProduct.price);
         }
       }
 
@@ -450,6 +454,10 @@ exports.transact = function(req, res) {
       }
 
       let qty = Math.abs(Math.floor(formProduct.qty));
+
+      if(qty === 0) {
+        return Promise.reject('商品數量不得為0');
+      }
 
       //總價 += 每包價格*幾包
       total += (price * qty);
@@ -464,7 +472,28 @@ exports.transact = function(req, res) {
       });
     }
 
+    if(account.balance < total) {
+      return Promise.reject('餘額不足');
+    }
+
+    var newBalance = account.balance - total;
+
+    var newRec_id = mongoose.Types.ObjectId();
+    var newTransact_id = mongoose.Types.ObjectId();
+
+    var newRec = new accountRecList.model({
+      _id: newRec_id,
+      account: account._id,
+      opType: 'transact',
+      amount: total,
+      date: nowDate,
+      operator: req.user._id,
+      comment: form.comment? form.comment: '',
+      transaction: newTransact_id
+    });
+
     var newTransaction = new transactionList.model({
+      _id: newTransact_id,
       date: nowDate,
       account: account._id,
       amount: total,
@@ -473,12 +502,16 @@ exports.transact = function(req, res) {
       products: productDataList
     });
 
-    return newTransaction.save();
+    var task = Fawn.Task();
+    return task.save(newTransaction)
+               .save(newRec)
+               .update(account, { balance: newBalance, lastRecord: newRec_id }).options(viaSave)
+               .run(viaMongoose);
   })
-  .then(function(transaction) {
+  .then(function(results) {
     return res.json({
-      success: false,
-      result: transaction.toObject()
+      success: true,
+      result: results[0].toObject()
     });
   })
   .catch(function(err) {
@@ -487,6 +520,5 @@ exports.transact = function(req, res) {
       message: err.toString()
     });
   });
-
 
 }
