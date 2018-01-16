@@ -86,7 +86,6 @@ exports = module.exports = function (app) {
         opName: 'read',
         listName: Constants.FarmerListName
       },
-
       {
         opName: 'read',
         listName: Constants.AccountListName
@@ -104,6 +103,10 @@ exports = module.exports = function (app) {
       {
         opName: 'read',
         listName: Constants.FarmerListName
+      },
+      {
+        opName: 'create',
+        listName: Constants.AccountRecordListName
       }
     ]),
     routes.api.AccountService.create
@@ -123,15 +126,40 @@ exports = module.exports = function (app) {
     routes.api.AccountService.close
   );
 
+  app.post('/api/account/set-freeze',
+    middleware.permissionCheck.bind([
+      {
+        opName: 'update',
+        listName: Constants.AccountListName
+      },
+      {
+        opName: 'create',
+        listName: Constants.AccountRecordListName
+      }
+    ]),
+    routes.api.AccountService.setFreeze
+  );
 
 
   app.post('/api/product/transact',
-    middleware.permissionCheck.bind(
+    middleware.permissionCheck.bind([
       {
         opName: 'create',
         listName: Constants.TransactionListName
+      },
+      {
+        opName: 'read',
+        listName: Constants.ProductListName
+      },
+      {
+        opName: 'update',
+        listName: Constants.AccountListName
+      },
+      {
+        opName: 'create',
+        listName: Constants.AccountRecordListName
       }
-    ),
+    ]),
     routes.api.ProductService.transact
   );
 

@@ -376,6 +376,7 @@ exports.transact = function(req, res) {
   });
 
   var products;
+  var nowDate = Date.now();
 
   productList.model.find({ _id : { $in: productIDs } }) //get products info from db
   .lean()
@@ -387,8 +388,6 @@ exports.transact = function(req, res) {
       return Promise.reject('查詢到的商品數量不合,請重新選購');
     }
 
-    var nowDate = Date.now();
-
     //check product state
     if(products.every(function(product) {
         return product.canSale && product.startSaleDate.getTime() < nowDate.getTime()
@@ -396,7 +395,7 @@ exports.transact = function(req, res) {
 
       //check pass
       return accountList.model.findOne(filters)
-            .select("active balance")
+            .select("_id freeze active balance")
             .exec();
     }
     else {
@@ -426,7 +425,7 @@ exports.transact = function(req, res) {
       });
 
       if(!product)
-        return Promise.reject('商品資訊錯誤,請重新選購');
+        return Promise.reject('購物車商品資訊錯誤,請重新選購');
 
       var price = 0;
       if(formProduct.price === 'exchange') {
@@ -503,9 +502,9 @@ exports.transact = function(req, res) {
     });
 
     var task = Fawn.Task();
-    return task.save(newTransaction)
+    return task.update(account, { balance: newBalance, lastRecord: newRec_id }).options(viaSave)
+               .save(newTransaction)
                .save(newRec)
-               .update(account, { balance: newBalance, lastRecord: newRec_id }).options(viaSave)
                .run(viaMongoose);
   })
   .then(function(results) {

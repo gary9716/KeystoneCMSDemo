@@ -15,7 +15,6 @@ var viaMongoose = {useMongoose: true};
 
 exports.create = function(req, res) {
   var form = req.body;
-  var savAccount;
   var farmer;
 
   farmerList.model.findOne({ pid : form.farmerPID })
@@ -96,10 +95,8 @@ exports.close = function(req, res) {
     });
   }
 
-  var savAccount;
-
   accountList.model.findOne(filters)
-  .select("active")
+  .select("_id freeze active")
   .exec()
   .then(function(account) {
     if(!account)
@@ -148,6 +145,68 @@ exports.close = function(req, res) {
 }
 
 exports.setFreeze = function(req, res) {
+  var form = req.body;
+
+  var filters = {};
+  if(form.hasOwnProperty("accountID")) {
+    filters.accountID = form.accountID;
+  }
+  else if(form.hasOwnProperty("account_id")) {
+    filters._id = form.account_id;
+  }
+  else {
+    return res.json({
+      success: false,
+      message: '沒有存取存摺的關鍵資訊'
+    });
+  }
+
+  accountList.model.findOne(filters)
+  .select("_id freeze active")
+  .exec()
+  .then(function(account) {
+    if(!account)
+      return Promise.reject('未找到存摺');
+
+    if(!account.active) 
+      return Promise.reject('此存摺已被結清');
+    
+    if(account.freeze? !form.freeze : form.freeze) //XOR
+      return Promise.reject('無法重複凍結或解凍');
+
+    var newRec_id = mongoose.Types.ObjectId();
+
+    var newRec = new accountRecList.model({
+      _id: newRec_id,
+      account: account._id,
+      opType: form.freeze? 'freeze' : 'unfreeze',
+      date: Date.now(),
+      operator: req.user._id,
+      comment: form.comment? form.comment: '',
+    });
+
+    newRec._req_user = req.user;
+    account._req_user = req.user;
+
+    var task = Fawn.Task();
+    return task.update(account, { freeze: form.freeze, lastRecord: newRec_id }).options(viaSave)
+               .save(newRec)
+               .run(viaMongoose);
+
+  })
+  .then(function(results) {
+    return res.json({
+      success: true,
+      result: results[0].toObject()
+    });
+  })
+  .catch(function(err) {
+    res.json({
+      success: false,
+      message: err.toString()
+    });
+  });
+
 
 }
 
@@ -168,12 +227,19 @@ exports.deposit = function(req, res) {
     });
   }
 
+  if(!form.hasOwnProperty("amount")) {
+    return res.json({
+      success: false,
+      message: '沒有金額資訊'
+    });
+  }
+
   var nowDate = Date.now();
   var period_id = null;
   var account = null;
 
   accountList.model.findOne(filters)
-  .select("active balance")
+  .select("_id freeze active balance")
   .exec()
   .then(function(_account) {
     if(!_account)
@@ -308,11 +374,10 @@ exports.withdraw = function(req, res) {
     });
   }
 
-  var savAccount;
   var amount = 0;
 
   accountList.model.findOne(filters)
-  .select("active balance")
+  .select("_id freeze active balance")
   .exec()
   .then(function(account) {
     if(!account)
@@ -321,6 +386,9 @@ exports.withdraw = function(req, res) {
     if(!account.active) 
       return Promise.reject('此存摺已被結清');
     
+    if(account.freeze) 
+      return Promise.reject('此存摺被凍結中,無法進行此操作');
+
     //parse amount
     if(form.amount instanceof String)
       amount = parseInt(form.amount);
