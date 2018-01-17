@@ -167,8 +167,7 @@ angular.module('ngCart', ['ngCart.directives', 'ngLodash'])
             $rootScope.$broadcast('ngCart:change');
         };
 
-        this.empty = function () {
-            
+        this.empty = function () {   
             $rootScope.$broadcast('ngCart:change');
             $cart.items = [];
             $window.localStorage.removeItem($cart.storeKey);
@@ -358,7 +357,6 @@ angular.module('ngCart', ['ngCart.directives', 'ngLodash'])
 
 
             set: function (key, val) {
-
                 if (val === undefined) {
                     $window.localStorage.removeItem(key);
                 } else {

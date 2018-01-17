@@ -3,6 +3,9 @@
 -->
 
 <div class="container">
+  <div ng-show="ctrler.products.length === 0" class="form-group text-center">
+    <label>目前沒有任何商品 請至商品管理頁面進行新增</label>
+  </div>
   <!-- dont directly apply listTo2DMat filter to ng-repeat expression here. 
     it's unstable -->
   <div class="row" ng-repeat="productsPerRow in ctrler.products">
@@ -19,26 +22,22 @@
       appearance: none;
       margin: 0; 
   }
-  .product-info-row {
-    display: flex; align-items: center;
-  }
-
+  
   table.product-table {
     padding: 0;
   }
 
-  table.product-table td {
-    background-color: white;
-  }
-
   table.product-table td.price-col {
-    padding-left: 1em;
-    
+    padding-left: 1em;    
   }
 
   table.product-table input.price-radio, 
   form#cart-form input.opt-radio {
     width:0.85em; height:0.85em;
+  }
+
+  form.product-preview-form div.product-info-row {
+    display: flex; align-items: center;
   }
 
   .balance-not-enough {
@@ -50,37 +49,35 @@
 <!-- templates start -->
 <!-- product layout -->
 <script type="text/ng-template" id="product-layout-v1.html">
-  <div class="thumbnail" style="padding: 5px 20px 20px;">
+  <div class="well" style="padding: 5px 20px 20px;">
     <!-- no image
     <img ng-src="{{::product.image}}" alt="" class="img-responsive">
     -->
-    <form name="pForm">
+    <form name="pForm" class="product-preview-form">
       <div class="caption">
-        <h4 class="pull-right">每包重{{::product.weight}}kg</h4>
+        <!-- maybe we may need this in future
         <h4><a class="clickable" ng-click="ctrler.viewDetail()">{{::product.name}}</a></h4>
-        
+        -->
+        <h4 class="text-center">{{::product.name}}</h4>
+        <label>每包重{{::product.weight}}kg</label>
           <div class="form-group product-info-row">
             <label>價格方案：</label>
             <div class="col-md-8" style="padding: 5px 5px;">
-              <table class="product-table table-striped table-responsive">
+              <table class="product-table table-responsive">
                 <tr>
                   <td class="txt-col"><label><input type="radio" class="price-radio" ng-value="product.marketPrice" ng-model="product.price" ng-model-options="{ debounce: 100 }" ng-hide="product.isInCart">定價</label></td> 
-                  <td class="price-col">{{::product.marketPrice}}</td>
+                  <td class="price-col">{{::product.marketPrice}} 元</td>
                 </tr>
                 <tr>
                   <td class="txt-col"><label><input type="radio" class="price-radio" ng-value="product.exchangePrice" ng-model="product.price" ng-model-options="{ debounce: 100 }" ng-hide="product.isInCart">兌換價</label></td> 
-                  <td class="price-col">{{::product.exchangePrice}}</td>
-                </tr>
-                <tr>
-                  <td class="txt-col"><label><input type="radio" class="price-radio" ng-value="product.discountPrice" ng-model="product.price" ng-model-options="{ debounce: 100 }" ng-hide="product.isInCart">折扣價</label></td> 
-                  <td class="price-col">{{::product.discountPrice}}</td>
+                  <td class="price-col">{{::product.exchangePrice}} 元</td>
                 </tr>
               </table>
             </div>
           </div>
 
           <div class="form-group product-info-row" style="min-height: 2em;">
-            <label>最終價格：</label>
+            <label>最終單價：</label>
             <input type="number" name="price" ng-model="product.price" ng-model-options="{ debounce: 200 }" class="col-sm-4 col-md-7 text-center" ng-hide="product.isInCart" required>
             <label class="col-sm-4 col-md-7 text-center" ng-show="product.isInCart">{{product.price}} 元</label>
           </div>
@@ -176,9 +173,6 @@
 
         </section>
         
-
-        
-
         <!-- account data -->
         <section class="row form-group" style="width:100%; margin: 0px;" ng-init="ctrler.accountSrcOpt='viaCachedList';">
           <!-- hidden inputs for form validation-->
@@ -238,6 +232,7 @@
 
         <!-- buttons -->
         <section class="row form-group text-right" style="margin:0px;">
+          <button type="button" class="btn btn-danger pull-left" ng-click="ctrler.cancel('clear')"><span class="fa fa-remove"></span> 清空購物車</button>
           <button type="button" class="btn btn-primary" ng-click="ctrler.cancel()"><span class="fa fa-shopping-cart"></span> 繼續購物</button>
           <button type="button" class="btn btn-success" ng-disabled="cartForm.$invalid" ng-click="ctrler.checkout()">結帳 <span class="fa fa-play"></span></button>
         </section>

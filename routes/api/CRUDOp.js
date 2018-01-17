@@ -27,55 +27,6 @@ format: {
 }
 */
 
-exports.create = function(req, res) {
-  var targetList = keystone.list(req.body.listName);
-  if(!targetList)
-    return res.json({
-      success: false,
-      message: '欲操作的列表不存在'
-    });
-
-  if(req.body.itemData) {
-    var dataCollection = {};
-    var itemData = req.body.itemData;
-    if(itemData instanceof Array) {
-      dataCollection[req.body.listName] = itemData;
-    }
-    else if(itemData instanceof Object) {
-      dataCollection[req.body.listName] = [ itemData ];
-    }
-    else {
-      return res.json({
-        success: false,
-        message: '資料型態錯誤'
-      });
-    }
-
-    keystone.createItems(dataCollection, function(err, stats) {
-        //stats && console.log(stats.message);
-        if(err) {
-          res.json({
-            success: false,
-            message: err.toString()
-          });
-        }
-        else {
-          res.json({
-            success: true
-          });
-        }
-    });
-
-  }
-  else {
-    return res.json({
-      success: false,
-      message: '沒有可用來創建的項目資料'
-    });
-  }
-  
-};
-
 exports.read = function(req, res) {
 
   var form = req.body;
@@ -125,6 +76,8 @@ exports.read = function(req, res) {
   if(form.hasOwnProperty("populate"))
     query = query.populate(form.populate.join(' '));
 
+  if(form.hasOwnProperty("limit"))
+    query = query.limit(form.limit);
 
   query.lean().exec()
     .then(function(result) {
@@ -142,6 +95,58 @@ exports.read = function(req, res) {
 
 
 };
+
+/*
+
+exports.create = function(req, res) {
+  var targetList = keystone.list(req.body.listName);
+  if(!targetList)
+    return res.json({
+      success: false,
+      message: '欲操作的列表不存在'
+    });
+
+  if(req.body.itemData) {
+    var dataCollection = {};
+    var itemData = req.body.itemData;
+    if(itemData instanceof Array) {
+      dataCollection[req.body.listName] = itemData;
+    }
+    else if(itemData instanceof Object) {
+      dataCollection[req.body.listName] = [ itemData ];
+    }
+    else {
+      return res.json({
+        success: false,
+        message: '資料型態錯誤'
+      });
+    }
+
+    keystone.createItems(dataCollection, function(err, stats) {
+        //stats && console.log(stats.message);
+        if(err) {
+          res.json({
+            success: false,
+            message: err.toString()
+          });
+        }
+        else {
+          res.json({
+            success: true
+          });
+        }
+    });
+
+  }
+  else {
+    return res.json({
+      success: false,
+      message: '沒有可用來創建的項目資料'
+    });
+  }
+  
+};
+
 
 exports.update = function(req, res) {
     var form = req.body;
@@ -237,3 +242,5 @@ exports.delete = function(req, res) {
       });
     });
 };
+
+*/

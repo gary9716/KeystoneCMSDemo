@@ -7,7 +7,8 @@ var Shop = new keystone.List(Constants.ShopListName, {
   label: '兌領處'
 });
 Shop.add({
-  name: {type: Types.Text, label: '名稱'}
+  name: { type: Types.Text, label: '名稱', required: true, initial: true, trim: true },
+  code: { type: String, label: '代號', initial: true, trim: true }
 });
 Shop.defaultColumns = 'name';
 Shop.register();

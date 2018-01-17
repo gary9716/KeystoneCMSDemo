@@ -23,7 +23,9 @@ angular.module('mainApp')
       villages: "cityDist"
     };
 
-    vm.selectOnChange = function(targetName, selectVal, listName) {
+    var defaultAddPrefix;
+    
+    vm.selectOnChange = function(targetName, selectVal, listName, next) {
       if(!selectVal)
         return;
 
@@ -49,6 +51,8 @@ angular.module('mainApp')
         if(data.success) {
           vm[targetName] = data.result;
           cache[selectVal] = data.result;
+          if(next)
+            next(data.result);
         }
         else {
           //TODO: show on web page
@@ -145,6 +149,22 @@ angular.module('mainApp')
       });
     }
 
+    var setRestOfDefaultValues = function() {
+
+      if($rootScope.locals) {
+        var sysParams = $rootScope.locals.sys;
+
+        vm.citySelect = sysParams.cityDist.city;
+        vm.distSelect = sysParams.cityDist._id;
+        
+        vm.selectOnChange('dists',vm.citySelect,'AddrPrefix',function(dists) {
+          vm.selectOnChange('villages',vm.distSelect,'Village');
+        }); 
+      }
+    
+    }
+
+    //initialization
     vm.getCities = function() {
       $http.post('/api/read',{
         listName: 'City'
@@ -153,6 +173,7 @@ angular.module('mainApp')
         var data = res.data;
         if(data.success) {
           vm.cities = data.result;
+          setRestOfDefaultValues();
         }
         else {
           $rootScope.pubWarningMsg(data.message);

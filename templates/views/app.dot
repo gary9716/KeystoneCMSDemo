@@ -40,9 +40,16 @@
                   </li>
                   [[~]]
               </ul>
-              <ul class="nav navbar-nav navbar-right">
+              <ul class="nav navbar-nav navbar-right">                
+                
                 <li class="clickable"><a ng-click="openCachedFarmerList()"><i class="fa fa-archive"></i> 暫存農夫列表</a></li>
-                <li class="clickable" ng-show="isProductPage()"><a ng-click="openShopCart()"><i class="fa fa-shopping-cart" aria-hidden="true"></i> 購物車</a></li>
+                
+                <li class="clickable" ng-show="isPage('productSell')"><a ng-click="openShopCart()"><i class="fa fa-shopping-cart" aria-hidden="true"></i> 購物車</a></li>
+                
+                <li class="clickable" ng-show="isPage('productManage')"><a ng-click="openProductEdit()"><i class="fa fa-cloud-upload" aria-hidden="true"></i> 增加商品</a></li>
+
+                <li class="clickable" ng-show="isPage('productType')"><a ng-click="openProductTypeEdit()"><i class="fa fa-cloud-upload" aria-hidden="true"></i> 增加商品類型</a></li>
+
                 [[?model.user]]
                 [[var result= helpers.getKeystoneAttr('signout url');]]
                 <li><a href=[[=result]]>Sign Out</a></li>
@@ -93,6 +100,7 @@
       [[?]]
     </div>
     -->
+
     <div class="container">
     <div uib-alert ng-repeat="alert in alerts track by $index" ng-class="'alert-' + (alert.type || 'warning')" dismiss-on-timeout="3000" close="alerts.splice(alerts.indexOf(alert),1);">{{::alert.msg}}</div>
     </div>
@@ -124,7 +132,6 @@
     [[var code = helpers.isAdminEditorJS(model.user);]]
     [[=code]]
 
-
     [[? model.env === 'production']]
     <script src="/app-dist/whole-app.js"></script>
     [[?? true]]
@@ -136,10 +143,9 @@
     <script src="/app/farmer/FarmerPageCtrler.js"></script>
     <script src="/app/farmer/AccountPageCtrler.js"></script>
     <script src="/app/farmer/CachedFarmerListCtrler.js"></script>
-    <script src="/app/product/ProductSellPageCtrler.js"></script>
-    <script src="/app/product/ProductManagePageCtrler.js"></script>
+    <script src="/app/product/ProductPageCtrler.js"></script>
+    <script src="/app/product/ProductTypePageCtrler.js"></script>
     <script src="/app/product/myNgCart.js"></script>
-    <script src="/app/purchase/PurchasePageCtrler.js"></script>
     [[?]]
     
     <div class="container">
@@ -154,5 +160,6 @@
           <!-- /.row -->
       </footer>
     </div>
+
   </body>
 </html>

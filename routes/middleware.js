@@ -440,13 +440,14 @@ exports.refreshSysInfo = function(req, res, next) {
   .find()
   .sort({$natural:-1}) //newest to oldest
   .limit(1)
+  .populate('cityDist')
   .then(function(results) {
     var result;
     if(results instanceof Array && results.length > 0)
       result = results[0];
     else
       result = results;
-
+    
     if(result) {
       keystone.set('sysParams', result);
       next();

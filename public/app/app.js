@@ -111,9 +111,9 @@ angular.module('mainApp')
     })
     .state({
       name: 'productSell',
-      templateUrl: appRootPath + 'product/index.html',
+      templateUrl: appRootPath + 'product/sell.html',
       url: '/product/sell',
-      controller: 'ProductSellPageCtrler as ctrler',
+      controller: 'ProductPageCtrler as ctrler',
       resolve: {
         condition1 : ['myValidation', function(myValidation) {
           //if this promise is rejected, then the transition will fail
@@ -131,14 +131,32 @@ angular.module('mainApp')
       name: 'productManage',
       templateUrl: appRootPath + 'product/manage.html',
       url: '/product/manage',
-      controller: 'ProductManagePageCtrler as ctrler',
+      controller: 'ProductPageCtrler as ctrler',
       resolve: {
         condition1 : ['myValidation', function(myValidation) {
           //if this promise is rejected, then the transition will fail
           return myValidation.checkPermission([
               {
                 listName: 'Product',
-                opName: ['create', 'update']
+                opName: ['create', 'update', 'delete']
+              },
+            ]); 
+        }]
+      }
+    })
+
+    .state({
+      name: 'productType',
+      templateUrl: appRootPath + 'product/product-type.html',
+      url: '/product/product-type',
+      controller: 'ProductTypePageCtrler as ctrler',
+      resolve: {
+        condition1 : ['myValidation', function(myValidation) {
+          //if this promise is rejected, then the transition will fail
+          return myValidation.checkPermission([
+              {
+                listName: 'ProductType',
+                opName: ['create', 'read']
               },
             ]); 
         }]
@@ -185,11 +203,10 @@ angular.module('mainApp')
       $rootScope.alerts.push({ type:'danger', msg: msg }); 
     }
 
-
-
-    $rootScope.isProductPage = function(){
-      return $state.current.name.includes('product');
+    $rootScope.isPage = function(pageName){
+      return $state.current.name === pageName;
     }
+
 
     //buttons on nav bar
     $rootScope.openShopCart = function() {
@@ -198,6 +215,18 @@ angular.module('mainApp')
       }
     }
     
+    $rootScope.openProductEdit = function() {
+      if($rootScope.productPageCtrler) {
+        $rootScope.productPageCtrler.openProductEditModal();
+      }
+    }
+
+    $rootScope.openProductTypeEdit = function() {
+      if($rootScope.productTypePageCtrler) {
+        $rootScope.productTypePageCtrler.openEditModal();
+      }
+    }
+
     $rootScope.openCachedFarmerList = function() {
       var modalInstance = $uibModal.open({
         templateUrl: appRootPath + 'farmer/farmerList.html',

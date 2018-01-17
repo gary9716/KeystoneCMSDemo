@@ -10,287 +10,283 @@ var viaMongoose = {useMongoose: true};
 var accountList = keystone.list(Constants.AccountListName);
 var accountRecList = keystone.list(Constants.AccountRecordListName);
 var productList = keystone.list(Constants.ProductListName);
+var productTypeList = keystone.list(Constants.ProductTypeListName);
 var transactionList = keystone.list(Constants.TransactionListName);
 
 var parsePrice = function(data, key) {
-  if(data.hasOwnProperty(key)) {
-    var price = 0;
-    if(data[key] instanceof String)
-      price = parseInt(data[key]);
-    else 
-      price = data[key];
+  var price = 0;
+  if(data[key] instanceof String)
+    price = parseInt(data[key]);
+  else 
+    price = Math.floor(data[key]);
 
-    if(isNaN(price))
-      return {
-        msg: '價格非數字'
-      };
-    else if(price < 0) 
-      return {
-        msg: '價格小於0'
-      };
-    else
-      return {
-        val: price
-      };
-
-  }
-  else {
-    return null;
-  }
+  if(isNaN(price))
+    return {
+      msg: '價格非數字'
+    };
+  else if(price < 0) 
+    return {
+      msg: '價格小於0'
+    };
+  else
+    return {
+      val: price
+    };
 }
 
 var parseDiscount = function(data, key) {
-  if(data.hasOwnProperty(key)) {
-    var discount = 1;
-    if(data[key] instanceof String)
-      discount = parseFloat(data[key]);
-    else 
-      discount = data[key];
+  var discount = 1;
+  if(data[key] instanceof String)
+    discount = parseFloat(data[key]);
+  else 
+    discount = data[key];
 
-    if(isNaN(discount)) {
-      return {
-        msg: '折扣非數字'
-      };
-    }
-    else if(discount <= 0 || discount > 1) {
-      return {
-        msg: '折扣須介於0與1'
-      }; 
-    }
-    else {
-      return {
-        val: discount
-      };
-    }
-
+  if(isNaN(discount)) {
+    return {
+      msg: '折扣非數字'
+    };
+  }
+  else if(discount < 0 || discount > 1) {
+    return {
+      msg: '折扣須介於0與1'
+    }; 
   }
   else {
-    return null;
+    return {
+      val: discount
+    };
   }
 }
 
 var parseWeight = function(data, key) {
-  if(data.hasOwnProperty(key)) {
-    var weight = 0;
-    if(data[key] instanceof String)
-      weight = parseFloat(data[key]);
-    else 
-      weight = data[key];
+  var weight = 0;
+  if(data[key] instanceof String)
+    weight = parseFloat(data[key]);
+  else 
+    weight = data[key];
 
-    if(isNaN(weight)) {
-      return {
-        msg: '單位重非數字'
-      };
-    }
-    else if(weight >= 0) {
-      return {
-        msg: '單位重須大於0'
-      }; 
-    }
-    else {
-      return {
-        val: weight
-      };
-    }
-
+  if(isNaN(weight)) {
+    return {
+      msg: '單位重非數字'
+    };
+  }
+  else if(weight <= 0) {
+    return {
+      msg: '單位重須超過0'
+    }; 
   }
   else {
-    return null;
+    return {
+      val: weight
+    };
   }
 }
 
-exports.create = function(req, res) {
+exports.pTypeUpsert = function(req, res) {
   var form = req.body;
 
-  if(!form.hasOwnProperty("pid") || 
-    !form.hasOwnProperty("name") ||
-    !form.hasOwnProperty("pType")) {
+  Promise.resolve()
+  .then(function() {
 
-    return res.json({
-      success: false,
-      message: '商品資訊不足'
-    });
+    var data = {
+      name: form.name,
+      code: form.code
+    };
 
-  }
-  
-  data = {
-    pid: form.pid,
-    name: form.name,
-    pType: form.pType
-  };
+    if(form.hasOwnProperty('_id')) { //update 
 
-  var numberInfo = parsePrice(form, "marketPrice");
-  if(numberInfo) {
-    if(numberInfo.val) {
-      data.marketPrice = numberInfo.val;
-    }
+      return productTypeList.model.findOne({ _id : form._id })
+        .exec()
+        .then(function(pType) {
+          if(pType) {
+            _.assign(pType, data);
+            pType._req_user = req.user;
+            return pType.save();
+          }
+          else {
+            Promise.reject('商品類型不存在,無法更新');
+          }
+        });
+
+    } 
     else {
-      return res.json({
-        success: false,
-        message: numberInfo.msg        
-      });
-    }
-  }
 
-  numberInfo = parsePrice(form, "exchangePrice");
-  if(numberInfo) {
-    if(numberInfo.val) {
-      data.exchangePrice = numberInfo.val;
-    }
-    else {
-      return res.json({
-        success: false,
-        message: numberInfo.msg        
-      });
-    }
-  }
+      var newPType = new productTypeList.model(data);
+      newPType._req_user = req.user;
+      return newPType.save();
 
-  numberInfo = parseDiscount(form, "discount");
-  if(numberInfo) {
-    if(numberInfo.val) {
-      data.discount = numberInfo.val;
     }
-    else {
-      return res.json({
-        success: false,
-        message: numberInfo.msg
-      });
-    }
-  }
-
-  numberInfo = parseWeight(form, "weight");
-  if(numberInfo) {
-    if(numberInfo.val) {
-      data.weight = numberInfo.val;
-    }
-    else {
-      return res.json({
-        success: false,
-        message: numberInfo.msg
-      });
-    }
-  }
-
-  if(form.hasOwnProperty("canSale")) {
-    data.canSale = form.canSale;
-  }
-
-  if(form.hasOwnProperty("startSaleDate")) {
-    data.startSaleDate = form.startSaleDate;
-  }
-
-  var newProduct = new productList.model(data);
-  newProduct._req_user = req.user;
-  newProduct.save()
-  .then(function(savProduct) {
+  })
+  .then(function(savPType) {
     return res.json({
       success: true,
-      result: savProduct.toObject()
+      result: savPType.toObject()
     });
   })
   .catch(function(err) {
     return res.json({
       success: false,
+      result: err.toString()
+    });
+  })
+}
+
+exports.get = function(req, res) {
+  var form = req.body;
+
+  Promise.resolve()
+  .then(function() {
+    if(form.mode === 'saleable') { //can be sold
+      return productList.model.find({
+        canSale: true,
+        startSaleDate: {
+          $lte: Date.now()
+        }
+      })
+      .populate('pType')
+      .lean()
+      .exec();
+    }
+    else { //all
+      return productList.model.find()
+      .populate('pType')
+      .lean()
+      .exec();
+    }
+  })
+  .then(function(products) {
+    return res.json({
+      success: true,
+      result: products
+    });
+
+  })
+  .catch(function(err) {
+
+    return res.json({
+      success: false,
       message: err.toString()
     });
+
   });
+
 
 }
 
-exports.update = function(req, res) {
+//update or insert
+exports.upsert = function(req, res) {
   
   var form = req.body;
   var filters = {};
 
-  if(form.hasOwnProperty('product_id')) {
-    filters._id = form.product_id;
-  }
-  else if(form.hasOwnProperty('pid')) {
-    filters.pid = form.pid;
-  }
-  else {
+  var mode = this.mode;
+
+  if(!form.hasOwnProperty('pid')) {
     return res.json({
       success: false,
-      message: '商品資訊不足'
+      message: '沒有商品編號'
+    });
+  }
+  else if(!form.hasOwnProperty('name')) {
+    return res.json({
+      success: false,
+      message: '沒有商品名稱'
+    });
+  }
+  else if(!form.hasOwnProperty('pType')) {
+    return res.json({
+      success: false,
+      message: '沒有商品類型'
+    });
+  }
+  else if(!form.hasOwnProperty('startSaleDate')) {
+    return res.json({
+      success: false,
+      message: '沒有上架日期'
     });
   }
 
-  productList.model.findOne(filters)
-  .exec()
-  .then(function(product) {
-    if(!product)
-      return Promise.reject('無此商品');
+  var data = {
+      pid: form.pid,
+      name: form.name,
+      pType: form.pType,
+      canSale: form.canSale? form.canSale:false,
+      startSaleDate: form.startSaleDate
+  };
 
-    if(form.hasOwnProperty("pid")) {
-      product.pid = form.pid;
+  var numberInfo = parsePrice(form, "marketPrice");
+
+  if(numberInfo) {
+    if(numberInfo.hasOwnProperty('val')) {
+      data.marketPrice = numberInfo.val;
     }
-
-    if(form.hasOwnProperty("name")) {
-      product.name = form.name;
+    else {
+      return res.json({
+        success: false,
+        message: numberInfo.msg? numberInfo.msg : 'null'
+      });
     }
+  }
 
-    if(form.hasOwnProperty("pType")) {
-      product.pType = form.pType;
+  numberInfo = parsePrice(form, "exchangePrice");
+
+  if(numberInfo) {
+    if(numberInfo.hasOwnProperty('val')) {
+      data.exchangePrice = numberInfo.val;
     }
-
-    var numberInfo = parsePrice(form, "marketPrice");
-    if(numberInfo) {
-      if(numberInfo.val) {
-        product.marketPrice = numberInfo.val;
-      }
-      else {
-        return Promise.reject(numberInfo.msg);
-      }
+    else {
+      return res.json({
+        success: false,
+        message: numberInfo.msg? numberInfo.msg : 'null'
+      });
     }
+  }
 
-    numberInfo = parsePrice(form, "exchangePrice");
-    if(numberInfo) {
-      if(numberInfo.val) {
-        product.exchangePrice = numberInfo.val;
-      }
-      else {
-        return Promise.reject(numberInfo.msg);
-      }
+  numberInfo = parseWeight(form, "weight");
+
+  if(numberInfo) {
+    if(numberInfo.hasOwnProperty('val')) {
+      data.weight = numberInfo.val;
     }
-
-    numberInfo = parseDiscount(form, "discount");
-    if(numberInfo) {
-      if(numberInfo.val) {
-        product.discount = numberInfo.val;
-      }
-      else {
-        return Promise.reject(numberInfo.msg);
-      }
+    else {
+      return res.json({
+        success: false,
+        message: numberInfo.msg? numberInfo.msg : 'null'
+      });
     }
+  }
 
-    numberInfo = parseWeight(form, "weight");
-    if(numberInfo) {
-      if(numberInfo.val) {
-        product.weight = numberInfo.val;
-      }
-      else {
-        return Promise.reject(numberInfo.msg);
-      }
+  var savProduct;
+
+  Promise.resolve()
+  .then(function() {
+    if(form.hasOwnProperty('_id')) { //update
+      return productList.model.findOne({ _id: form._id })
+        .exec()
+        .then(function(product) {
+          if(!product)
+            return Promise.reject('無此商品,無法更新');
+
+          _.assign(product, data);
+          product._req_user = req.user;
+
+          return product.save();
+        });
     }
-
-    if(form.hasOwnProperty("canSale")) {
-      product.canSale = form.canSale;
+    else { //create
+      var newProduct = new productList.model(data);
+      newProduct._req_user = req.user;
+      return newProduct.save();
     }
-
-    if(form.hasOwnProperty("startSaleDate")) {
-      product.startSaleDate = form.startSaleDate;
-    }
-
-    return product.save();
-
   })
-  .then(function(savProduct) {
-
+  .then(function(_savProduct) {
+    return _savProduct.populate('pType').execPopulate();
+  })
+  .then(function(popProduct) {
     return res.json({
       success: true,
-      result: savProduct.toObject()
+      result: popProduct.toObject()
     });
-
   })
   .catch(function(err) {
 
@@ -306,20 +302,8 @@ exports.update = function(req, res) {
 exports.delete = function(req, res) {
   var form = req.body;
   var filters = {};
-  if(form.hasOwnProperty('product_id')) {
-    filters._id = form.product_id;
-  }
-  else if(form.hasOwnProperty('pid')) {
-    filters.pid = form.pid;
-  }
-  else {
-    return res.json({
-      success: false,
-      message: '商品資訊不足'
-    });
-  }
   
-  productList.model.deleteOne(filters)
+  productList.model.remove({ _id: form._id })
   .exec()
   .then(function(delProduct) {
     if(!delProduct)

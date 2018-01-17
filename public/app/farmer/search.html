@@ -80,9 +80,9 @@
 }
 
 </style>
-<div class="table-responsive" ng-show="ctrler.farmers">
-  <legend>搜尋結果</legend>
-  <table class="table table-striped table-bordered table-hover" style="width: 100%; margin: 0px auto 20px;">
+<legend>搜尋結果</legend>
+<div class="table-responsive" ng-show="ctrler.farmers && ctrler.farmers.length > 0">
+  <table class="table table-bordered table-hover" style="margin: 0px auto 20px;">
     <tbody>
       <tr>
         <th class="farmer-search-col1">姓名</th>

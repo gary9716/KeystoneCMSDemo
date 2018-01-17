@@ -69,7 +69,19 @@ exports = module.exports = function (app) {
       opName: 'create',
       listName: Constants.FarmerListName
     }),
-    routes.api.FarmerService.register
+    routes.api.FarmerService.upsert.bind({
+      mode: 'create'
+    })
+  );
+
+  app.post('/api/farmer/update',
+    middleware.permissionCheck.bind({
+      opName: 'update',
+      listName: Constants.FarmerListName
+    }),
+    routes.api.FarmerService.upsert.bind({
+      mode: 'update'
+    })
   );
 
   app.post('/api/farmer/search',
@@ -141,6 +153,30 @@ exports = module.exports = function (app) {
   );
 
 
+
+  app.post('/api/p-type/upsert',
+    middleware.permissionCheck.bind(
+      {
+        opName: ['create','update'],
+        listName: Constants.ProductTypeListName
+      }
+    ),
+    routes.api.ProductService.pTypeUpsert
+  );
+
+
+
+
+  app.post('/api/product/get', 
+    middleware.permissionCheck.bind(
+      {
+        opName: 'read',
+        listName: Constants.ProductListName
+      }
+    ),
+    routes.api.ProductService.get
+  );
+
   app.post('/api/product/transact',
     middleware.permissionCheck.bind([
       {
@@ -162,7 +198,8 @@ exports = module.exports = function (app) {
     ]),
     routes.api.ProductService.transact
   );
-
+  
+  /*
   app.post('/api/product/create',
     middleware.permissionCheck.bind(
       {
@@ -170,7 +207,9 @@ exports = module.exports = function (app) {
         listName: Constants.ProductListName
       }
     ),
-    routes.api.ProductService.create
+    routes.api.ProductService.upsert.bind({
+      mode: 'create'
+    })
   );
 
   app.post('/api/product/update',
@@ -180,7 +219,20 @@ exports = module.exports = function (app) {
         listName: Constants.ProductListName
       }
     ),
-    routes.api.ProductService.update
+    routes.api.ProductService.upsert.bind({
+      mode: 'update'
+    })
+  );
+  */
+
+  app.post('/api/product/upsert',
+    middleware.permissionCheck.bind(
+      {
+        opName: ['create', 'update'],
+        listName: Constants.ProductListName
+      }
+    ),
+    routes.api.ProductService.upsert
   );
 
   app.post('/api/product/delete',

@@ -20,9 +20,9 @@
 <div class="form-group">
   <label class="col-md-4 control-label">生日</label>
   <div class="col-md-3 input-group">
-    <input type="text" style="margin-left:15px;" class="form-control input-md" uib-datepicker-popup="yyyy/MM/dd" ng-model="ctrler.birth" is-open="ctrler.birthSelOpened" required close-text="Close" />
+    <input type="text" style="margin-left:15px;" class="form-control input-md" uib-datepicker-popup="yyyy/MM/dd" ng-model="ctrler.birth" is-open="ctrler.birthSelOpened" required close-text="關閉" clear-text="清除" current-text="今天"/>
     <span class="input-group-btn">
-      <button type="button" class="btn btn-default" ng-click="ctrler.birthSelOpened=true;"><i class="glyphicon glyphicon-calendar"></i></button>
+      <button type="button" class="btn btn-default" ng-click="ctrler.birthSelOpened=true;"><i class="fa fa-calendar"></i></button>
     </span>
   </div>
 </div>
@@ -43,24 +43,26 @@
 
 <div class="form-group">
   <label class="col-md-4 control-label" for="geoSelectors">地址</label>
-  <div class="col-md-4">
+  <div class="col-md-6">
 
     <div class="row-offset-2" style="margin-top:7px;" id="geoSelectors">
-      直轄縣市
-      <select style="min-width:90px;" ng-init="ctrler.getCities()" ng-model="ctrler.citySelect" ng-model-options="{ debounce: 100 }" ng-change="ctrler.selectOnChange('dists',ctrler.citySelect,'AddrPrefix')" required>
-        <option ng-repeat="city in ctrler.cities track by city._id" value="{{::city._id}}")>{{::city.name}}</option>
-      </select>
-      鄉鎮市區
-      <select style="min-width:90px;" name="dist" ng-model="ctrler.distSelect" ng-change="ctrler.selectOnChange('villages',ctrler.distSelect,'Village')" ng-model-options="{ debounce: 100 }" required>
-        <option ng-repeat="dist in ctrler.dists track by dist._id" value="{{::dist._id}}")>{{::dist.dist}}</option>
-      </select>
-      村里
-      <select name="village" style="min-width:90px; margin-top: 5px;" ng-model="ctrler.villageSelect" ng-model-options="{ debounce: 100 }" required>
-        <option ng-repeat="village in ctrler.villages track by village._id" value="{{::village._id}}")>{{::village.name}}</option>
-      </select>
+      <label>
+        直轄縣市<select style="min-width:90px;" ng-init="ctrler.getCities()" ng-model="ctrler.citySelect" ng-model-options="{ debounce: 100 }" ng-change="ctrler.selectOnChange('dists',ctrler.citySelect,'AddrPrefix')" required><option ng-repeat="city in ctrler.cities track by city._id" value="{{::city._id}}")>{{::city.name}}</option>
+        </select>
+      </label>
+
+      <label>
+        鄉鎮市區<select style="min-width:90px;" name="dist" ng-model="ctrler.distSelect" ng-change="ctrler.selectOnChange('villages',ctrler.distSelect,'Village')" ng-model-options="{ debounce: 100 }" required><option ng-repeat="dist in ctrler.dists track by dist._id" value="{{::dist._id}}")>{{::dist.dist}}</option>
+        </select>
+      </label>
+
+      <label>
+        村里<select name="village" style="min-width:90px; margin-top: 5px;" ng-model="ctrler.villageSelect" ng-model-options="{ debounce: 100 }" required><option ng-repeat="village in ctrler.villages track by village._id" value="{{::village._id}}")>{{::village.name}}</option>
+        </select>
+      </label>
     </div>
     
-    <input style="margin-top:5px;" name="addrRest" ng-model="ctrler.addrRest" ng-model-options="{ debounce: 200 }" type="text" placeholder="" class="form-control input-md" required>
+    <input style="margin-top:5px;" name="addrRest" ng-model="ctrler.addrRest" ng-model-options="{ debounce: 200 }" type="text" placeholder="縣市鄉鎮以下的細節（路名,牌號等等）" class="form-control input-md" required>
 
   </div>
 </div>
@@ -129,8 +131,8 @@
   <!-- Button (Double) -->
   <div class="form-group">
     <div class="col-md-8 col-md-offset-5">
-      <button class="btn btn-warning" ng-click="ctrler.showRegisterTable = false;">修改</button>
       <button class="btn btn-success" ng-click="ctrler.registerFarmer()" ng-disabled="ctrler.isRegistering">提交</button>
+      <button class="btn btn-warning" ng-click="ctrler.showRegisterTable = false;">修改</button>
     </div>
   </div>
 

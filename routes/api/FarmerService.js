@@ -7,6 +7,120 @@ var _ = require('lodash');
 var farmerList = keystone.list(Constants.FarmerListName);
 var accountList = keystone.list(Constants.AccountListName);
 
+exports.upsert = function(req, res) {
+  var form = req.body;
+  var mode = this.mode;
+
+  if(!form.hasOwnProperty("pid")) {
+    return res.json({
+        success: false,
+        message: '沒有身分證字號'
+      });
+  }
+  else {
+    form.pid = form.pid.toUpperCase();
+
+    if(!middleware.checkPID(form.pid))
+      return res.json({
+        success: false,
+        message: '身分證格式不合'
+      });
+  }
+
+  if(form.hasOwnProperty("teleNum1")) {
+    form.teleNum1 = middleware.getPureNumStr(form.teleNum1);
+  }
+
+  if(form.hasOwnProperty("teleNum2")) {
+    form.teleNum2 = middleware.getPureNumStr(form.teleNum2);
+  }
+
+  var data = {
+    name: form.name ? form.name:'',
+    pid: form.pid,
+    birth: form.birth ? form.birth:'',
+    teleNum1: form.teleNum1 ? form.teleNum1:'',
+    teleNum2: form.teleNum2 ? form.teleNum2:'',
+    city: form.city ? form.city:'',
+    dist: form.dist ? form.dist:'',
+    village: form.village ? form.village:'',
+    addr: form.addr ? form.addr:'',
+  };
+
+  Promise.resolve()
+  .then(function() {
+    var getUpdateQuery = function() {
+      return farmerList.model
+        .findOne({
+          _id: form._id
+        })
+        .exec()
+        .then(function(farmer) {
+          if(farmer) {
+            _.assign(farmer, data);
+            farmer._req_user = req.user;
+            return farmer.save();
+          }
+          else {
+            return Promise.reject('找不到該農夫,無法更新');
+          }
+        });
+    }
+
+    var getCreateQuery = function() {
+      return farmerList.model
+        .findOne({
+          pid: form.pid
+        })
+        .lean()
+        .select('_id')
+        .exec()
+        .then(function(farmer) {
+          if(farmer) {
+            return Promise.reject('已存在相同身分證字號的帳號');
+          }
+          else {
+            var newFarmer = new farmerList.model(data);
+            newFarmer._req_user = req.user;
+            return newFarmer.save();
+          }
+        });
+    }
+
+    if(mode) {
+      if(mode === 'create') {
+        return getCreateQuery();
+      }
+      else { //update
+        return getUpdateQuery();
+      }
+    }
+    else {
+      if(form.hasOwnProperty('_id')) { //update
+        return getUpdateQuery();
+      }
+      else { //create
+        return getCreateQuery();
+      }
+    }
+
+  })
+  .then(function(savFarmer) {
+    return res.json({
+      success: true,
+      result: savFarmer.toObject()
+    });
+  })
+  .catch(function(err) {
+    return res.json({
+      success: false,
+      message: err.toString()
+    });
+  });
+
+}
+
+/*
 exports.register = function(req, res) {
   var form = req.body;
 
@@ -39,8 +153,6 @@ exports.register = function(req, res) {
     village: form.village ? form.village:'',
     addr: form.addr ? form.addr:''
   };
-
-  console.log(finalData);
 
   farmerList.model
     .findOne({
@@ -131,6 +243,7 @@ exports.update = function(req, res) {
     });
 
 }
+*/
 
 exports.search = function(req, res) {
   var form = req.body;
