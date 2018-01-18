@@ -8,14 +8,18 @@ var Schema = mongoose.Schema;
 //console.log(Constants.TransactionListName);
 var Transaction = new keystone.List(Constants.TransactionListName, {
   label: '兌換紀錄',
-  map: {
-    name: 'id'
-  },
-  noedit: true,
+  //noedit: true,
   //nodelete: true,
-  nocreate: true,
-  track: true,
-  defaultSort: '-date'
+  //nocreate: true,
+});
+
+var productRec = new Schema({
+  pid: { type: String, label: '商品編號', trim: true },
+  name: { type: String, label: '商品名', trim: true },
+  pType: { type: Schema.Types.ObjectId, label: '商品類型', ref: Constants.ProductTypeListName },
+  weight : { type: Number, label: '每包重(KG)', default: 0 },
+  price: { type: Number, label: '最終價格(每包）' },
+  qty : { type: Number, label: '包數' },
 });
 
 Transaction.add({
@@ -28,14 +32,7 @@ Transaction.add({
 
 Transaction.schema.add({
   products: {
-    type: [{
-      pid: { type: String, label: '商品編號', required: true, trim: true },
-      name: { type: String, label: '商品名', required: true, trim: true },
-      pType: { type: Schema.Types.ObjectId, label: '商品類型', ref: Constants.ProductTypeListName, required: true },
-      weight : { type: Number, label: '每包重(KG)', default: 0, required: true },
-      price: { type: Number, label: '最終價格(每包）', required: true },
-      qty : { type: Number, label: '包數', required: true },
-    }]
+    type: [productRec]
   },
   accRecBk: {
     type: {

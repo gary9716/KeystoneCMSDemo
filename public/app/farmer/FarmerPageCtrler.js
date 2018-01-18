@@ -123,7 +123,7 @@ angular.module('mainApp')
     vm.getCities = function() {
       vm.selectOnChange('cities', null)
       .then(function(data) {
-        setRestOfDefaultValues();
+        //setRestOfDefaultValues();
       })
       .catch(function(err) {
         $rootScope.pubErrorMsg('系統似乎出現一些錯誤');

@@ -347,7 +347,7 @@ exports.transact = function(req, res) {
   var products;
   var nowDate = Date.now();
   var newRec_id = mongoose.Types.ObjectId();
-  var newTransact_id = mongoose.Types.ObjectId();
+  //var newTransact_id = mongoose.Types.ObjectId();
   var savAccount, savTransaction;
   var total = 0;
   var productDataList = []; //for saving in DB
@@ -455,6 +455,7 @@ exports.transact = function(req, res) {
     var newBalance = account.balance - total;
 
     var accRecBk = {
+      _id: newRec_id,
       opType: 'transact',
       comment: form.comment? form.comment: ''
     };
@@ -471,7 +472,6 @@ exports.transact = function(req, res) {
     };
 
     var newTransaction = new transactionList.model({
-      _id: newTransact_id,
       date: nowDate,
       account: account._id,
       amount: total,
@@ -502,7 +502,7 @@ exports.transact = function(req, res) {
       date: savTrans.date,
       operator: req.user._id,
       comment: savTrans.accRecBk.comment,
-      transaction: newTransact_id,
+      transaction: savTrans._id,
       accBk: savTrans.accBk
     });
     newRec._req_user = req.user;
@@ -511,7 +511,7 @@ exports.transact = function(req, res) {
   })
   .then(function(savRec) {
     savAccount.balance = savRec.accBk.balance;
-    savAccount.lastRecord = newRec_id;
+    savAccount.lastRecord = savRec._id;
     savAccount._req_user = req.user;
 
     return savAccount.save();
