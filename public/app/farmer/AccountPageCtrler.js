@@ -16,7 +16,7 @@ angular.module('mainApp')
       localStorageService.set(farmerPIDKey, farmerPID);
     }
     else {
-      farmerPID = localStorageService.get(farmerPIDKey);
+      farmerPID = localStorageService.get(farmerPIDKey); //retrieve pid from cache to make page refreshable
     }
 
     vm.accountUser = '';
@@ -107,7 +107,11 @@ angular.module('mainApp')
         }
       });
 
-      modalInstance.result.catch(function () { 
+      modalInstance.result
+      .then(function(successMsg) {
+        $rootScope.pubSuccessMsg(successMsg);
+      })
+      .catch(function () { 
         modalInstance.close(); 
       });
     };
@@ -131,15 +135,15 @@ angular.module('mainApp')
         .then(function(res) {
           var data = res.data;
           if(data.success) {
-            $rootScope.pubSuccessMsg('更新基本資料成功');
+            $rootScope.pubSuccessMsg('更新成功,頁面資料已更新');
             vm.farmer = data.result;
           }
           else {
-            $rootScope.pubErrorMsg('更新失敗,原因：' + data.message);
+            $rootScope.pubErrorMsg('更新失敗,' + data.message);
           }
         })
         .catch(function(err) {
-            $rootScope.pubErrorMsg('更新失敗,原因：' + err.toString());
+            $rootScope.pubErrorMsg('更新失敗,' + err.toString());
         });
       })
       .catch(function () { 
@@ -158,7 +162,7 @@ angular.module('mainApp')
         }) === -1) { //hasn't been added
           cachedFarmers.push(vm.farmer);
           localStorageService.set(cachedFarmersKey,cachedFarmers);
-          $rootScope.pubSuccessMsg('成功把農民加入暫存列表');
+          $rootScope.pubSuccessMsg('已加入暫存列表,可用於購物車等其他服務');
         }
         else {
           $rootScope.pubErrorMsg('該農民已在暫存列表');
@@ -186,8 +190,8 @@ angular.module('mainApp')
   }]
 )
 .controller('AccountDetailModalCtrler', 
-  ['$uibModalInstance', 'account', '$http', 'lodash',
-  function($uibModalInstance, account, $http, _) {
+  ['$uibModalInstance', 'account', '$http', 'lodash', '$q',
+  function($uibModalInstance, account, $http, _ , $q) {
     var vm = this;
     vm.account = account;
     vm.closeAcc = {};
@@ -195,6 +199,7 @@ angular.module('mainApp')
     vm.withdraw = {};
     vm.setFreeze = {};
     vm.isProcessing = false;
+
     vm.alerts = [];
     vm.pubSuccessMsg = function(msg) {
       vm.alerts.push({ type:'success', msg: msg });
@@ -223,6 +228,22 @@ angular.module('mainApp')
       }
     } 
 
+    vm.getPeriods = function(keyword) {
+      return $http.post('/api/read', {
+        listName: 'Period',
+        contains: { name: keyword },
+        limit: 8,
+      })
+      .then(function(res) {
+        if(res.data.success) {
+          return res.data.result;
+        }
+        else {
+          return $q.reject();
+        }
+      });
+    }
+
     vm.depositOp = function() {
       vm.isProcessing = true;
 
@@ -231,7 +252,10 @@ angular.module('mainApp')
         amount: vm.deposit.amount
       };
 
-      notEmptyOrUndefThenAdd(data, 'period', vm.deposit.period);
+      notEmptyOrUndefThenAdd(data, 'period_id', vm.deposit.period_id);
+      if(!data.hasOwnProperty('period_id'))
+        notEmptyOrUndefThenAdd(data, 'period', vm.deposit.period);
+
       notEmptyOrUndefThenAdd(data, 'comment', vm.deposit.comment);
       notEmptyOrUndefThenAdd(data, 'ioAccount', vm.deposit.ioAccount);
 
@@ -243,8 +267,8 @@ angular.module('mainApp')
       .then(function(res) {
         var resData = res.data;
         if(resData.success) {
-          vm.pubSuccessMsg('入款成功');
           _.assign(vm.account, resData.result);
+          $uibModalInstance.close('入款成功,頁面資料已更新');
         }
         else {
           vm.pubErrorMsg('入款失敗,' + resData.message);
@@ -274,8 +298,8 @@ angular.module('mainApp')
       .then(function(res) {
         var resData = res.data;
         if(resData.success) {
-          vm.pubSuccessMsg('提款成功');
           _.assign(vm.account, resData.result);
+          $uibModalInstance.close('提款成功,頁面資料已更新');
         }
         else {
           vm.pubErrorMsg('提款失敗,' + resData.message);
@@ -304,7 +328,7 @@ angular.module('mainApp')
         var resData = res.data;
         if(resData.success) {
           _.assign(vm.account, resData.result);
-          vm.pubSuccessMsg(vm.account.freeze? '凍結成功':'解凍成功');
+          $uibModalInstance.close((vm.account.freeze? '凍結成功':'解凍成功') + ',頁面資料已更新');
         }
         else {
           vm.pubErrorMsg('失敗,' + resData.message);
@@ -333,7 +357,7 @@ angular.module('mainApp')
         var resData = res.data;
         if(resData.success) {
           _.assign(vm.account, resData.result);
-          vm.pubSuccessMsg('結清成功');
+          $uibModalInstance.close('結清成功,已呈現最新資料');
         }
         else {
           vm.pubErrorMsg('結清失敗,' + resData.message);

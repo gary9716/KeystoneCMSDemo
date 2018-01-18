@@ -60,11 +60,20 @@ exports.read = function(req, res) {
   }
   else {
     
-    if(form.hasOwnProperty("filters")) 
-      query = targetList.model.find(form.filters);
-    else 
-      query = targetList.model.find();
+    var filters = {};
 
+    if(form.hasOwnProperty("filters"))  {
+      filters = form.filters;
+    }
+    
+    if(form.hasOwnProperty("contains")) {
+      for(let prop in form.contains) {
+        filters[prop] = middleware.getRegExp(form.contains[prop], 'substr');
+      }
+    }
+    
+    query = targetList.model.find(filters);
+    
   }
   
   if(form.hasOwnProperty("sort"))

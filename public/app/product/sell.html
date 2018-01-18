@@ -106,10 +106,12 @@
 
 <!-- checkout modal -->
 <script type="text/ng-template" id="cart-and-checkout.html">
-<div class="form-group text-center" ng-show="ctrler.cartEmpty()">
+
+<div class="form-group text-center modal-body" ng-show="ctrler.cartEmpty()">
 <h3>購物車目前是空的</h3>
 <button type="button" class="btn btn-primary" ng-click="ctrler.cancel()">關閉</button>
 </div>
+
 <form name="cartForm" class="modal-body" id="cart-form" ng-hide="ctrler.cartEmpty()">
         <section>
         <h4>購物車資訊</h4>
@@ -170,9 +172,10 @@
         <div class="form-group">
         <h3 class="text-right">合計 <strong>{{ctrler.getTotalPrice()}}元</strong></h3>
         </div>
-
         </section>
         
+        <div uib-alert ng-repeat="alert in ctrler.alerts track by $index" ng-class="'alert-' + (alert.type || 'warning')" dismiss-on-timeout="3000" close="ctrler.alerts.splice(ctrler.alerts.indexOf(alert),1);">{{::alert.msg}}</div>
+
         <!-- account data -->
         <section class="row form-group" style="width:100%; margin: 0px;" ng-init="ctrler.accountSrcOpt='viaCachedList';">
           <!-- hidden inputs for form validation-->

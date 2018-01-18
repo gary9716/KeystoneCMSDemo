@@ -11,7 +11,7 @@ var Period = new keystone.List(Constants.PeriodListName, {
 });
 
 Period.add({
-  name: { type: String, label:'期別名', initial: true, required: true, trim: true }
+  name: { type: String, label:'期別名', index: true, initial: true, required: true, trim: true }
 });
 Period.relationship({ ref: Constants.AccountRecordListName, refPath: 'period', path: 'depositInThisPeriod' });
 Period.defaultColumns = 'name';

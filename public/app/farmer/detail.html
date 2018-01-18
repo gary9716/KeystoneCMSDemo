@@ -50,8 +50,7 @@
             <td class="detail-col2">{{ctrler.farmer.addr}}</td>
         </tr>
 
-        <!-- use collaspable ui to show detail -->
-        <tr ng-repeat="account in ctrler.accounts track by account._id" ng-click="ctrler.openAccountDetail(account)" class="hightlight clickable">
+        <tr ng-repeat="account in ctrler.accounts track by account._id" ng-click="ctrler.openAccountDetail(account)" class="hightlight clickable" uib-tooltip="點我可觀看細節與進行相關操作" tooltip-placement="left">
             <td class="detail-col1">存摺{{$index + 1}}編號</td>
             <td class="detail-col2">{{account.accountID}}</td>
         </tr>
@@ -96,7 +95,7 @@
 </div>
 </script>
 
-<!--觀看存摺細節對話框-->
+<!--觀看存摺細節與進行相關操作的對話框-->
 <script type="text/ng-template" id="account-detail.html">
 
 <div class="modal-header">
@@ -174,6 +173,8 @@
       </tbody>
       
     </table>
+    
+    <!-- alert messages -->
     <div uib-alert ng-repeat="alert in ctrler.alerts track by $index" ng-class="'alert-' + (alert.type || 'warning')" dismiss-on-timeout="3000" close="ctrler.alerts.splice(ctrler.alerts.indexOf(alert),1);">{{::alert.msg}}</div>
     
     <label>存摺相關操作</label>
@@ -183,6 +184,35 @@
       <label><input type="radio" class="opt-radio" value="setFreeze" ng-model="ctrler.accountOp" ng-change="">{{ctrler.account.freeze? '解凍':'凍結'}}</label>
       <label><input type="radio" class="opt-radio" value="close" ng-model="ctrler.accountOp" ng-change="">結清</label>
     </div>
+
+    <style>
+      .typeahead-demo .custom-popup-wrapper {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        z-index: 1000;
+        display: none;
+        background-color: #f9f9f9;
+      }
+
+      .typeahead-demo .custom-popup-wrapper > .message {
+        padding: 10px 20px;
+        border-bottom: 1px solid #ddd;
+        color: #868686;
+      }
+
+      .typeahead-demo .custom-popup-wrapper > .dropdown-menu {
+        position: static;
+        float: none;
+        display: block;
+        min-width: 160px;
+        background-color: transparent;
+        border: none;
+        border-radius: 0;
+        box-shadow: none;
+      }
+    </style>
+
     <form name="accountOpForm" id="account-op-form">
       <section ng-show="ctrler.accountOp==='deposit'">
         <div class="flex-row form-group">
@@ -191,7 +221,11 @@
         </div>
         <div class="flex-row form-group">
           <label class="col-md-3">期別</label>
-          <input type="text" name="depositPeriod" ng-model="ctrler.deposit.period" ng-trim="true">
+          <input type="text" name="depositPeriod" ng-model="ctrler.deposit.period" ng-trim="true" typeahead-no-results="ctrler.noPeriodFound" typeahead-loading="ctrler.loadingPeriod" uib-typeahead="period.name for period in ctrler.getPeriods($viewValue)" ng-model-options= "{ debounce: { default: 700 } }">
+          <i ng-show="ctrler.loadingPeriod" class="glyphicon glyphicon-refresh">搜尋中</i>
+          <div ng-show="ctrler.noPeriodFound">
+            <i class="glyphicon glyphicon-remove"></i> 沒找到相關期別
+          </div>
         </div>
         <div class="flex-row form-group">
           <label class="col-md-3">轉入帳號</label>
@@ -240,6 +274,7 @@
         </div>
       </section>
     </form>
+
 </div>
 <div class="modal-footer">
     <div class="flex-row form-group">

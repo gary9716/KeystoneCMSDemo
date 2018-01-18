@@ -7,7 +7,7 @@ angular.module('mainApp')
     
     //1. create product
     //2. read product list
-    //3. delete expired product(?
+    //3. delete product(
     //4. update product
 
     //common part
@@ -84,12 +84,13 @@ angular.module('mainApp')
         }
 
         vm.viewDetail = function() {
-            //TODO: show product detail in modal view
+            //future feature(?): show product detail in modal view
         };
 
         var doCheckOut = function(data) {
 
             var clearAllFarmerAccountCached = function() {
+                //make browser re-fetch data
                 var farmers = localStorageService.get(cachedFarmersKey);
                 farmers.forEach(function(farmer) {
                     localStorageService.remove(farmer.pid + ',accounts:');
@@ -163,12 +164,6 @@ angular.module('mainApp')
               });
         }
 
-        /*
-        var dumpItems = function() {
-            console.log(ngCart.getItems());
-        }
-        */
-
         vm.addItemToCart = function(product) {
             ngCart.addItem(product);
             product.isInCart = true;
@@ -241,6 +236,7 @@ angular.module('mainApp')
             }
         }
 
+        //actually this should be wrapped into an object that is responsible for rendering view
         var insertProductAndUpdateView = function(product) {
             productRow = _.find(vm.products,function(rowOfProducts) {
                 return rowOfProducts.length < numItemInOneRow;
@@ -261,22 +257,20 @@ angular.module('mainApp')
                 .then(function(res) {
                     var data = res.data;
                     if(data.success) {
-                      $rootScope.pubSuccessMsg('操作成功');
-                      
                       var newProduct = data.result;
                       var productInList = _.find(productList, function(product) {
                         return product._id === newProduct._id;
                       });
                       
-                      console.log(newProduct);
-
                       if(productInList)
                         _.assign(productInList, newProduct);
                       else
                         insertProductAndUpdateView(newProduct); 
+
+                      $rootScope.pubSuccessMsg('新增成功,已更新畫面');
                     }
                     else {
-                      $rootScope.pubErrorMsg('更新失敗,原因：' + data.message);
+                      $rootScope.pubErrorMsg('更新失敗,' + data.message);
                     }
                 })
                 .catch(function(err) {
@@ -316,9 +310,10 @@ angular.module('mainApp')
                     var data = res.data;
                     if(data.success) {
                         removeProductFromList(product);
+                        $rootScope.pubSuccessMsg('刪除成功,已更新畫面');
                     }
                     else {
-                        $rootScope.pubErrorMsg('刪除失敗,原因：' + data.message);
+                        $rootScope.pubErrorMsg('刪除失敗,' + data.message);
                     }
                 })
                 .catch(function(err) {
@@ -530,6 +525,23 @@ angular.module('mainApp')
         return vm.accountSrcOpt === 'viaAccountID';
     }
 
+    vm.alerts = [];
+    vm.pubSuccessMsg = function(msg) {
+      vm.alerts.push({ type:'success', msg: msg });
+    }
+
+    vm.pubWarningMsg = function(msg) {
+      vm.alerts.push({ type:'warning', msg: msg }); 
+    }
+
+    vm.pubInfoMsg = function(msg) {
+      vm.alerts.push({ type:'info', msg: msg }); 
+    }
+
+    vm.pubErrorMsg = function(msg) {
+      vm.alerts.push({ type:'danger', msg: msg }); 
+    }
+
     vm.setSelectedAccount = function() {
         if(vm.inputAccID && vm.inputAccID.length > 0) {
             vm.isUpdatingAccount = true;
@@ -548,24 +560,22 @@ angular.module('mainApp')
                         vm.selectedAccount = data.result[0];
                     }
                     else {
-                        alert('沒找到相對應的存摺');   
+                        vm.pubErrorMsg('沒找到相對應的存摺');   
                     }
                   }
                   else if(data.result) {
                     vm.selectedAccount = data.result;
                   }
                   else {
-                    alert('沒找到相對應的存摺');
+                    vm.pubWarningMsg('沒有找到存摺');
                   }
                 }
                 else {
-                  console.log(data.message);
-                  alert('沒找到相對應的存摺');
+                  vm.pubErrorMsg('沒找到相對應的存摺,' + data.message);
                 }
             })
             .catch(function(err) {
-                console.log(err);
-                alert('系統有些錯誤,請再試一次');
+                vm.pubErrorMsg('系統有些錯誤,請再試一次,' + err.toString());
             })
             .finally(function(){
                 vm.isUpdatingAccount = false;

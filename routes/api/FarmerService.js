@@ -267,16 +267,16 @@ exports.search = function(req, res) {
     });
 
   var filters = {};
-  if(form.hasOwnProperty("pid") && form.pid.length > 0) {
+  if(form.hasOwnProperty("pid")) {
     form.pid = form.pid.toUpperCase();
     filters["pid"] = middleware.getRegExp(form.pid, 'substr');
   }
 
-  if(form.hasOwnProperty("name") && form.name.length > 0) {
+  if(form.hasOwnProperty("name")) {
     filters["name"] = middleware.getRegExp(form.name, 'substr');
   }
 
-  if(form.hasOwnProperty("tele") && form.tele.length > 0) {
+  if(form.hasOwnProperty("tele")) {
     form.tele = middleware.getPureNumStr(form.tele, 'substr');
     filters["$or"] = [
       { teleNum1: form.tele },
@@ -284,35 +284,67 @@ exports.search = function(req, res) {
     ];
   }
 
-  if(form.hasOwnProperty("city") && form.city.length > 0) {
+  if(form.hasOwnProperty("city")) {
     filters["city"] = form.city;
   }
 
-  if(form.hasOwnProperty("dist") && form.dist.length > 0) {
+  if(form.hasOwnProperty("dist")) {
     filters["dist"] = form.dist;
   }
 
-  if(form.hasOwnProperty("village") && form.village.length > 0) {
+  if(form.hasOwnProperty("village")) {
     filters["village"] = form.village;
   }
+  if(form.hasOwnProperty("_limit")) {
+    farmerList.paginate({
+        page: 1,
+        perPage: form._limit
+      })
+      .where(filters)
+      .select('name pid teleNum1 teleNum2 addr')
+      .lean()
+      .exec(function(err, data) {
 
-  farmerList.model.find(filters)
-    .select('name pid teleNum1 teleNum2 addr')
-    .lean()
-    .limit(50)
-    .exec()
-    .then(function(farmers) {
-      res.json({
-        success: true,
-        result: farmers
+        if(err) {
+          res.json({
+            success: false,
+            message: err.toString()
+          });
+        }
+        else {
+          res.json({
+            success: true,
+            result: data.results,
+            total: data.total
+          });
+        }
+
       });
-    })
-    .catch(function(err) {
-      res.json({
-        success: false,
-        message: err.toString()
+  }
+  else {
+    farmerList.model.find(filters)
+      .select('name pid teleNum1 teleNum2 addr')
+      .lean()
+      .limit(100)
+      .exec(function(err, data) {
+
+        if(err) {
+          res.json({
+            success: false,
+            message: err.toString()
+          });
+        }
+        else {
+          res.json({
+            success: true,
+            result: data.results,
+            total: data.total
+          });
+        }
+
       });
-    });
+  }
+  
 
 }
 

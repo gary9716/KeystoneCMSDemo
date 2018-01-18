@@ -84,15 +84,15 @@ angular.module('mainApp')
         var data = res.data;
         if(data.success) {
           console.log('register farmer success');
-          $rootScope.pubSuccessMsg('註冊成功');
-          $state.go('farmer');
+          $rootScope.pubSuccessMsg('註冊成功,即將返回入口頁面');
+          setTimeout($state.go('farmer'), 3000);
         }
         else {
-          $rootScope.pubWarningMsg(data.message);
+          $rootScope.pubWarningMsg('註冊失敗,' + data.message);
         }
       })
       .catch(function(err) {
-        $rootScope.pubErrorMsg('系統似乎出現一些錯誤');
+        $rootScope.pubErrorMsg('系統似乎出現一些錯誤,' + err.toString());
         console.log(err);
       })
       .finally(function() {
@@ -126,7 +126,7 @@ angular.module('mainApp')
         //setRestOfDefaultValues();
       })
       .catch(function(err) {
-        $rootScope.pubErrorMsg('系統似乎出現一些錯誤');
+        $rootScope.pubErrorMsg('系統似乎出現一些錯誤,' + err.toString());
         console.log(err);
       });
     }
@@ -138,7 +138,8 @@ angular.module('mainApp')
         tele: vm.tele && vm.tele.length ? vm.tele : undefined,
         city: vm.citySelect ? vm.citySelect._id : undefined,
         dist: vm.distSelect ? vm.distSelect._id : undefined,
-        village: vm.villageSelect ? vm.villageSelect._id : undefined
+        village: vm.villageSelect ? vm.villageSelect._id : undefined,
+        _limit: 50
       };
 
       vm.isSearching = true;
@@ -148,8 +149,9 @@ angular.module('mainApp')
         var data = res.data;
         if(data.success) {
           if(!data.result || data.result.length == 0)
-            $rootScope.pubInfoMsg('無任何結果');
+            $rootScope.pubInfoMsg('無任何結果,請更改條件再行搜尋');
           vm.farmers = data.result;
+          console.log('total:' + data.total);
         }
         else {
           vm.farmers = [];
@@ -157,7 +159,7 @@ angular.module('mainApp')
         }
       })
       .catch(function(err) {
-        $rootScope.pubErrorMsg('系統似乎出現一些錯誤');
+        $rootScope.pubErrorMsg('系統似乎出現一些錯誤,' + err.toString());
         console.log(err);
       })
       .finally(function() {
