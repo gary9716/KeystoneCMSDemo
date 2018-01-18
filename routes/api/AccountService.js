@@ -8,16 +8,16 @@ var accountList = keystone.list(Constants.AccountListName);
 var accountRecList = keystone.list(Constants.AccountRecordListName);
 var periodList = keystone.list(Constants.PeriodListName);
 
-var Fawn = require('fawn');
 var mongoose = keystone.get('mongoose');
-
-var viaSaveOpt = {viaSave: true};
-var viaMongoose = {useMongoose: true};
 
 exports.create = function(req, res) {
   var form = req.body;
   var farmer;
 
+  var newAccount_id = mongoose.Types.ObjectId();
+  var newRec_id = mongoose.Types.ObjectId();
+  var createDate = Date.now();
+      
   farmerList.model.findOne({ pid : form.farmerPID })
     .select("_id pid")
     .lean()
@@ -33,19 +33,15 @@ exports.create = function(req, res) {
     .then(function(count) {
       var newAccountID = farmer.pid + "-" + (count + 1).toString();
 
-      var createDate = Date.now();
-      var newAccount_id = mongoose.Types.ObjectId();
-      var newRec_id = mongoose.Types.ObjectId();
-
-      var newAccount = new accountList.model({
-        _id: newAccount_id,
+      var accBk = {
         accountID: newAccountID,
         farmer: farmer._id,
         accountUser: form.accountUser ? form.accountUser : '',
         createdAt: createDate,
+        balance: 0,
         active: true,
-        lastRecord: newRec_id
-      });
+        freeze: false
+      };
 
       var newRec = new accountRecList.model({
         _id: newRec_id,
@@ -53,21 +49,34 @@ exports.create = function(req, res) {
         opType: 'create',
         operator: req.user._id,
         date: createDate,
-        comment: form.comment? form.comment: ''
+        comment: form.comment? form.comment: '',
+        accBk: accBk
+      });
+
+      newRec._req_user = req.user;
+      
+      return newRec.save();
+    })
+    .then(function(savRec) {
+      var newAccount = new accountList.model({
+        _id: newAccount_id,
+        accountID: savRec.accBk.accountID,
+        farmer: savRec.accBk.farmer,
+        accountUser: savRec.accBk.accountUser,
+        createdAt: createDate,
+        active: savRec.accBk.active,
+        lastRecord: savRec._id,
+        balance: savRec.accBk.balance
       });
 
       newAccount._req_user = req.user;
-      newRec._req_user = req.user;
-      
-      var task = Fawn.Task();
-      return task.save(newAccount)
-                 .save(newRec)
-                 .run(viaMongoose);
+
+      return newAccount.save();
     })
-    .then(function(results) {
+    .then(function(savAccount) {
       return res.json({
         success: true,
-        result: results[0].toObject() //account
+        result: savAccount.toObject() //account
       });
     })
     .catch(function(err) {
@@ -97,10 +106,8 @@ exports.close = function(req, res) {
   }
 
   var closeDate = Date.now();
-  var task = Fawn.Task();
   var newRec_id = mongoose.Types.ObjectId();
   var savAccount;
-
   accountList.model.findOne(filters)
   .populate('farmer')
   .exec()
@@ -114,37 +121,48 @@ exports.close = function(req, res) {
     if(!account.active) 
       return Promise.reject('此存摺已被結清');
 
-    account.active = false;
-    account.closedAt = closeDate;
-    account.lastRecord = newRec_id;
-    account._req_user = req.user;
+    savAccount = account;
 
-    return account.save();
-
-  })
-  .then(function(_savAccount) {
-
-    savAccount = _savAccount;
+    var accBk = {
+      accountID: account.accountID,
+      farmer: account.farmer._id,
+      accountUser: account.accountUser,
+      active: false,
+      freeze: account.freeze,
+      createdAt: account.createdAt,
+      closedAt: closeDate,
+      balance: account.balance,
+    };
 
     var newRec = new accountRecList.model({
       _id: newRec_id,
-      account: savAccount._id,
+      account: account._id,
       opType: 'close',
       date: closeDate,
       operator: req.user._id,
-      comment: form.comment? form.comment: ''
+      comment: form.comment? form.comment: '',
+      accBk: accBk
     });
 
     newRec._req_user = req.user;
 
     return newRec.save();
-
   })
   .then(function(savRec) {
 
+    savAccount.active = false;
+    savAccount.closedAt = closeDate;
+    savAccount.lastRecord = newRec_id;
+    savAccount._req_user = req.user;
+
+    return savAccount.save();
+
+  })
+  .then(function(_savAccount) {
+
     return res.json({
       success: true,
-      result: savAccount.toObject()
+      result: _savAccount.toObject()
     });
 
   })
@@ -188,32 +206,44 @@ exports.setFreeze = function(req, res) {
     if(!account.active) 
       return Promise.reject('此存摺已被結清');
 
-    account.freeze = !account.freeze;
-    account.lastRecord = newRec_id;
-    account._req_user = req.user;
+    var accBk = {
+      accountID: account.accountID,
+      farmer: account.farmer._id,
+      accountUser: account.accountUser,
+      active: account.active,
+      freeze: !account.freeze,
+      createdAt: account.createdAt,
+      balance: account.balance,
+    };
 
-    return account.save();
-
-  })
-  .then(function(_savAccount) {
-    savAccount = _savAccount;
+    savAccount = account;
 
     var newRec = new accountRecList.model({
       _id: newRec_id,
-      account: savAccount._id,
-      opType: savAccount.freeze? 'freeze' : 'unfreeze',
+      account: account._id,
+      opType: account.freeze? 'unfreeze' : 'freeze',
       date: Date.now(),
       operator: req.user._id,
       comment: form.comment? form.comment: '',
+      accBk: accBk
     });
 
     newRec._req_user = req.user;
     return newRec;
+    
   })
   .then(function(savRec) {
+    
+    savAccount.freeze = savRec.accBk.freeze;
+    savAccount.lastRecord = newRec_id;
+    savAccount._req_user = req.user;
+
+    return savAccount.save();
+  })
+  .then(function(_savAccount) {
     return res.json({
       success: true,
-      result: savAccount.toObject()
+      result: _savAccount.toObject()
     });
   })
   .catch(function(err) {
@@ -316,7 +346,7 @@ exports.deposit = function(req, res) {
   .then(function() {
 
     //parse amount
-    if(form.amount instanceof String)
+    if(_.isString(form.amount))
       amount = parseInt(form.amount);
     else
       amount = Math.floor(form.amount); //make sure it's integer
@@ -331,39 +361,50 @@ exports.deposit = function(req, res) {
     }
 
     var newBalance = account.balance + amount;
-    
-    account.balance = newBalance;
-    account.lastRecord = newRec_id;
-    account._req_user = req.user;
 
-    return account.save();
-
-  })
-  .then(function(savAccount) {
-
-    account = savAccount;
+    var accBk = {
+      accountID: account.accountID,
+      farmer: account.farmer._id,
+      accountUser: account.accountUser,
+      active: account.active,
+      freeze: account.freeze,
+      createdAt: account.createdAt,
+      balance: newBalance,
+    };
 
     var newRec = new accountRecList.model({
       _id: newRec_id,
-      account: savAccount._id,
+      account: account._id,
       opType: 'deposit',
       amount: amount,
       date: nowDate,
       operator: req.user._id,
       comment: form.comment? form.comment: '',
       ioAccount: form.ioAccount? form.ioAccount: '',
-      period: period_id? period_id: ''
+      accBk: accBk
     });
+
+    if(period_id)
+      newRec.period = period_id;
 
     newRec._req_user = req.user;
 
     return newRec.save();
+
   })
   .then(function(savRec) {
 
+    account.balance = savRec.accBk.balance;
+    account.lastRecord = newRec_id;
+    account._req_user = req.user;
+
+    return account.save();
+  })
+  .then(function(_savAccount) {
+
     return res.json({
       success: true,
-      result: account.toObject()
+      result: _savAccount.toObject()
     });
 
   })
@@ -418,7 +459,7 @@ exports.withdraw = function(req, res) {
       return Promise.reject('此存摺被凍結中,無法進行此操作');
 
     //parse amount
-    if(form.amount instanceof String)
+    if(_.isString(form.amount))
       amount = parseInt(form.amount);
     else
       amount = Math.floor(form.amount); //make sure it's integer
@@ -437,36 +478,48 @@ exports.withdraw = function(req, res) {
     
     var newBalance = account.balance - amount;
 
-    account.balance = newBalance;
-    account.lastRecord = newRec_id;
-    account._req_user = req.user;
-
-    return account.save();
-
-  })
-  .then(function(_savAccount) {
-    savAccount = _savAccount;
+    var accBk = {
+      accountID: account.accountID,
+      farmer: account.farmer._id,
+      accountUser: account.accountUser,
+      active: account.active,
+      freeze: account.freeze,
+      createdAt: account.createdAt,
+      balance: newBalance,
+    };
 
     var newRec = new accountRecList.model({
       _id: newRec_id,
-      account: savAccount._id,
+      account: account._id,
       opType: 'withdraw',
       amount: amount,
       date: Date.now(),
       operator: req.user._id,
       comment: form.comment? form.comment: '',
-      ioAccount: form.ioAccount? form.ioAccount: ''
+      ioAccount: form.ioAccount? form.ioAccount: '',
+      accBk: accBk
     });
 
     newRec._req_user = req.user;
+
+    savAccount = account;
 
     return newRec.save();
 
   })
   .then(function(savRec) {
+    
+    savAccount.balance = savRec.accBk.balance;
+    savAccount.lastRecord = newRec_id;
+    savAccount._req_user = req.user;
+
+    return savAccount.save();
+
+  })
+  .then(function(_savAccount) {
     return res.json({
       success: true,
-      result: savAccount.toObject()
+      result: _savAccount.toObject()
     });
   })
   .catch(function(err) {
@@ -475,6 +528,5 @@ exports.withdraw = function(req, res) {
       message: err.toString()
     });
   });
-
 
 }

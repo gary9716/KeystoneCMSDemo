@@ -25,7 +25,6 @@ Product.add({
   pType: { type: Types.Relationship, label: '商品類型', ref: Constants.ProductTypeListName, required: true, index: true, initial: true },
   marketPrice: { type: Types.Money, label: '牌價（每包）', required: true, initial: true },
   exchangePrice: { type: Types.Money, label: '兌換價（每包）', default: this.marketPrice, initial: true },
-  //discount: { type: Number, label: '折扣(0~1)', default: 1, initial: true },
   weight : { type: Number, label: '每包重(KG)', default: 0, required: true, initial: true },
   canSale: { type: Boolean, label: '上架中', default: false, initial: true },
   startSaleDate: { type: Types.Datetime, format: 'YYYY-MM-DD kk:mm:ss', label: '上架時間', initial: true }

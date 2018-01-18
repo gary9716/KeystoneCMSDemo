@@ -244,7 +244,7 @@ angular.module('mainApp')
         var resData = res.data;
         if(resData.success) {
           vm.pubSuccessMsg('入款成功');
-          vm.account = resData.result;
+          _.assign(vm.account, resData.result);
         }
         else {
           vm.pubErrorMsg('入款失敗,' + resData.message);
@@ -275,7 +275,7 @@ angular.module('mainApp')
         var resData = res.data;
         if(resData.success) {
           vm.pubSuccessMsg('提款成功');
-          vm.account = resData.result;
+          _.assign(vm.account, resData.result);
         }
         else {
           vm.pubErrorMsg('提款失敗,' + resData.message);
@@ -303,7 +303,7 @@ angular.module('mainApp')
       .then(function(res) {
         var resData = res.data;
         if(resData.success) {
-          vm.account = resData.result;
+          _.assign(vm.account, resData.result);
           vm.pubSuccessMsg(vm.account.freeze? '凍結成功':'解凍成功');
         }
         else {
@@ -332,7 +332,7 @@ angular.module('mainApp')
       .then(function(res) {
         var resData = res.data;
         if(resData.success) {
-          vm.account = resData.result;
+          _.assign(vm.account, resData.result);
           vm.pubSuccessMsg('結清成功');
         }
         else {

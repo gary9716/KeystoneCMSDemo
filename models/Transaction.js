@@ -12,7 +12,7 @@ var Transaction = new keystone.List(Constants.TransactionListName, {
     name: 'id'
   },
   noedit: true,
-  nodelete: true,
+  //nodelete: true,
   nocreate: true,
   track: true,
   defaultSort: '-date'
@@ -29,14 +29,33 @@ Transaction.add({
 Transaction.schema.add({
   products: {
     type: [{
-      pid: { type: String, label: '商品編號', required: true, unique: true, trim: true },
+      pid: { type: String, label: '商品編號', required: true, trim: true },
       name: { type: String, label: '商品名', required: true, trim: true },
       pType: { type: Schema.Types.ObjectId, label: '商品類型', ref: Constants.ProductTypeListName, required: true },
       weight : { type: Number, label: '每包重(KG)', default: 0, required: true },
       price: { type: Number, label: '最終價格(每包）', required: true },
       qty : { type: Number, label: '包數', required: true },
     }]
-  }
+  },
+  accRecBk: {
+    type: {
+      opType: { type: String },
+      comment: { type: String },
+    }
+  },
+  accBk: {
+    type: {
+      _id: { type: Schema.Types.ObjectId, label:'存摺', ref: Constants.AccountListName, required: true },
+      accountID: { type: String, label:'存摺編號' ,index: true, required: true, trim: true },
+      farmer: { type: Schema.Types.ObjectId, label:'擁有者', ref: Constants.FarmerListName, required: true },
+      accountUser: { type: String, label:'使用者', trim: true },
+      active: { type: Boolean, label:'未結清', default: true, initial: true },
+      freeze: { type: Boolean, label:'凍結中', default: false, initial: true },
+      createdAt: { type: Types.Datetime, label: '開戶時間', required: true },
+      closedAt: { type: Types.Datetime, label: '結清時間' },
+      balance: { type: Types.Money, label:'餘額', default: 0 }
+    } 
+  },
 });
 
 Transaction.defaultColumns = 'date, account, amount, shop, trader';

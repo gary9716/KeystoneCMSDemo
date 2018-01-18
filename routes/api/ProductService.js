@@ -2,8 +2,6 @@ var middleware = require('../middleware');
 var Constants = require(__base + 'Constants');
 var keystone = require('keystone');
 var _ = require('lodash');
-var mongoose = keystone.get('mongoose');
-var Fawn = require('fawn');
 var viaSaveOpt = {viaSave: true};
 var viaMongoose = {useMongoose: true};
 
@@ -12,6 +10,8 @@ var accountRecList = keystone.list(Constants.AccountRecordListName);
 var productList = keystone.list(Constants.ProductListName);
 var productTypeList = keystone.list(Constants.ProductTypeListName);
 var transactionList = keystone.list(Constants.TransactionListName);
+
+var mongoose = keystone.get('mongoose');
 
 var parsePrice = function(data, key) {
   var price = 0;
@@ -348,7 +348,7 @@ exports.transact = function(req, res) {
   var nowDate = Date.now();
   var newRec_id = mongoose.Types.ObjectId();
   var newTransact_id = mongoose.Types.ObjectId();
-  var savAccount;
+  var savAccount, savTransaction;
   var total = 0;
   var productDataList = []; //for saving in DB
 
@@ -358,13 +358,17 @@ exports.transact = function(req, res) {
   .then(function(_products) {
     products = _products;
 
+    products.forEach(function(p) {
+      p._id = p._id.toString();
+    });
+
     if(products.length !== form.products.length) {
       return Promise.reject('查詢到的商品數量不合,請重新選購');
     }
 
     //check product state
     if(products.every(function(product) {
-        return product.canSale && product.startSaleDate.getTime() < nowDate.getTime()
+        return product.canSale && Date.parse(product.startSaleDate) < nowDate
       })) {
 
       //check pass
@@ -387,9 +391,10 @@ exports.transact = function(req, res) {
     if(account.freeze) 
       return Promise.reject('此存摺被凍結中,無法進行此操作');
 
+    savAccount = account;
+
     var numProducts = products.length;
 
-        
     for (let i = 0; i < numProducts; i++) {
       let formProduct = form.products[i];
       let product = _.find(products, function(p) {
@@ -402,19 +407,19 @@ exports.transact = function(req, res) {
       var price = 0;
       if(formProduct.price === 'exchange') {
         price = product.exchangePrice;
-      }
-      else if(formProduct.price === 'discount') {
-        price = Math.round(product.marketPrice * product.discount);
-      }
+      }      
       else if(formProduct.price === 'market') {
         price = product.marketPrice;
       }
       else { //self defined price
-        if(formProduct.price instanceof String) {
+        if(_.isString(formProduct.price)) {
           price = parseInt(formProduct.price);
         }
-        else {
+        else if(_.isNumber(formProduct.price)) {
           price = Math.floor(formProduct.price);
+        }
+        else {
+          return Promise.reject('價格資訊無效');
         }
       }
 
@@ -449,47 +454,75 @@ exports.transact = function(req, res) {
 
     var newBalance = account.balance - total;
 
-    account.balance = newBalance;
-    account.lastRecord = newRec_id;
-    account._req_user = req.user;
-
-    return account.save();
-
-  })
-  .then(function(account) {
-    savAccount = account;
-
-    var newRec = new accountRecList.model({
-      _id: newRec_id,
-      account: account._id,
+    var accRecBk = {
       opType: 'transact',
-      amount: total,
-      date: nowDate,
-      operator: req.user._id,
-      comment: form.comment? form.comment: '',
-      transaction: newTransact_id
-    });
+      comment: form.comment? form.comment: ''
+    };
+
+    var accBk = {
+      _id: account._id,
+      accountID: account.accountID,
+      farmer: account.farmer._id,
+      accountUser: account.accountUser,
+      active: account.active,
+      freeze: account.freeze,
+      createdAt: account.createdAt,
+      balance: newBalance,
+    };
 
     var newTransaction = new transactionList.model({
       _id: newTransact_id,
       date: nowDate,
       account: account._id,
       amount: total,
-      shop: req.user.shop ? req.user.shop: '',
       trader: req.user._id,
-      products: productDataList
+      products: productDataList,
+      accRecBk: accRecBk,
+      accBk: accBk
     });
 
-    var task = Fawn.Task();
-    return task.save(newTransaction)
-               .save(newRec)
-               .run(viaMongoose);
+    if(req.user.shop) {
+      newTransaction.shop = req.user.shop;
+    }
+
+    newTransaction._req_user = req.user;
+
+    return newTransaction.save();
 
   })
-  .then(function(results) {
+  .then(function(savTrans) {
+
+    savTransaction = savTrans;
+
+    var newRec = new accountRecList.model({
+      _id: newRec_id,
+      account: savTrans.accBk._id,
+      opType: savTrans.accRecBk.opType,
+      amount: savTrans.amount,
+      date: savTrans.date,
+      operator: req.user._id,
+      comment: savTrans.accRecBk.comment,
+      transaction: newTransact_id,
+      accBk: savTrans.accBk
+    });
+    newRec._req_user = req.user;
+
+    return newRec.save();
+  })
+  .then(function(savRec) {
+    savAccount.balance = savRec.accBk.balance;
+    savAccount.lastRecord = newRec_id;
+    savAccount._req_user = req.user;
+
+    return savAccount.save();
+  })
+  .then(function(_savAccount) {
     return res.json({
       success: true,
-      result: savAccount.toObject()
+      result: {
+        account: _savAccount.toObject(),
+        transaction: savTransaction.toObject()
+      }
     });
   })
   .catch(function(err) {

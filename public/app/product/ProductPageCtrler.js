@@ -1,7 +1,7 @@
 angular.module('mainApp')
 .controller('ProductPageCtrler', 
-  ['$http', '$window', '$state', 'ngCart', '$filter', '$rootScope', '$uibModal', 'ngCartItem', '$scope', 'lodash',
-  function($http, $window, $state, ngCart, $filter, $rootScope, $uibModal, ngCartItem, $scope, _ ) {
+  ['$http', '$window', '$state', 'ngCart', '$filter', '$rootScope', '$uibModal', 'ngCartItem', '$scope', 'lodash', 'localStorageService', 'cachedFarmersKey',
+  function($http, $window, $state, ngCart, $filter, $rootScope, $uibModal, ngCartItem, $scope, _ , localStorageService, cachedFarmersKey) {
 
     //TODO and features:
     
@@ -76,9 +76,67 @@ angular.module('mainApp')
 
     if($state.current.name === 'productSell') { //sell page(sell.html)
         
+        vm.clearCart = function() {
+            ngCart.empty();
+            productList.forEach(function(product) {
+                product.isInCart = false;
+            });
+        }
+
         vm.viewDetail = function() {
             //TODO: show product detail in modal view
         };
+
+        var doCheckOut = function(data) {
+
+            var clearAllFarmerAccountCached = function() {
+                var farmers = localStorageService.get(cachedFarmersKey);
+                farmers.forEach(function(farmer) {
+                    localStorageService.remove(farmer.pid + ',accounts:');
+                });
+            }            
+
+            var productsForEx = ngCart.getItems().map(function(item) {
+                var product = {};
+                product._id = item._id;
+
+                if(item.marketPrice === item.price) {
+                    product.price = 'market';
+                }
+                else if(item.exchangePrice === item.price) {
+                    product.price = 'exchange';
+                }
+                else {
+                    product.price = item.price;
+                }
+
+                product.qty = item.quantity;
+
+                return product;
+            });
+
+            $http.post('/api/product/transact', {
+                _id: data.tranAccount._id,
+                products: productsForEx
+            })
+            .then(function(res) {
+                var data = res.data;
+                if(data.success) {
+                    $rootScope.pubSuccessMsg('兌換成功');
+                    clearAllFarmerAccountCached();
+                    vm.clearCart();
+                }
+                else {
+                    $rootScope.pubErrorMsg('兌換失敗,原因' + data.message);
+                }
+
+            })
+            .catch(function(err) {
+                $rootScope.pubErrorMsg('兌換失敗,原因' + err.toString());
+            })
+
+            
+        }
 
         vm.openShopCart = function() {
             var modalInstance = $uibModal.open({
@@ -93,9 +151,8 @@ angular.module('mainApp')
               });
 
               modalInstance.result
-              .then(function () { //after pressing checkout
-                console.log('do checkout');
-                $rootScope.pubSuccessMsg('兌換成功');
+              .then(function (data) { //after pressing checkout
+                doCheckOut(data);
               })
               .catch(function (reason) { //dismissed by user
                 if(reason === 'clear') {
@@ -120,13 +177,6 @@ angular.module('mainApp')
         vm.rmItemFromCart = function(product) {
             ngCart.removeItemById(product._id);
             product.isInCart = false;
-        }
-
-        vm.clearCart = function() {
-            ngCart.empty();
-            productList.forEach(function(product) {
-                product.isInCart = false;
-            });
         }
 
         vm.isItemInCart = function(product) {
@@ -165,6 +215,7 @@ angular.module('mainApp')
                 }
                 else {
                     //default values
+                    product = new ngCartItem(product); //make sure there won't be an new object while it added to the shopping cart
                     product.isInCart = false;
                     product.price = product.exchangePrice;
                     product.quantity = 1;
@@ -440,7 +491,9 @@ angular.module('mainApp')
     }
 
     vm.checkout = function () {
-      $uibModalInstance.close();
+      $uibModalInstance.close({
+        tranAccount: vm.selectedAccount
+      });
     };
 
     vm.cancel = function (reason) {

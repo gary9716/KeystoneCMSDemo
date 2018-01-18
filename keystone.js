@@ -190,21 +190,21 @@ if (!process.env.MAILGUN_API_KEY || !process.env.MAILGUN_DOMAIN) {
 var Fawn = require("fawn");
 Fawn.init(keystone.get('mongoose'));
 
-var roller = Fawn.Roller();
-roller.roll()
-.then(function() {
-	console.log('rollback process complete');	
+//var roller = Fawn.Roller();
+//roller.roll()
+//.then(function() {
+//	console.log('rollback process complete');	
 	
-	//do db updates here
-	//manually do db update after some incomplete transaction rollback completed
-	require('./DBUpdate')(function() {
-		//set system parameters after DB update
-		middleware.refreshSysInfo(null, null, function(err) {
-			if(err) throw err;
-			console.log('sys parameters set');
-		});
+//do db updates here
+//manually do db update after some incomplete transaction rollback completed
+require('./DBUpdate')(function() {
+	//set system parameters after DB update
+	middleware.refreshSysInfo(null, null, function(err) {
+		if(err) throw err;
+		console.log('sys parameters set');
 	});
-
 });
+
+//});
 
 keystone.start();
