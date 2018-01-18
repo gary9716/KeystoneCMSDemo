@@ -144,6 +144,8 @@ title: 登入頁面
           success: function (res) {
               if(res.success) {
                 $("#ajax-msg").removeClass().addClass("alert alert-success").text(res.message);
+                if(localStorage)
+                  localStorage.clear();
                 if(doRedirect) {
                   if(locals.redirect) {
                     //this come from initially we got signin form

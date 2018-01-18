@@ -140,6 +140,7 @@
     <script src="/app/common/filter/orFilter.js"></script>
     <script src="/app/common/filter/listTo2DMat.js"></script>
     <script src="/app/common/service/myValidation.js"></script>
+    <script src="/app/common/service/geoDataService.js"></script>
     <script src="/app/farmer/FarmerPageCtrler.js"></script>
     <script src="/app/farmer/AccountPageCtrler.js"></script>
     <script src="/app/farmer/CachedFarmerListCtrler.js"></script>

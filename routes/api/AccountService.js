@@ -2,13 +2,14 @@ var middleware = require('../middleware');
 var Constants = require(__base + 'Constants');
 var keystone = require('keystone');
 var _ = require('lodash');
-var Fawn = require('fawn');
-var mongoose = keystone.get('mongoose');
 
 var farmerList = keystone.list(Constants.FarmerListName);
 var accountList = keystone.list(Constants.AccountListName);
 var accountRecList = keystone.list(Constants.AccountRecordListName);
 var periodList = keystone.list(Constants.PeriodListName);
+
+var Fawn = require('fawn');
+var mongoose = keystone.get('mongoose');
 
 var viaSaveOpt = {viaSave: true};
 var viaMongoose = {useMongoose: true};
@@ -82,11 +83,11 @@ exports.close = function(req, res) {
   var form = req.body;
 
   var filters = {};
-  if(form.hasOwnProperty("accountID")) {
-    filters.accountID = form.accountID;
+  if(form.hasOwnProperty("_id")) {
+    filters._id = form._id;
   }
-  else if(form.hasOwnProperty("account_id")) {
-    filters._id = form.account_id;
+  else if(form.hasOwnProperty("accountID")) {
+    filters.accountID = form.accountID;
   }
   else {
     return res.json({
@@ -95,8 +96,13 @@ exports.close = function(req, res) {
     });
   }
 
+  var closeDate = Date.now();
+  var task = Fawn.Task();
+  var newRec_id = mongoose.Types.ObjectId();
+  var savAccount;
+
   accountList.model.findOne(filters)
-  .select("_id freeze active")
+  .populate('farmer')
   .exec()
   .then(function(account) {
     if(!account)
@@ -108,12 +114,21 @@ exports.close = function(req, res) {
     if(!account.active) 
       return Promise.reject('此存摺已被結清');
 
-    var newRec_id = mongoose.Types.ObjectId();
-    var closeDate = Date.now();
-    
+    account.active = false;
+    account.closedAt = closeDate;
+    account.lastRecord = newRec_id;
+    account._req_user = req.user;
+
+    return account.save();
+
+  })
+  .then(function(_savAccount) {
+
+    savAccount = _savAccount;
+
     var newRec = new accountRecList.model({
       _id: newRec_id,
-      account: account._id,
+      account: savAccount._id,
       opType: 'close',
       date: closeDate,
       operator: req.user._id,
@@ -121,19 +136,17 @@ exports.close = function(req, res) {
     });
 
     newRec._req_user = req.user;
-    account._req_user = req.user;
 
-    var task = Fawn.Task();
-    return task.update(account, { active: false, closedAt: closeDate, lastRecord: newRec_id }).options(viaSave)
-               .save(newRec)
-               .run(viaMongoose);
+    return newRec.save();
 
   })
-  .then(function(results) {
+  .then(function(savRec) {
+
     return res.json({
       success: true,
-      result: results[0].toObject()
+      result: savAccount.toObject()
     });
+
   })
   .catch(function(err) {
     res.json({
@@ -148,11 +161,12 @@ exports.setFreeze = function(req, res) {
   var form = req.body;
 
   var filters = {};
-  if(form.hasOwnProperty("accountID")) {
-    filters.accountID = form.accountID;
+
+  if(form.hasOwnProperty("_id")) {
+    filters._id = form._id;
   }
-  else if(form.hasOwnProperty("account_id")) {
-    filters._id = form.account_id;
+  else if(form.hasOwnProperty("accountID")) {
+    filters.accountID = form.accountID;
   }
   else {
     return res.json({
@@ -161,8 +175,11 @@ exports.setFreeze = function(req, res) {
     });
   }
 
+  var newRec_id = mongoose.Types.ObjectId();
+  var savAccount;
+
   accountList.model.findOne(filters)
-  .select("_id freeze active")
+  .populate('farmer')
   .exec()
   .then(function(account) {
     if(!account)
@@ -170,34 +187,33 @@ exports.setFreeze = function(req, res) {
 
     if(!account.active) 
       return Promise.reject('此存摺已被結清');
-    
-    if(account.freeze? !form.freeze : form.freeze) //XOR
-      return Promise.reject('無法重複凍結或解凍');
 
-    var newRec_id = mongoose.Types.ObjectId();
+    account.freeze = !account.freeze;
+    account.lastRecord = newRec_id;
+    account._req_user = req.user;
+
+    return account.save();
+
+  })
+  .then(function(_savAccount) {
+    savAccount = _savAccount;
 
     var newRec = new accountRecList.model({
       _id: newRec_id,
-      account: account._id,
-      opType: form.freeze? 'freeze' : 'unfreeze',
+      account: savAccount._id,
+      opType: savAccount.freeze? 'freeze' : 'unfreeze',
       date: Date.now(),
       operator: req.user._id,
       comment: form.comment? form.comment: '',
     });
 
     newRec._req_user = req.user;
-    account._req_user = req.user;
-
-    var task = Fawn.Task();
-    return task.update(account, { freeze: form.freeze, lastRecord: newRec_id }).options(viaSave)
-               .save(newRec)
-               .run(viaMongoose);
-
+    return newRec;
   })
-  .then(function(results) {
+  .then(function(savRec) {
     return res.json({
       success: true,
-      result: results[0].toObject()
+      result: savAccount.toObject()
     });
   })
   .catch(function(err) {
@@ -214,11 +230,11 @@ exports.deposit = function(req, res) {
   var form = req.body;
 
   var filters = {};
-  if(form.hasOwnProperty("accountID")) {
-    filters.accountID = form.accountID;
+  if(form.hasOwnProperty("_id")) {
+    filters._id = form._id;
   }
-  else if(form.hasOwnProperty("account_id")) {
-    filters._id = form.account_id;
+  else if(form.hasOwnProperty("accountID")) {
+    filters.accountID = form.accountID;
   }
   else {
     return res.json({
@@ -237,19 +253,21 @@ exports.deposit = function(req, res) {
   var nowDate = Date.now();
   var period_id = null;
   var account = null;
+  var newRec_id = mongoose.Types.ObjectId();
+  var amount = 0;
 
   accountList.model.findOne(filters)
-  .select("_id freeze active balance")
+  .populate('farmer')
   .exec()
   .then(function(_account) {
     if(!_account)
       return Promise.reject('未找到存摺');
 
-    if(_account.freeze) 
-      return Promise.reject('此存摺被凍結中,無法進行此操作');
-
     if(!_account.active) 
       return Promise.reject('此存摺已被結清');
+
+    if(_account.freeze) 
+      return Promise.reject('此存摺被凍結中,無法進行此操作');
 
     account = _account;
 
@@ -313,11 +331,21 @@ exports.deposit = function(req, res) {
     }
 
     var newBalance = account.balance + amount;
-    var newRec_id = mongoose.Types.ObjectId();
+    
+    account.balance = newBalance;
+    account.lastRecord = newRec_id;
+    account._req_user = req.user;
+
+    return account.save();
+
+  })
+  .then(function(savAccount) {
+
+    account = savAccount;
 
     var newRec = new accountRecList.model({
       _id: newRec_id,
-      account: account._id,
+      account: savAccount._id,
       opType: 'deposit',
       amount: amount,
       date: nowDate,
@@ -328,18 +356,16 @@ exports.deposit = function(req, res) {
     });
 
     newRec._req_user = req.user;
-    account._req_user = req.user;
 
-    var task = Fawn.Task();
-    return task.update(account, { balance: newBalance, lastRecord: newRec_id }).options(viaSave)
-               .save(newRec)
-               .run(viaMongoose);
+    return newRec.save();
   })
-  .then(function(results) {
+  .then(function(savRec) {
+
     return res.json({
       success: true,
-      result: results[0].toObject()
+      result: account.toObject()
     });
+
   })
   .catch(function(err) {
     return res.json({
@@ -354,11 +380,11 @@ exports.withdraw = function(req, res) {
   var form = req.body;
 
   var filters = {};
-  if(form.hasOwnProperty("accountID")) {
-    filters.accountID = form.accountID;
+  if(form.hasOwnProperty("_id")) {
+    filters._id = form._id;
   }
-  else if(form.hasOwnProperty("account_id")) {
-    filters._id = form.account_id;
+  else if(form.hasOwnProperty("accountID")) {
+    filters.accountID = form.accountID;
   }
   else {
     return res.json({
@@ -375,9 +401,11 @@ exports.withdraw = function(req, res) {
   }
 
   var amount = 0;
+  var newRec_id = mongoose.Types.ObjectId();
+  var savAccount;
 
   accountList.model.findOne(filters)
-  .select("_id freeze active balance")
+  .populate('farmer')
   .exec()
   .then(function(account) {
     if(!account)
@@ -408,11 +436,20 @@ exports.withdraw = function(req, res) {
     }
     
     var newBalance = account.balance - amount;
-    var newRec_id = mongoose.Types.ObjectId();
+
+    account.balance = newBalance;
+    account.lastRecord = newRec_id;
+    account._req_user = req.user;
+
+    return account.save();
+
+  })
+  .then(function(_savAccount) {
+    savAccount = _savAccount;
 
     var newRec = new accountRecList.model({
       _id: newRec_id,
-      account: account._id,
+      account: savAccount._id,
       opType: 'withdraw',
       amount: amount,
       date: Date.now(),
@@ -422,18 +459,14 @@ exports.withdraw = function(req, res) {
     });
 
     newRec._req_user = req.user;
-    account._req_user = req.user;
 
-    var task = Fawn.Task();
-    return task.update(account, { balance: newBalance, lastRecord: newRec_id }).options(viaSave)
-               .save(newRec)
-               .run(viaMongoose);
-    
+    return newRec.save();
+
   })
-  .then(function(results) {
+  .then(function(savRec) {
     return res.json({
       success: true,
-      result: results[0].toObject()
+      result: savAccount.toObject()
     });
   })
   .catch(function(err) {

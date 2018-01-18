@@ -203,10 +203,10 @@ angular.module('mainApp')
       $rootScope.alerts.push({ type:'danger', msg: msg }); 
     }
 
+
     $rootScope.isPage = function(pageName){
       return $state.current.name === pageName;
     }
-
 
     //buttons on nav bar
     $rootScope.openShopCart = function() {

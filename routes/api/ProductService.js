@@ -15,10 +15,14 @@ var transactionList = keystone.list(Constants.TransactionListName);
 
 var parsePrice = function(data, key) {
   var price = 0;
-  if(data[key] instanceof String)
+  if(_.isString(data[key]))
     price = parseInt(data[key]);
-  else 
+  else if(_.isNumber(data[key]))
     price = Math.floor(data[key]);
+  else
+    return {
+      msg: '非有效資料'
+    };
 
   if(isNaN(price))
     return {
@@ -34,36 +38,17 @@ var parsePrice = function(data, key) {
     };
 }
 
-var parseDiscount = function(data, key) {
-  var discount = 1;
-  if(data[key] instanceof String)
-    discount = parseFloat(data[key]);
-  else 
-    discount = data[key];
-
-  if(isNaN(discount)) {
-    return {
-      msg: '折扣非數字'
-    };
-  }
-  else if(discount < 0 || discount > 1) {
-    return {
-      msg: '折扣須介於0與1'
-    }; 
-  }
-  else {
-    return {
-      val: discount
-    };
-  }
-}
-
 var parseWeight = function(data, key) {
   var weight = 0;
-  if(data[key] instanceof String)
+
+  if(_.isString(data[key]))
     weight = parseFloat(data[key]);
-  else 
+  else if(_.isNumber(data[key]))
     weight = data[key];
+  else
+    return {
+      msg: '非有效資料'
+    };
 
   if(isNaN(weight)) {
     return {
@@ -341,11 +326,11 @@ exports.transact = function(req, res) {
   var form = req.body;
 
   var filters = {};
-  if(form.hasOwnProperty("accountID")) {
-    filters.accountID = form.accountID;
+  if(form.hasOwnProperty("_id")) {
+    filters._id = form._id;
   }
-  else if(form.hasOwnProperty("account_id")) {
-    filters._id = form.account_id;
+  else if(form.hasOwnProperty("accountID")) {
+    filters.accountID = form.accountID;
   }
   else {
     return res.json({
@@ -361,6 +346,11 @@ exports.transact = function(req, res) {
 
   var products;
   var nowDate = Date.now();
+  var newRec_id = mongoose.Types.ObjectId();
+  var newTransact_id = mongoose.Types.ObjectId();
+  var savAccount;
+  var total = 0;
+  var productDataList = []; //for saving in DB
 
   productList.model.find({ _id : { $in: productIDs } }) //get products info from db
   .lean()
@@ -379,7 +369,7 @@ exports.transact = function(req, res) {
 
       //check pass
       return accountList.model.findOne(filters)
-            .select("_id freeze active balance")
+            .populate('farmer')
             .exec();
     }
     else {
@@ -391,17 +381,15 @@ exports.transact = function(req, res) {
     if(!account)
       return Promise.reject('存摺不存在');
 
-    if(account.freeze) 
-      return Promise.reject('此存摺被凍結中,無法進行此操作');
-
     if(!account.active)
       return Promise.reject('存摺已結清');
 
+    if(account.freeze) 
+      return Promise.reject('此存摺被凍結中,無法進行此操作');
+
     var numProducts = products.length;
 
-    var productDataList = []; //for saving in DB
-    var total = 0;
-
+        
     for (let i = 0; i < numProducts; i++) {
       let formProduct = form.products[i];
       let product = _.find(products, function(p) {
@@ -461,8 +449,15 @@ exports.transact = function(req, res) {
 
     var newBalance = account.balance - total;
 
-    var newRec_id = mongoose.Types.ObjectId();
-    var newTransact_id = mongoose.Types.ObjectId();
+    account.balance = newBalance;
+    account.lastRecord = newRec_id;
+    account._req_user = req.user;
+
+    return account.save();
+
+  })
+  .then(function(account) {
+    savAccount = account;
 
     var newRec = new accountRecList.model({
       _id: newRec_id,
@@ -480,21 +475,21 @@ exports.transact = function(req, res) {
       date: nowDate,
       account: account._id,
       amount: total,
-      shop: req.user.shop,
+      shop: req.user.shop ? req.user.shop: '',
       trader: req.user._id,
       products: productDataList
     });
 
     var task = Fawn.Task();
-    return task.update(account, { balance: newBalance, lastRecord: newRec_id }).options(viaSave)
-               .save(newTransaction)
+    return task.save(newTransaction)
                .save(newRec)
                .run(viaMongoose);
+
   })
   .then(function(results) {
     return res.json({
       success: true,
-      result: results[0].toObject()
+      result: savAccount.toObject()
     });
   })
   .catch(function(err) {

@@ -30,14 +30,14 @@
 <div class="form-group">
   <label class="col-md-4 control-label" for="textinput">住家電話</label>
   <div class="col-md-4">
-    <input name="tele1" ng-model="ctrler.tele1" ng-model-options="{ debounce: 500 }" type="text" placeholder="" class="form-control input-md">
+    <input name="tele1" ng-model="ctrler.tele1" ng-model-options="{ debounce: 200 }" type="text" placeholder="" class="form-control input-md">
   </div>
 </div>
 
 <div class="form-group">
   <label class="col-md-4 control-label" for="textinput">行動電話</label>
   <div class="col-md-4">
-    <input name="tele2" ng-model="ctrler.tele2" ng-model-options="{ debounce: 500 }" type="text" placeholder="" class="form-control input-md">
+    <input name="tele2" ng-model="ctrler.tele2" ng-model-options="{ debounce: 200 }" type="text" placeholder="" class="form-control input-md">
   </div>
 </div>
 
@@ -47,18 +47,15 @@
 
     <div class="row-offset-2" style="margin-top:7px;" id="geoSelectors">
       <label>
-        直轄縣市<select style="min-width:90px;" ng-init="ctrler.getCities()" ng-model="ctrler.citySelect" ng-model-options="{ debounce: 100 }" ng-change="ctrler.selectOnChange('dists',ctrler.citySelect,'AddrPrefix')" required><option ng-repeat="city in ctrler.cities track by city._id" value="{{::city._id}}")>{{::city.name}}</option>
-        </select>
+        直轄縣市<select style="min-width:90px;" name="city" ng-init="ctrler.getCities()" ng-options="city as city.name for city in ctrler.cities track by city._id" ng-model="ctrler.citySelect" ng-model-options="{ debounce: 300 }" ng-change="ctrler.selectOnChange('dists',ctrler.citySelect._id)" required></select>
       </label>
 
       <label>
-        鄉鎮市區<select style="min-width:90px;" name="dist" ng-model="ctrler.distSelect" ng-change="ctrler.selectOnChange('villages',ctrler.distSelect,'Village')" ng-model-options="{ debounce: 100 }" required><option ng-repeat="dist in ctrler.dists track by dist._id" value="{{::dist._id}}")>{{::dist.dist}}</option>
-        </select>
+        鄉鎮市區<select style="min-width:90px;" name="dist" ng-options="dist as dist.dist for dist in ctrler.dists track by dist._id" ng-model="ctrler.distSelect" ng-model-options="{ debounce: 300 }" ng-change="ctrler.selectOnChange('villages',ctrler.distSelect._id)" required></select>
       </label>
 
       <label>
-        村里<select name="village" style="min-width:90px; margin-top: 5px;" ng-model="ctrler.villageSelect" ng-model-options="{ debounce: 100 }" required><option ng-repeat="village in ctrler.villages track by village._id" value="{{::village._id}}")>{{::village.name}}</option>
-        </select>
+        村里<select style="min-width:90px;" name="village" ng-options="village as village.name for village in ctrler.villages track by village._id" ng-model="ctrler.villageSelect" ng-model-options="{ debounce: 300 }" required></select>
       </label>
     </div>
     
@@ -105,7 +102,7 @@
 
       <tr>
           <td class="farmer-register-col1">村里</td>
-          <td class="farmer-register-col2">{{ctrler.farmerVillage}}</td>
+          <td class="farmer-register-col2">{{ctrler.villageSelect.name}}</td>
       </tr>
 
       <tr>
@@ -121,7 +118,7 @@
 
       <tr>
           <td class="farmer-register-col1">地址</td>
-          <td class="farmer-register-col2">{{ctrler.farmerAddr}}</td>
+          <td class="farmer-register-col2">{{ctrler.fullAddr}}</td>
       </tr>
 
     </tbody>

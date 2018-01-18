@@ -30,21 +30,17 @@
     <label class="col-md-4 control-label" for="geoSelectors">地址</label>
     <div class="col-md-8">
       <div class="row-offset-2" style="margin-top:7px;" id="geoSelectors">
-        直轄縣市
-        <select style="min-width:90px;" ng-init="ctrler.getCities()" ng-model="ctrler.citySelect" ng-model-options="{ debounce: 100 }" ng-change="ctrler.selectOnChange('dists',ctrler.citySelect,'AddrPrefix')">
-          <option value=""></option>
-          <option ng-repeat="city in ctrler.cities track by city._id" value="{{::city._id}}")>{{::city.name}}</option>
-        </select>
-        鄉鎮市區
-        <select style="min-width:90px;" name="dist" ng-model="ctrler.distSelect" ng-change="ctrler.selectOnChange('villages',ctrler.distSelect,'Village')" ng-model-options="{ debounce: 100 }">
-          <option value=""></option>
-          <option ng-repeat="dist in ctrler.dists track by dist._id" value="{{::dist._id}}")>{{::dist.dist}}</option>
-        </select>
-        村里
-        <select name="village" style="min-width:90px; margin-top: 5px;" ng-model="ctrler.villageSelect" ng-model-options="{ debounce: 100 }">
-          <option value=""></option>
-          <option ng-repeat="village in ctrler.villages track by village._id" value="{{::village._id}}")>{{::village.name}}</option>
-        </select>
+        <label>
+          直轄縣市<select style="min-width:90px;" name="city" ng-init="ctrler.getCities()" ng-options="city as city.name for city in ctrler.cities track by city._id" ng-model="ctrler.citySelect" ng-model-options="{ debounce: 300 }" ng-change="ctrler.selectOnChange('dists',ctrler.citySelect._id)" required></select>
+        </label>
+
+        <label>
+          鄉鎮市區<select style="min-width:90px;" name="dist" ng-options="dist as dist.dist for dist in ctrler.dists track by dist._id" ng-model="ctrler.distSelect" ng-model-options="{ debounce: 300 }" ng-change="ctrler.selectOnChange('villages',ctrler.distSelect._id)" required></select>
+        </label>
+
+        <label>
+          村里<select style="min-width:90px;" name="village" ng-options="village as village.name for village in ctrler.villages track by village._id" ng-model="ctrler.villageSelect" ng-model-options="{ debounce: 300 }" required></select>
+        </label>
       </div>
     </div>
   </div>
@@ -60,13 +56,13 @@
 <!-- confirm table -->
 <style>
 .farmer-search-col1 {
-  width: 10%;
+  width: 15%;
 }
 .farmer-search-col2 {
   width: 20%;
 }
 .farmer-search-col3 {
-  width: 40%;
+  width: 35%;
 }
 .farmer-search-col4 {
   width: 15%;

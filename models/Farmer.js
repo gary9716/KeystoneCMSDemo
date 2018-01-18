@@ -15,7 +15,8 @@ Farmer.add({
   city : { type:Types.Relationship, label:'直轄縣市', ref:Constants.CityListName, required: true, index: true, initial: true },
   dist : { type:Types.Relationship, label:'縣市鄉鎮', ref:Constants.AddrPrefixListName, required: true, index: true, initial: true },
   village: { type:Types.Relationship, label:'里別', ref:Constants.VillageListName, required: true, index: true, initial: true },
-  addr : { type:String, initial: true, trim: true, label:'住址' },
+  addrRest: { type:String, label:'路名細節', initial: true, trim: true },
+  addr : { type:String, initial: true, trim: true, label:'住址' }
 });
 
 //Mirrored from Account to Farmer

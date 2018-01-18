@@ -1,7 +1,7 @@
 angular.module('mainApp')
 .controller('AccountPageCtrler', 
-  ['$http', '$window', '$state', '$rootScope', '$uibModal', 'cachedFarmersKey', 'lodash','localStorageService',
-  function($http, $window, $state, $rootScope, $uibModal, cachedFarmersKey, _ , localStorageService) {
+  ['$http', '$window', '$state', '$rootScope', '$uibModal', 'cachedFarmersKey', 'lodash','localStorageService', 'appRootPath',
+  function($http, $window, $state, $rootScope, $uibModal, cachedFarmersKey, _ , localStorageService, appRootPath) {
 
     var vm = this;
     const farmerPIDKey = 'farmerDetail:farmerPID';
@@ -25,7 +25,8 @@ angular.module('mainApp')
 
       $http.post('/api/farmer/get-and-populate',
       {
-        farmerPID: farmerPID
+        farmerPID: farmerPID,
+        _populate: 'village'
       })
       .then(function(res) {
         var data = res.data;
@@ -97,7 +98,7 @@ angular.module('mainApp')
       account.farmer = vm.farmer;
       var modalInstance = $uibModal.open({
         templateUrl: 'account-detail.html', //this template is embedded in detail.html
-        controller: 'AccountDetailModalCtrler as $ctrl',
+        controller: 'AccountDetailModalCtrler as ctrler',
         size: 'md', //'md','lg','sm'
         resolve: { //used for passing parameters to modal controller
           account: function() {
@@ -111,6 +112,41 @@ angular.module('mainApp')
       });
     };
     
+    vm.openUpdateFarmerModal = function() {
+      var modalInstance = $uibModal.open({
+        templateUrl: (appRootPath + 'farmer/update.html'), 
+        controller: 'UpdateFarmerModalCtrler as ctrler',
+        size: 'lg', //'md','lg','sm'
+        resolve: { //used for passing parameters to modal controller
+          farmer: function() {
+            return vm.farmer;
+          }
+        }
+      });
+
+      modalInstance.result
+      .then(function(newFarmer) {
+        newFarmer._populate = 'village';
+        $http.post('/api/farmer/update', newFarmer)
+        .then(function(res) {
+          var data = res.data;
+          if(data.success) {
+            $rootScope.pubSuccessMsg('更新基本資料成功');
+            vm.farmer = data.result;
+          }
+          else {
+            $rootScope.pubErrorMsg('更新失敗,原因：' + data.message);
+          }
+        })
+        .catch(function(err) {
+            $rootScope.pubErrorMsg('更新失敗,原因：' + err.toString());
+        });
+      })
+      .catch(function () { 
+        modalInstance.close(); 
+      });
+    }
+
     vm.addFarmerToCache = function() {
       if(vm.farmer) {
         var cachedFarmers = localStorageService.get(cachedFarmersKey);
@@ -150,13 +186,244 @@ angular.module('mainApp')
   }]
 )
 .controller('AccountDetailModalCtrler', 
-  ['$uibModalInstance', 'account',
-  function($uibModalInstance, account) {
-    var $ctrl = this;
-    $ctrl.account = account;
-    $ctrl.ok = function () {
-      $uibModalInstance.close();
+  ['$uibModalInstance', 'account', '$http', 'lodash',
+  function($uibModalInstance, account, $http, _) {
+    var vm = this;
+    vm.account = account;
+    vm.closeAcc = {};
+    vm.deposit = {};
+    vm.withdraw = {};
+    vm.setFreeze = {};
+    vm.isProcessing = false;
+    vm.alerts = [];
+    vm.pubSuccessMsg = function(msg) {
+      vm.alerts.push({ type:'success', msg: msg });
+    }
+
+    vm.pubWarningMsg = function(msg) {
+      vm.alerts.push({ type:'warning', msg: msg }); 
+    }
+
+    vm.pubInfoMsg = function(msg) {
+      vm.alerts.push({ type:'info', msg: msg }); 
+    }
+
+    vm.pubErrorMsg = function(msg) {
+      vm.alerts.push({ type:'danger', msg: msg }); 
+    }
+
+    var notEmptyOrUndefThenAdd = function(obj, key, val) {
+      if(_.isString(val)) {
+        if(val.length > 0) {
+          obj[key] = val;
+        }
+      }
+      else if(_.isNumber(val)) {
+        obj[key] = val;
+      }
+    } 
+
+    vm.depositOp = function() {
+      vm.isProcessing = true;
+
+      var data = {
+        _id: vm.account._id,
+        amount: vm.deposit.amount
+      };
+
+      notEmptyOrUndefThenAdd(data, 'period', vm.deposit.period);
+      notEmptyOrUndefThenAdd(data, 'comment', vm.deposit.comment);
+      notEmptyOrUndefThenAdd(data, 'ioAccount', vm.deposit.ioAccount);
+
+      console.log(vm.deposit);
+
+      console.log(data);
+
+      $http.post('/api/account/deposit', data)
+      .then(function(res) {
+        var resData = res.data;
+        if(resData.success) {
+          vm.pubSuccessMsg('入款成功');
+          vm.account = resData.result;
+        }
+        else {
+          vm.pubErrorMsg('入款失敗,' + resData.message);
+        }
+      })
+      .catch(function(err) {
+        vm.pubErrorMsg('入款失敗,' + err.toString());
+      })
+      .finally(function() {
+        vm.isProcessing = false;
+      })
+
+      //$uibModalInstance.close(vm.deposit);
+    }
+
+    vm.withdrawOp = function() {
+      vm.isProcessing = true;
+      var data = {
+        _id: vm.account._id,
+        amount: vm.withdraw.amount
+      };
+
+      notEmptyOrUndefThenAdd(data, 'comment', vm.withdraw.comment);
+      notEmptyOrUndefThenAdd(data, 'ioAccount', vm.withdraw.ioAccount);
+
+      $http.post('/api/account/withdraw', data)
+      .then(function(res) {
+        var resData = res.data;
+        if(resData.success) {
+          vm.pubSuccessMsg('提款成功');
+          vm.account = resData.result;
+        }
+        else {
+          vm.pubErrorMsg('提款失敗,' + resData.message);
+        }
+      })
+      .catch(function(err) {
+        vm.pubErrorMsg('提款失敗,' + err.toString());
+      })
+      .finally(function() {
+        vm.isProcessing = false;
+      })
+
+      //$uibModalInstance.close(vm.withdraw);
+    }
+
+    vm.setFreezeOp = function() {
+      vm.isProcessing = true;
+      var data = {
+        _id: vm.account._id,
+      };
+
+      notEmptyOrUndefThenAdd(data, 'comment', vm.setFreeze.comment);
+
+      $http.post('/api/account/set-freeze', data)
+      .then(function(res) {
+        var resData = res.data;
+        if(resData.success) {
+          vm.account = resData.result;
+          vm.pubSuccessMsg(vm.account.freeze? '凍結成功':'解凍成功');
+        }
+        else {
+          vm.pubErrorMsg('失敗,' + resData.message);
+        }
+      })
+      .catch(function(err) {
+        vm.pubErrorMsg('失敗,' + err.toString());
+      })
+      .finally(function() {
+        vm.isProcessing = false;
+      })
+
+      //$uibModalInstance.close(vm.setFreeze);
+    }
+
+    vm.closeAccOp = function() {
+      vm.isProcessing = true;
+      var data = {
+        _id: vm.account._id,
+      };
+
+      notEmptyOrUndefThenAdd(data, 'comment', vm.closeAcc.comment);
+
+      $http.post('/api/account/close', data)
+      .then(function(res) {
+        var resData = res.data;
+        if(resData.success) {
+          vm.account = resData.result;
+          vm.pubSuccessMsg('結清成功');
+        }
+        else {
+          vm.pubErrorMsg('結清失敗,' + resData.message);
+        }
+      })
+      .catch(function(err) {
+        vm.pubErrorMsg('結清失敗,' + err.toString());
+      })
+      .finally(function() {
+        vm.isProcessing = false;
+      });
+
+      //$uibModalInstance.close(vm.closeAcc);
+    }
+
+    vm.cancel = function () {
+      $uibModalInstance.dismiss('cancel');
+    };
+  }]
+)
+.controller('UpdateFarmerModalCtrler', 
+  ['$uibModalInstance','farmer', 'geoDataService','$rootScope',
+  function($uibModalInstance, farmer, geoDataService, $rootScope){
+    var vm = this;
+    vm.farmer = _.clone(farmer, false);
+    vm.farmer.birth = Date.parse(vm.farmer.birth);
+
+    vm.selectOnChange = function(targetName, selectVal) {
+      if(targetName === 'dists') {
+        vm.distSelect = null;
+        vm.villages = null;
+      }
+
+      return geoDataService.fetch(targetName, selectVal)
+              .then(function(data) {
+                vm[targetName] = data;
+                return data;
+              })
+              .catch(function(err) {
+                console.log(err);
+              });
+    }
+
+    var setAddr = function() {
+      if(vm.hasOwnProperty("cities") && vm.hasOwnProperty("dists")
+        && vm.citySelect && vm.distSelect) {
+        vm.farmer.addr = (vm.citySelect.name + vm.distSelect.dist + vm.farmer.addrRest); 
+      }
+      else {
+        vm.farmer.addr = '';
+      }
+    }
+
+    //initialization
+    vm.getCities = function() {
+      vm.selectOnChange('cities', null)
+      .then(function(cities) {
+        vm.citySelect = _.find(vm.cities, function(city) {
+          return city._id === vm.farmer.city;
+        });
+
+        return vm.selectOnChange('dists',vm.citySelect._id);
+      })
+      .then(function(dists) {
+        vm.distSelect = _.find(vm.dists, function(dist) {
+          return dist._id === vm.farmer.dist;
+        });
+
+        return vm.selectOnChange('villages',vm.distSelect._id);
+      })
+      .then(function(villages) {
+        vm.villageSelect = _.find(vm.villages, function(village) {
+          return village._id === vm.farmer.village._id;
+        });
+      })
+      .catch(function(err) {
+        $rootScope.pubErrorMsg('系統似乎出現一些錯誤');
+        console.log(err);
+      });
+    }
+
+    vm.ok = function () {
+      vm.farmer.city = vm.citySelect._id;
+      vm.farmer.dist = vm.distSelect._id;
+      vm.farmer.village = vm.villageSelect._id;
+      setAddr();
+      $uibModalInstance.close(vm.farmer);
+    };
+    vm.cancel = function () {
+      $uibModalInstance.dismiss('cancel');
     };
   }]
 );
-

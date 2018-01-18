@@ -106,6 +106,8 @@ exports = module.exports = function (app) {
     routes.api.FarmerService.getAndPopulate
   );
 
+
+
   app.post('/api/account/create',
     middleware.permissionCheck.bind([
       {
@@ -152,6 +154,34 @@ exports = module.exports = function (app) {
     routes.api.AccountService.setFreeze
   );
 
+  app.post('/api/account/deposit',
+    middleware.permissionCheck.bind([
+      {
+        opName: 'update',
+        listName: Constants.AccountListName
+      },
+      {
+        opName: 'create',
+        listName: Constants.AccountRecordListName
+      }
+    ]),
+    routes.api.AccountService.deposit
+  );
+
+  app.post('/api/account/withdraw',
+    middleware.permissionCheck.bind([
+      {
+        opName: 'update',
+        listName: Constants.AccountListName
+      },
+      {
+        opName: 'create',
+        listName: Constants.AccountRecordListName
+      }
+    ]),
+    routes.api.AccountService.withdraw
+  );
+
 
 
   app.post('/api/p-type/upsert',
@@ -163,9 +193,6 @@ exports = module.exports = function (app) {
     ),
     routes.api.ProductService.pTypeUpsert
   );
-
-
-
 
   app.post('/api/product/get', 
     middleware.permissionCheck.bind(

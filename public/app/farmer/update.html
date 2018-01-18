@@ -1,0 +1,76 @@
+<style>
+form#farmer-update-form div.info-row{
+  display: flex; align-items: center;
+}
+</style>
+<form name="farmerUpdateForm" id="farmer-update-form" class="modal-body">
+<fieldset>
+<div class="form-group info-row">
+  <label class="col-md-4 control-label">姓名</label>
+  <div class="col-md-4">
+    <input name="name" ng-model="ctrler.farmer.name" ng-model-options="{ debounce: 200 }" type="text" placeholder="" class="form-control input-md" required>
+  </div>
+</div>
+
+<div class="form-group info-row">
+  <label class="col-md-4 control-label">身份證字號</label>
+  <div class="col-md-4">
+    <input name="pid" ng-model="ctrler.farmer.pid" ng-model-options="{ debounce: 200 }" type="text" placeholder="" class="form-control input-md" legalpid>
+  </div>
+</div>
+
+<div class="form-group info-row">
+  <label class="col-md-4 control-label">生日</label>
+  <div class="col-md-3 input-group">
+    <input type="text" style="margin-left:15px;" class="form-control input-md" uib-datepicker-popup="yyyy/MM/dd" ng-model="ctrler.farmer.birth" is-open="ctrler.birthSelOpened" required close-text="關閉" clear-text="清除" current-text="今天"/>
+    <span class="input-group-btn">
+      <button type="button" class="btn btn-default" ng-click="ctrler.birthSelOpened=true;"><i class="fa fa-calendar"></i></button>
+    </span>
+  </div>
+</div>
+
+<div class="form-group info-row">
+  <label class="col-md-4 control-label">住家電話</label>
+  <div class="col-md-4">
+    <input name="tele1" ng-model="ctrler.farmer.teleNum1" ng-model-options="{ debounce: 200 }" type="text" placeholder="" class="form-control input-md">
+  </div>
+</div>
+
+<div class="form-group info-row">
+  <label class="col-md-4 control-label" for="textinput">行動電話</label>
+  <div class="col-md-4">
+    <input name="tele2" ng-model="ctrler.farmer.teleNum2" ng-model-options="{ debounce: 200 }" type="text" placeholder="" class="form-control input-md">
+  </div>
+</div>
+
+<div class="form-group info-row">
+  <label class="col-md-4 control-label" for="geoSelectors">地址</label>
+  <div class="col-md-6">
+
+    <div class="row-offset-2" style="margin-top:7px;" id="geoSelectors">
+        <label>
+          直轄縣市<select style="min-width:90px;" name="city" ng-init="ctrler.getCities()" ng-options="city as city.name for city in ctrler.cities track by city._id" ng-model="ctrler.citySelect" ng-model-options="{ debounce: 300 }" ng-change="ctrler.selectOnChange('dists',ctrler.citySelect._id)" required></select>
+        </label>
+
+        <label>
+          鄉鎮市區<select style="min-width:90px;" name="dist" ng-options="dist as dist.dist for dist in ctrler.dists track by dist._id" ng-model="ctrler.distSelect" ng-model-options="{ debounce: 300 }" ng-change="ctrler.selectOnChange('villages',ctrler.distSelect._id)" required></select>
+        </label>
+
+        <label>
+          村里<select style="min-width:90px;" name="village" ng-options="village as village.name for village in ctrler.villages track by village._id" ng-model="ctrler.villageSelect" ng-model-options="{ debounce: 300 }" required></select>
+        </label>
+    </div>
+    
+    <input style="margin-top:5px;" name="addrRest" ng-model="ctrler.farmer.addrRest" ng-model-options="{ debounce: 200 }" type="text" placeholder="縣市鄉鎮以下的細節（路名,牌號等等）" class="form-control input-md" required>
+
+  </div>
+</div>
+
+<div class="form-group info-row">
+  <div class="col-md-4 col-md-offset-4">
+    <button class="btn btn-success" ng-click="ctrler.ok()" ng-disabled="farmerUpdateForm.$invalid">更新</button>
+    <button class="btn btn-warning" ng-click="ctrler.cancel()">取消</button>
+  </div>
+</div>
+</fieldset>
+</form>

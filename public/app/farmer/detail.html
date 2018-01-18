@@ -17,43 +17,53 @@
       <tbody>
         <tr>
             <td class="detail-col1">姓名</td>
-            <td class="detail-col2">{{::ctrler.farmer.name}}</td>
+            <td class="detail-col2">{{ctrler.farmer.name}}</td>
         </tr>
         
         <tr>
             <td class="detail-col1">身分證字號</td>
-            <td class="detail-col2">{{::ctrler.farmer.pid}}</td>
+            <td class="detail-col2">{{ctrler.farmer.pid}}</td>
+        </tr>
+
+        <tr>
+            <td class="detail-col1">生日</td>
+            <td class="detail-col2">{{ctrler.farmer.birth | date : 'yyyy/MM/dd'}}</td>
         </tr>
 
         <tr>
             <td class="detail-col1">住家電話</td>
-            <td class="detail-col2">{{::ctrler.farmer.teleNum1}}</td>
+            <td class="detail-col2">{{ctrler.farmer.teleNum1}}</td>
         </tr>
         
         <tr>
             <td class="detail-col1">行動電話</td>
-            <td class="detail-col2">{{::ctrler.farmer.teleNum2}}</td>
+            <td class="detail-col2">{{ctrler.farmer.teleNum2}}</td>
         </tr>
         
+        <tr>
+            <td class="detail-col1">村里</td>
+            <td class="detail-col2">{{ctrler.farmer.village.name}}</td>
+        </tr>
 
         <tr>
             <td class="detail-col1">地址</td>
-            <td class="detail-col2">{{::ctrler.farmer.addr}}</td>
+            <td class="detail-col2">{{ctrler.farmer.addr}}</td>
         </tr>
 
         <!-- use collaspable ui to show detail -->
         <tr ng-repeat="account in ctrler.accounts track by account._id" ng-click="ctrler.openAccountDetail(account)" class="hightlight clickable">
-            <td class="detail-col1">存摺{{::$index + 1}}編號</td>
-            <td class="detail-col2">{{::account.accountID}}</td>
+            <td class="detail-col1">存摺{{$index + 1}}編號</td>
+            <td class="detail-col2">{{account.accountID}}</td>
         </tr>
       </tbody>
     </table>  
   </div>
-  <div class="form-group">
-      <div class="col-md-offset-5">
-        <button class="btn btn-primary" ng-click="ctrler.openCreateAccountModal()">開立存摺</button>
-        <button class="btn btn-primary" ng-click="ctrler.addFarmerToCache()">加入暫存</button>
-      </div>
+  <div class="form-group text-center">
+    
+      <button class="btn btn-primary" ng-click="ctrler.openUpdateFarmerModal()">更改基本資料</button>
+      <button class="btn btn-primary" ng-click="ctrler.openCreateAccountModal()">開立存摺</button>
+      <button class="btn btn-primary" ng-click="ctrler.addFarmerToCache()">加入暫存</button>
+      
   </div>
 </div> <!-- /div.container -->
 
@@ -75,7 +85,7 @@
       <div class="form-group">
         <label class="control-label col-md-4" for="comment">備註</label>
         <div class="col-md-8">
-        <textarea class="form-control" rows="5" id="comment" ng-model="$ctrl.result.comment" ng-model-options="{ updateOn: 'blur' }" style="resize: none;"></textarea>
+        <textarea class="form-control" rows="5" id="comment" ng-model="$ctrl.result.comment" ng-model-options="{ updateOn: 'blur' }" style="resize: none;" ng-trim="true"></textarea>
         </div>
       </div>
     </form>
@@ -88,69 +98,157 @@
 
 <!--觀看存摺細節對話框-->
 <script type="text/ng-template" id="account-detail.html">
+
 <div class="modal-header">
-    <h3 class="modal-title" id="modal-title">存摺資訊</h3>
+    <h3 class="modal-title">存摺資訊</h3>
 </div>
-<div class="modal-body" id="modal-body">
+<div class="modal-body" id="account-details">
     <!-- any click event within modal should add $event.preventDefault(); to prevent modal from dismiss -->
     <style>
-    .fr-col1 {
+    table#account-details-table td.account-col1 {
       width: 30%;
     }
 
-    .fr-col2 {
+    table#account-details-table td.account-col2 {
       width: 70%;
     }
+
+    div#account-details input.opt-radio {
+      width:0.85em; height:0.85em;
+    }
+
+    form#account-op-form input[type=number]::-webkit-inner-spin-button, 
+    form#account-op-form input[type=number]::-webkit-outer-spin-button { 
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        margin: 0; 
+    }
+    form#account-op-form div.flex-row {
+      display: flex; align-items: center;
+    }
+
     </style>
-    <div class="table-responsive">
-      <table class="table table-striped table-bordered" style="width: 100%; margin: 0px auto 20px;">
-        <tbody>
-          <tr>
-              <td class="fr-col1">存摺編號</td>
-              <td class="fr-col2">{{::$ctrl.account.accountID}}</td>
-          </tr>
-          
-          <tr>
-              <td class="fr-col1">擁有者</td>
-              <td class="fr-col2">{{::$ctrl.account.farmer.name}}</td>
-          </tr>
-
-          <tr>
-              <td class="fr-col1">使用者</td>
-              <td class="fr-col2">{{::$ctrl.account.accountUser}}</td>
-          </tr>
-
-          <tr>
-              <td class="fr-col1">開戶時間</td>
-              <td class="fr-col2">{{::$ctrl.account.createdAt | date : 'yyyy/MM/dd'}}</td>
-          </tr>
-
-          <tr ng-hide="$ctrl.account.active">
-              <td class="fr-col1">結清時間</td>
-              <td class="fr-col2">{{::$ctrl.account.closedAt | date : 'yyyy/MM/dd'}}</td>
-          </tr>
-
-          <tr>
-              <td class="fr-col1">餘額</td>
-              <td class="fr-col2">{{::$ctrl.account.balance}}</td>
-          </tr>
-          
-          <tr>
-              <td class="fr-col1">是否結清</td>
-              <td class="fr-col2">{{::$ctrl.account.active? '否':'是'}}</td>
-          </tr>
-          
-          <tr>
-              <td class="fr-col1">凍結中</td>
-              <td class="fr-col2">{{::$ctrl.account.freeze? '是':'否'}}</td>
-          </tr>
-
-        </tbody>
+    <table id="account-details-table" class="table table-responsive table-striped table-bordered" style="width: 100%; margin: 0px auto 20px;">
+      <tbody>
+        <tr>
+            <td class="account-col1">存摺編號</td>
+            <td class="account-col2">{{ctrler.account.accountID}}</td>
+        </tr>
         
-      </table>
+        <tr>
+            <td class="account-col1">擁有者</td>
+            <td class="account-col2">{{ctrler.account.farmer.name}}</td>
+        </tr>
+
+        <tr>
+            <td class="account-col1">使用者</td>
+            <td class="account-col2">{{ctrler.account.accountUser}}</td>
+        </tr>
+
+        <tr>
+            <td class="account-col1">開戶時間</td>
+            <td class="account-col2">{{ctrler.account.createdAt | date : 'yyyy/MM/dd'}}</td>
+        </tr>
+
+        <tr ng-hide="$ctrl.account.active">
+            <td class="account-col1">結清時間</td>
+            <td class="account-col2">{{ctrler.account.closedAt | date : 'yyyy/MM/dd'}}</td>
+        </tr>
+
+        <tr>
+            <td class="account-col1">餘額</td>
+            <td class="account-col2">{{ctrler.account.balance}}</td>
+        </tr>
+        
+        <tr>
+            <td class="account-col1">是否結清</td>
+            <td class="account-col2">{{ctrler.account.active? '否':'是'}}</td>
+        </tr>
+        
+        <tr>
+            <td class="account-col1">凍結中</td>
+            <td class="account-col2">{{ctrler.account.freeze? '是':'否'}}</td>
+        </tr>
+
+      </tbody>
+      
+    </table>
+    <div uib-alert ng-repeat="alert in ctrler.alerts track by $index" ng-class="'alert-' + (alert.type || 'warning')" dismiss-on-timeout="3000" close="ctrler.alerts.splice(ctrler.alerts.indexOf(alert),1);">{{::alert.msg}}</div>
+    
+    <label>存摺相關操作</label>
+    <div class="form-group">
+      <label><input type="radio" class="opt-radio" value="deposit" ng-model="ctrler.accountOp" ng-change="">入款</label>
+      <label><input type="radio" class="opt-radio" value="withdraw" ng-model="ctrler.accountOp" ng-change="">提款</label>
+      <label><input type="radio" class="opt-radio" value="setFreeze" ng-model="ctrler.accountOp" ng-change="">{{ctrler.account.freeze? '解凍':'凍結'}}</label>
+      <label><input type="radio" class="opt-radio" value="close" ng-model="ctrler.accountOp" ng-change="">結清</label>
     </div>
+    <form name="accountOpForm" id="account-op-form">
+      <section ng-show="ctrler.accountOp==='deposit'">
+        <div class="flex-row form-group">
+          <label class="col-md-3">入款金額</label>
+          <input type="number" name="depositAmount" ng-model="ctrler.deposit.amount" ng-trim="true" ng-min="0" required>
+        </div>
+        <div class="flex-row form-group">
+          <label class="col-md-3">期別</label>
+          <input type="text" name="depositPeriod" ng-model="ctrler.deposit.period" ng-trim="true">
+        </div>
+        <div class="flex-row form-group">
+          <label class="col-md-3">轉入帳號</label>
+          <input type="text" name="depositIOAcc" ng-model="ctrler.deposit.ioAccount" ng-trim="true">
+        </div>
+        <div class="flex-row form-group">
+          <label class="col-md-3">備註</label>
+          <div>
+            <textarea rows="5" ng-model="ctrler.deposit.comment" ng-model-options="{ updateOn: 'blur' }" style="resize: none;" ng-trim="true"></textarea>
+          </div>
+        </div>
+      </section>
+
+      <section ng-show="ctrler.accountOp==='withdraw'" class="form-group">
+        <div class="flex-row form-group">
+          <label class="col-md-3">提款金額</label>
+          <input type="number" name="withdrawAmount" ng-model="ctrler.withdraw.amount" ng-trim="true" ng-min="0" required>
+        </div>
+        <div class="flex-row form-group">
+          <label class="col-md-3">轉出帳號</label>
+          <input type="text" name="withdrawIOAcc" ng-model="ctrler.withdraw.ioAccount" ng-trim="true">
+        </div>
+        <div class="flex-row form-group">
+          <label class="col-md-3">備註</label>
+          <div>
+            <textarea rows="5" ng-model="ctrler.withdraw.comment" ng-model-options="{ updateOn: 'blur' }" style="resize: none;" ng-trim="true"></textarea>
+          </div>
+        </div>
+      </section>
+
+      <section ng-show="ctrler.accountOp==='setFreeze'" class="form-group">
+        <div class="flex-row form-group">
+          <label class="col-md-3">備註</label>
+          <div>
+            <textarea rows="5" ng-model="ctrler.setFreeze.comment" ng-model-options="{ updateOn: 'blur' }" style="resize: none;" ng-trim="true"></textarea>
+          </div>
+        </div>
+      </section>
+
+      <section ng-show="ctrler.accountOp==='close'" class="form-group">
+        <div class="flex-row form-group">
+          <label class="col-md-3">備註</label>
+          <div>
+            <textarea rows="5" ng-model="ctrler.closeAcc.comment" ng-model-options="{ updateOn: 'blur' }" style="resize: none;" ng-trim="true"></textarea>
+          </div>
+        </div>
+      </section>
+    </form>
 </div>
 <div class="modal-footer">
-    <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()">關閉</button>
+    <div class="flex-row form-group">
+      <button ng-click="ctrler.depositOp()" class="btn btn-success col-md-offset-4" ng-disabled="accountOpForm.depositAmount.$invalid || ctrler.isProcessing" ng-show="ctrler.accountOp==='deposit'">入款</button>
+      <button ng-click="ctrler.withdrawOp()" class="btn btn-success col-md-offset-4" ng-disabled="accountOpForm.withdrawAmount.$invalid || ctrler.isProcessing" ng-show="ctrler.accountOp==='withdraw'">提款</button>
+      <button ng-click="ctrler.setFreezeOp()" class="btn btn-success col-md-offset-4" ng-disabled="ctrler.isProcessing" ng-show="ctrler.accountOp==='setFreeze'">{{ctrler.account.freeze? '解凍':'凍結'}}</button>
+      <button ng-click="ctrler.closeAccOp()" class="btn btn-success col-md-offset-4" ng-disabled="ctrler.isProcessing" ng-show="ctrler.accountOp==='close'">結清</button>
+      
+      <button class="btn" ng-class="{ 'btn-warning': (ctrler.accountOp && ctrler.accountOp.length > 0), 'btn-primary': (!ctrler.accountOp || ctrler.accountOp.length === 0) }" type="button" ng-click="ctrler.cancel()">{{(ctrler.accountOp && ctrler.accountOp.length > 0)? '取消' : '關閉'}}</button>
+    </div>
 </div>
 </script>

@@ -45,6 +45,7 @@ exports.upsert = function(req, res) {
     dist: form.dist ? form.dist:'',
     village: form.village ? form.village:'',
     addr: form.addr ? form.addr:'',
+    addrRest: form.addrRest ? form.addrRest: ''
   };
 
   Promise.resolve()
@@ -54,6 +55,7 @@ exports.upsert = function(req, res) {
         .findOne({
           _id: form._id
         })
+        .select('_id')
         .exec()
         .then(function(farmer) {
           if(farmer) {
@@ -104,6 +106,16 @@ exports.upsert = function(req, res) {
       }
     }
 
+  })
+  .then(function(savFarmer) {
+    if(form._populate) {
+      if(form._populate instanceof Array)
+        return savFarmer.populate(form._populate.join(' ')).execPopulate();
+      else
+        return savFarmer.populate(form._populate).execPopulate();
+    }
+    else 
+      return savFarmer;
   })
   .then(function(savFarmer) {
     return res.json({
@@ -307,9 +319,17 @@ exports.search = function(req, res) {
 exports.getAndPopulate = function(req, res) {
   var form = req.body;
   var farmer;
-  farmerList.model
-    .findOne({ pid: form.farmerPID })
-    .lean()
+  
+  var query = farmerList.model.findOne({ pid: form.farmerPID })
+  
+  if(form._populate) {
+    if(form._populate instanceof Array)
+      query = query.populate(form._populate.join(' '))
+    else
+      query = query.populate(form._populate)
+  }
+  
+  query.lean()
     .exec()
     .then(function(_farmer) {
       if(!_farmer) {
