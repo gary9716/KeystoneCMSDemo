@@ -321,6 +321,7 @@ exports.delete = function(req, res) {
   }
   */
 
+
 exports.transact = function(req, res) {
   
   var form = req.body;
@@ -533,3 +534,196 @@ exports.transact = function(req, res) {
   });
 
 }
+
+/* 
+var Fawn = require('fawn');
+
+exports.transactFawn = function(req, res) {
+
+  var form = req.body;
+
+  var filters = {};
+  if(form.hasOwnProperty("_id")) {
+    filters._id = form._id;
+  }
+  else if(form.hasOwnProperty("accountID")) {
+    filters.accountID = form.accountID;
+  }
+  else {
+    return res.json({
+      success: false,
+      message: '沒有存取存摺的關鍵資訊'
+    });
+  }
+
+  //collect product info
+  var productIDs = form.products.map(function(product) {
+    return product._id;
+  });
+
+  var products;
+  var nowDate = Date.now();
+  var newRec_id = mongoose.Types.ObjectId();
+  var newTransact_id = mongoose.Types.ObjectId();
+  var total = 0;
+  var productDataList = []; //for saving in DB
+
+  productList.model.find({ _id : { $in: productIDs } }) //get products info from db
+  .lean()
+  .exec()
+  .then(function(_products) {
+    products = _products;
+
+    products.forEach(function(p) {
+      p._id = p._id.toString();
+    });
+
+    if(products.length !== form.products.length) {
+      return Promise.reject('查詢到的商品數量不合,請重新選購');
+    }
+
+    //check product state
+    if(products.every(function(product) {
+        return product.canSale && Date.parse(product.startSaleDate) < nowDate
+      })) {
+
+      //check pass
+      return accountList.model.findOne(filters)
+            .populate('farmer')
+            .exec();
+    }
+    else {
+      return Promise.reject('有目前無法出售的商品');
+    }
+
+  })
+  .then(function(account) {
+    if(!account)
+      return Promise.reject('存摺不存在');
+
+    if(!account.active)
+      return Promise.reject('存摺已結清');
+
+    if(account.freeze) 
+      return Promise.reject('此存摺被凍結中,無法進行此操作');
+
+    savAccount = account;
+
+    var numProducts = products.length;
+
+    for (let i = 0; i < numProducts; i++) {
+      let formProduct = form.products[i];
+      let product = _.find(products, function(p) {
+        return p._id === formProduct._id; 
+      });
+
+      if(!product)
+        return Promise.reject('購物車商品資訊錯誤,請重新選購');
+
+      var price = 0;
+      if(formProduct.price === 'exchange') {
+        price = product.exchangePrice;
+      }      
+      else if(formProduct.price === 'market') {
+        price = product.marketPrice;
+      }
+      else { //self defined price
+        if(_.isString(formProduct.price)) {
+          price = parseInt(formProduct.price);
+        }
+        else if(_.isNumber(formProduct.price)) {
+          price = Math.floor(formProduct.price);
+        }
+        else {
+          return Promise.reject('價格資訊無效');
+        }
+      }
+
+      price = Math.abs(price); //每包價格
+
+      if(isNaN(price)) {
+        return Promise.reject('價格資訊錯誤');
+      }
+
+      let qty = Math.abs(Math.floor(formProduct.qty));
+
+      if(qty === 0) {
+        return Promise.reject('商品數量不得為0');
+      }
+
+      //總價 += 每包價格*幾包
+      total += (price * qty);
+
+      productDataList.push({
+        pid: product.pid,
+        name: product.name,
+        pType: product.pType,
+        weight: product.weight,
+        price: price,
+        qty: qty
+      });
+    }
+
+    if(account.balance < total) {
+      return Promise.reject('餘額不足');
+    }
+
+    var newBalance = account.balance - total;
+
+    var task = Fawn.Task();
+
+    var newTransaction = new transactionList.model({
+      _id: newTransact_id,
+      date: nowDate,
+      account: account._id,
+      amount: total,
+      trader: req.user._id,
+      products: productDataList,
+    });
+
+    if(req.user.shop) {
+      newTransaction.shop = req.user.shop;
+    }
+
+    newTransaction._req_user = req.user;
+
+    var newRec = new accountRecList.model({
+      _id: newRec_id,
+      account: account._id,
+      opType: 'transact',
+      amount: total,
+      date: nowDate,
+      operator: req.user._id,
+      comment: form.comment? form.comment : '',
+      transaction: newTransact_id
+    });
+    newRec._req_user = req.user;
+
+    account._req_user = req.user;
+
+    console.log(newBalance);
+
+    return task.update(account, { balance: newBalance, lastRecord: newRec_id })
+        .save(newTransaction)
+        .save(newRec)
+        .run();
+
+  })
+  .then(function(results) {
+    return res.json({
+      success: true,
+      result: {
+        account: results[0],
+        transaction: results[1]
+      }
+    });
+  })
+  .catch(function(err) {
+    return res.json({
+      success: false,
+      message: err.toString()
+    });
+  });
+
+}
+*/

@@ -4,6 +4,7 @@ require('dotenv').config();
 global.__base = __dirname + '/';
 
 // Require keystone
+var Fawn = require("fawn");
 var keystone = require('keystone');
 var dotEngine = require('express-dot-engine');
 var async = require('async');
@@ -11,6 +12,8 @@ var helperFuncs = require('./templates/views/helpers/index');
 var _ = require('lodash');
 var middleware = require('./routes/middleware');
 var Constants = require(__base + 'Constants');
+
+var mongoose = keystone.get('mongoose');
 
 keystone.set('defaultState', process.env.DEFAULT_STATE || 'home' );
 
@@ -64,23 +67,10 @@ keystone.init({
 	'auth' : true
 });
 
-/*
-keystone.initExpressApp();
-var app = keystone.app;
-
-//remove official signin routes and api
-var officialSigninRoute = '/' + keystone.get('admin path') + '/signin';
-var officialSigninAPI = '/' + keystone.get('admin path') + '/api/session/signin';
-
-console.log(app);
-
-var removeRoute = require('express-remove-route');
-removeRoute(app, officialSigninAPI);
-removeRoute(app, officialSigninRoute);
-*/
 
 // Load your project's Models
 keystone.import('models');
+Fawn.init(process.env.MONGO_URI);
 
 // Setup common locals for your templates. The following are required for the
 // bundled templates and layouts. Any runtime locals (that should be set uniquely
@@ -187,23 +177,21 @@ if (!process.env.MAILGUN_API_KEY || !process.env.MAILGUN_DOMAIN) {
 	+ '\nset up your mailgun integration');
 }
 
-var Fawn = require("fawn");
-Fawn.init(keystone.get('mongoose'));
-
 //var roller = Fawn.Roller();
 //roller.roll()
 //.then(function() {
 //	console.log('rollback process complete');	
-	
-//do db updates here
-//manually do db update after some incomplete transaction rollback completed
-require('./DBUpdate')(function() {
-	//set system parameters after DB update
-	middleware.refreshSysInfo(null, null, function(err) {
-		if(err) throw err;
-		console.log('sys parameters set');
+
+	//do db updates here
+	//manually do db update after some incomplete transaction rollback completed
+	require('./DBUpdate')(function() {
+		//set system parameters after DB update
+		middleware.refreshSysInfo(null, null, function(err) {
+			if(err) throw err;
+			console.log('sys parameters set');
+
+		});
 	});
-});
 
 //});
 
