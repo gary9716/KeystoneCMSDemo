@@ -28,7 +28,7 @@
   }
 
   table.product-table td.price-col {
-    padding-left: 1em;    
+    padding-left: 1em; 
   }
 
   table.product-table input.price-radio, 
@@ -58,17 +58,17 @@
         <!-- maybe we may need this in future
         <h4><a class="clickable" ng-click="ctrler.viewDetail()">{{::product.name}}</a></h4>
         -->
-        <h4 class="text-center">{{::product.name}}</h4>
+        <h3 class="text-center" style="margin-top:10px;">{{::product.name}}</h3>
         <label>每包重{{::product.weight}}kg</label>
-          <div class="form-group product-info-row">
-            <label>價格方案：</label>
-            <div class="col-md-8" style="padding: 5px 5px;">
+          <div class="product-info-row">
+            <label>{{product.isInCart? '決定方案：':'可選方案：'}}</label>
+            <div class="col-md-8">
               <table class="product-table table-responsive">
-                <tr>
+                <tr ng-hide="product.isInCart && product.price===product.exchangePrice">
                   <td class="txt-col"><label><input type="radio" class="price-radio" ng-value="product.marketPrice" ng-model="product.price" ng-model-options="{ debounce: 100 }" ng-hide="product.isInCart">定價</label></td> 
                   <td class="price-col">{{::product.marketPrice}} 元</td>
                 </tr>
-                <tr>
+                <tr ng-hide="product.isInCart && product.price===product.marketPrice">
                   <td class="txt-col"><label><input type="radio" class="price-radio" ng-value="product.exchangePrice" ng-model="product.price" ng-model-options="{ debounce: 100 }" ng-hide="product.isInCart">兌換價</label></td> 
                   <td class="price-col">{{::product.exchangePrice}} 元</td>
                 </tr>
@@ -76,12 +76,14 @@
             </div>
           </div>
 
+<!--
           <div class="form-group product-info-row" style="min-height: 2em;">
             <label>最終單價：</label>
             <input type="number" name="price" ng-model="product.price" ng-model-options="{ debounce: 200 }" class="col-sm-4 col-md-7 text-center" ng-hide="product.isInCart" required>
             <label class="col-sm-4 col-md-7 text-center" ng-show="product.isInCart">{{product.price}} 元</label>
           </div>
-          <div class="form-group product-info-row" style="min-height: 3em; margin: 10px auto;">
+-->
+          <div class="product-info-row" style="margin-top:3px; margin-bottom:10px;">
             <label>{{product.isInCart?'已加包數':'欲加包數'}}：</label>
             <!-- quantity selector -->
             <div class="input-group col-sm-4 col-md-7" ng-hide="product.isInCart">

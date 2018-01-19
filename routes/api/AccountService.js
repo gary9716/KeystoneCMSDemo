@@ -33,7 +33,8 @@ exports.create = function(req, res) {
     .then(function(count) {
       var newAccountID = farmer.pid + "-" + (count + 1).toString();
 
-      var accBk = {
+      //account status backup(post status)
+      var postAccBk = {
         accountID: newAccountID,
         farmer: farmer._id,
         accountUser: form.accountUser ? form.accountUser : '',
@@ -50,7 +51,7 @@ exports.create = function(req, res) {
         operator: req.user._id,
         date: createDate,
         comment: form.comment? form.comment: '',
-        accBk: accBk
+        postAccBk: postAccBk
       });
 
       newRec._req_user = req.user;
@@ -60,13 +61,13 @@ exports.create = function(req, res) {
     .then(function(savRec) {
       var newAccount = new accountList.model({
         _id: newAccount_id,
-        accountID: savRec.accBk.accountID,
-        farmer: savRec.accBk.farmer,
-        accountUser: savRec.accBk.accountUser,
+        accountID: savRec.postAccBk.accountID,
+        farmer: savRec.postAccBk.farmer,
+        accountUser: savRec.postAccBk.accountUser,
         createdAt: createDate,
-        active: savRec.accBk.active,
+        active: savRec.postAccBk.active,
         lastRecord: savRec._id,
-        balance: savRec.accBk.balance
+        balance: savRec.postAccBk.balance
       });
 
       newAccount._req_user = req.user;
@@ -123,7 +124,7 @@ exports.close = function(req, res) {
 
     savAccount = account;
 
-    var accBk = {
+    var postAccBk = {
       accountID: account.accountID,
       farmer: account.farmer._id,
       accountUser: account.accountUser,
@@ -141,7 +142,7 @@ exports.close = function(req, res) {
       date: closeDate,
       operator: req.user._id,
       comment: form.comment? form.comment: '',
-      accBk: accBk
+      postAccBk: postAccBk
     });
 
     newRec._req_user = req.user;
@@ -150,8 +151,8 @@ exports.close = function(req, res) {
   })
   .then(function(savRec) {
 
-    savAccount.active = false;
-    savAccount.closedAt = closeDate;
+    savAccount.active = savRec.postAccBk.active;
+    savAccount.closedAt = savRec.postAccBk.closedAt;
     savAccount.lastRecord = newRec_id;
     savAccount._req_user = req.user;
 
@@ -206,7 +207,7 @@ exports.setFreeze = function(req, res) {
     if(!account.active) 
       return Promise.reject('此存摺已被結清');
 
-    var accBk = {
+    var postAccBk = {
       accountID: account.accountID,
       farmer: account.farmer._id,
       accountUser: account.accountUser,
@@ -225,16 +226,16 @@ exports.setFreeze = function(req, res) {
       date: Date.now(),
       operator: req.user._id,
       comment: form.comment? form.comment: '',
-      accBk: accBk
+      postAccBk: postAccBk
     });
 
     newRec._req_user = req.user;
-    return newRec;
+    return newRec.save();
     
   })
   .then(function(savRec) {
     
-    savAccount.freeze = savRec.accBk.freeze;
+    savAccount.freeze = savRec.postAccBk.freeze;
     savAccount.lastRecord = newRec_id;
     savAccount._req_user = req.user;
 
@@ -253,6 +254,95 @@ exports.setFreeze = function(req, res) {
     });
   });
 
+
+}
+
+exports.changeAccUser = function(req, res) {
+  var form = req.body;
+
+  var filters = {};
+  if(form.hasOwnProperty("_id")) {
+    filters._id = form._id;
+  }
+  else if(form.hasOwnProperty("accountID")) {
+    filters.accountID = form.accountID;
+  }
+  else {
+    return res.json({
+      success: false,
+      message: '沒有存取存摺的關鍵資訊'
+    });
+  }
+
+  if(!form.hasOwnProperty("newUser")) {
+    return res.json({
+      success: false,
+      message: '沒有欲過戶的對象資訊'
+    });
+  }
+
+  var newRec_id = mongoose.Types.ObjectId();
+  var savAccount;
+
+  accountList.model.findOne(filters)
+  .populate('farmer')
+  .exec()
+  .then(function(account) {
+    if(!account)
+      return Promise.reject('未找到存摺');
+
+    if(!account.active) 
+      return Promise.reject('此存摺已被結清');
+
+    if(account.freeze) 
+      return Promise.reject('此存摺被凍結中');
+    
+    var postAccBk = {
+      accountID: account.accountID,
+      farmer: account.farmer._id,
+      accountUser: form.newUser,
+      active: account.active,
+      freeze: account.freeze,
+      createdAt: account.createdAt,
+      balance: account.balance,
+    };
+
+    savAccount = account;
+
+    var newRec = new accountRecList.model({
+      _id: newRec_id,
+      account: account._id,
+      opType: 'accUserChange',
+      date: Date.now(),
+      operator: req.user._id,
+      comment: form.comment? form.comment: '',
+      postAccBk: postAccBk
+    });
+
+    newRec._req_user = req.user;
+    return newRec.save();
+    
+  })
+  .then(function(savRec) {
+    
+    savAccount.accountUser = savRec.postAccBk.accountUser;
+    savAccount.lastRecord = newRec_id;
+    savAccount._req_user = req.user;
+
+    return savAccount.save();
+  })
+  .then(function(_savAccount) {
+    return res.json({
+      success: true,
+      result: _savAccount.toObject()
+    });
+  })
+  .catch(function(err) {
+    res.json({
+      success: false,
+      message: err.toString()
+    });
+  });
 
 }
 
@@ -362,7 +452,7 @@ exports.deposit = function(req, res) {
 
     var newBalance = account.balance + amount;
 
-    var accBk = {
+    var postAccBk = {
       accountID: account.accountID,
       farmer: account.farmer._id,
       accountUser: account.accountUser,
@@ -381,7 +471,7 @@ exports.deposit = function(req, res) {
       operator: req.user._id,
       comment: form.comment? form.comment: '',
       ioAccount: form.ioAccount? form.ioAccount: '',
-      accBk: accBk
+      postAccBk: postAccBk
     });
 
     if(period_id)
@@ -394,7 +484,7 @@ exports.deposit = function(req, res) {
   })
   .then(function(savRec) {
 
-    account.balance = savRec.accBk.balance;
+    account.balance = savRec.postAccBk.balance;
     account.lastRecord = newRec_id;
     account._req_user = req.user;
 
@@ -478,7 +568,7 @@ exports.withdraw = function(req, res) {
     
     var newBalance = account.balance - amount;
 
-    var accBk = {
+    var postAccBk = {
       accountID: account.accountID,
       farmer: account.farmer._id,
       accountUser: account.accountUser,
@@ -497,7 +587,7 @@ exports.withdraw = function(req, res) {
       operator: req.user._id,
       comment: form.comment? form.comment: '',
       ioAccount: form.ioAccount? form.ioAccount: '',
-      accBk: accBk
+      postAccBk: postAccBk
     });
 
     newRec._req_user = req.user;
@@ -509,7 +599,7 @@ exports.withdraw = function(req, res) {
   })
   .then(function(savRec) {
     
-    savAccount.balance = savRec.accBk.balance;
+    savAccount.balance = savRec.postAccBk.balance;
     savAccount.lastRecord = newRec_id;
     savAccount._req_user = req.user;
 

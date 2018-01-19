@@ -40,26 +40,32 @@ exports.read = function(req, res) {
 
   var query;
 
-  if(form.hasOwnProperty("Page") && form.hasOwnProperty("perPage")) { //pagination
+  var isPagination;
+
+  if(form.hasOwnProperty("page") && form.hasOwnProperty("perPage")) { //pagination
     
+    isPagination = true;
+
     var paginateOpt = {
       page: form.page,
       perPage: form.perPage,
     };
 
-    if(form.filters) {
-      paginateOpt.filters = form.filters;
-    }
-
     if(form.maxPages) {
       paginateOpt.maxPages = form.maxPages;
     }
 
+    if(form.filters) 
+      paginateOpt.filters = form.filters;
+
     query = targetList.paginate(paginateOpt);
+
 
   }
   else {
     
+    isPagination = false;
+
     var filters = {};
 
     if(form.hasOwnProperty("filters"))  {
@@ -73,36 +79,64 @@ exports.read = function(req, res) {
     }
     
     query = targetList.model.find(filters);
+
+
+    if(form.hasOwnProperty("limit"))
+      query = query.limit(form.limit);
     
   }
   
-  if(form.hasOwnProperty("sort"))
-    query = query.sort('-'+form.sort);
+  if(form.hasOwnProperty("sort")) {
+    if(form.sortAscend)
+      query = query.sort('+'+form.sort);
+    else
+      query = query.sort('-'+form.sort);
+  }
 
-  if(form.hasOwnProperty("select"))
-    query = query.select(form.select.join(' '));
+  if(form.hasOwnProperty("select")) {
+    if(form.select instanceof Array)
+      query = query.select(form.select.join(' '));
+    else
+      query = query.select(form.select);
+  }
+    
+  if(form.hasOwnProperty("populate")) {
+    if(form.populate instanceof Array)
+      query = query.populate(form.populate.join(' '));
+    else
+      query = query.populate(form.populate);
+  }
 
-  if(form.hasOwnProperty("populate"))
-    query = query.populate(form.populate.join(' '));
+    query.lean()
+    .exec(function(err, data) {
+      if(err) {
+        return res.json({
+          success: false,
+          message: err.toString()
+        });
+      }
 
-  if(form.hasOwnProperty("limit"))
-    query = query.limit(form.limit);
+      console.log(data);
 
-  query.lean().exec()
-    .then(function(result) {
-      res.json({
-        success: true,
-        result: result
-      });
-    })
-    .catch(function(err) {
-      return res.json({
-        success: false,
-        message: err.toString()
-      });
+      var resData;
+
+      if(isPagination) {
+        resData = {
+          success: true,
+          result: data.results,
+          total: data.total
+        };
+      }
+      else {
+        resData = {
+          success: true,
+          result: data
+        };
+      }
+
+      res.json(resData);
     });
-
-
+    
 };
 
 /*

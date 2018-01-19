@@ -31,15 +31,15 @@
     <div class="col-md-8">
       <div class="row-offset-2" style="margin-top:7px;" id="geoSelectors">
         <label>
-          直轄縣市<select style="min-width:90px;" name="city" ng-init="ctrler.getCities()" ng-options="city as city.name for city in ctrler.cities track by city._id" ng-model="ctrler.citySelect" ng-model-options="{ debounce: 300 }" ng-change="ctrler.selectOnChange('dists',ctrler.citySelect._id)" required></select>
+          直轄縣市<select style="min-width:90px;" name="city" ng-init="ctrler.getCities()" ng-options="city as city.name for city in ctrler.cities track by city._id" ng-model="ctrler.citySelect" ng-model-options="{ debounce: 300 }" ng-change="ctrler.selectOnChange('dists',ctrler.citySelect._id)"></select>
         </label>
 
         <label>
-          鄉鎮市區<select style="min-width:90px;" name="dist" ng-options="dist as dist.dist for dist in ctrler.dists track by dist._id" ng-model="ctrler.distSelect" ng-model-options="{ debounce: 300 }" ng-change="ctrler.selectOnChange('villages',ctrler.distSelect._id)" required></select>
+          鄉鎮市區<select style="min-width:90px;" name="dist" ng-options="dist as dist.dist for dist in ctrler.dists track by dist._id" ng-model="ctrler.distSelect" ng-model-options="{ debounce: 300 }" ng-change="ctrler.selectOnChange('villages',ctrler.distSelect._id)"></select>
         </label>
 
         <label>
-          村里<select style="min-width:90px;" name="village" ng-options="village as village.name for village in ctrler.villages track by village._id" ng-model="ctrler.villageSelect" ng-model-options="{ debounce: 300 }" required></select>
+          村里<select style="min-width:90px;" name="village" ng-options="village as village.name for village in ctrler.villages track by village._id" ng-model="ctrler.villageSelect" ng-model-options="{ debounce: 300 }"></select>
         </label>
       </div>
     </div>
@@ -76,7 +76,9 @@
 }
 
 </style>
-<legend>搜尋結果</legend>
+<h4>搜尋結果</h4>
+<label ng-show="ctrler.numTotalResult > ctrler.maxCanDisplay">此次搜尋超過可顯示數量,只取回部分結果</label><hr>
+
 <div class="table-responsive" ng-show="ctrler.farmers && ctrler.farmers.length > 0">
   <table class="table table-bordered table-hover" style="margin: 0px auto 20px;">
     <tbody>

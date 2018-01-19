@@ -26,6 +26,7 @@ AccountRecord.add({
     { value: 'freeze', label: '凍結' },
     { value: 'transact', label: '兌領' },
     { value: 'close', label: '結清' },
+    { value: 'accUserChange', label:'過戶' }
   ], index: true, required: true, trim: true, initial: true },
   amount: { type: Types.Money, label: '金額', default: 0, initial: true },
   date: { type: Types.Datetime, format: 'YYYY-MM-DD kk:mm:ss', label: '記錄時間', default: Date.now, initial: true },
@@ -39,7 +40,8 @@ AccountRecord.add({
 });
 
 AccountRecord.schema.add({
-  accBk: {
+  //account status after applying this record
+  postAccBk: {
     type: {
       accountID: { type: String, label:'存摺編號' ,index: true, required: true, trim: true },
       farmer: { type: Schema.Types.ObjectId, label:'擁有者', ref: Constants.FarmerListName, required: true },

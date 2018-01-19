@@ -461,7 +461,7 @@ exports.transact = function(req, res) {
       comment: form.comment? form.comment: ''
     };
 
-    var accBk = {
+    var postAccBk = {
       _id: account._id,
       accountID: account.accountID,
       farmer: account.farmer._id,
@@ -479,7 +479,7 @@ exports.transact = function(req, res) {
       trader: req.user._id,
       products: productDataList,
       accRecBk: accRecBk,
-      accBk: accBk
+      postAccBk: postAccBk
     });
 
     if(req.user.shop) {
@@ -497,21 +497,21 @@ exports.transact = function(req, res) {
 
     var newRec = new accountRecList.model({
       _id: newRec_id,
-      account: savTrans.accBk._id,
+      account: savTrans.postAccBk._id,
       opType: savTrans.accRecBk.opType,
       amount: savTrans.amount,
       date: savTrans.date,
       operator: req.user._id,
       comment: savTrans.accRecBk.comment,
       transaction: savTrans._id,
-      accBk: savTrans.accBk
+      postAccBk: savTrans.postAccBk
     });
     newRec._req_user = req.user;
 
     return newRec.save();
   })
   .then(function(savRec) {
-    savAccount.balance = savRec.accBk.balance;
+    savAccount.balance = savRec.postAccBk.balance;
     savAccount.lastRecord = savRec._id;
     savAccount._req_user = req.user;
 

@@ -123,7 +123,8 @@ angular.module('mainApp')
     vm.getCities = function() {
       vm.selectOnChange('cities', null)
       .then(function(data) {
-        //setRestOfDefaultValues();
+        if($state.current.name === 'farmerRegister')
+          setRestOfDefaultValues();
       })
       .catch(function(err) {
         $rootScope.pubErrorMsg('系統似乎出現一些錯誤,' + err.toString());
@@ -131,6 +132,7 @@ angular.module('mainApp')
       });
     }
 
+    vm.maxCanDisplay = 50;
     vm.search = function() {
       var farmerData = {
         name: vm.farmerName && vm.farmerName.length ? vm.farmerName : undefined,
@@ -139,7 +141,7 @@ angular.module('mainApp')
         city: vm.citySelect ? vm.citySelect._id : undefined,
         dist: vm.distSelect ? vm.distSelect._id : undefined,
         village: vm.villageSelect ? vm.villageSelect._id : undefined,
-        _limit: 50
+        _limit: vm.maxCanDisplay
       };
 
       vm.isSearching = true;
@@ -151,7 +153,7 @@ angular.module('mainApp')
           if(!data.result || data.result.length == 0)
             $rootScope.pubInfoMsg('無任何結果,請更改條件再行搜尋');
           vm.farmers = data.result;
-          console.log('total:' + data.total);
+          vm.numTotalResult = data.total;
         }
         else {
           vm.farmers = [];

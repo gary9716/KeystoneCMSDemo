@@ -40,7 +40,7 @@ Transaction.schema.add({
       comment: { type: String },
     }
   },
-  accBk: {
+  postAccBk: {
     type: {
       _id: { type: Schema.Types.ObjectId, label:'存摺', ref: Constants.AccountListName, required: true },
       accountID: { type: String, label:'存摺編號' ,index: true, required: true, trim: true },

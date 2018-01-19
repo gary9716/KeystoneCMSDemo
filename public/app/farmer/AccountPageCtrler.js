@@ -99,7 +99,7 @@ angular.module('mainApp')
       var modalInstance = $uibModal.open({
         templateUrl: 'account-detail.html', //this template is embedded in detail.html
         controller: 'AccountDetailModalCtrler as ctrler',
-        size: 'md', //'md','lg','sm'
+        size: 'lg', //'md','lg','sm'
         resolve: { //used for passing parameters to modal controller
           account: function() {
             return account;
@@ -120,7 +120,7 @@ angular.module('mainApp')
       var modalInstance = $uibModal.open({
         templateUrl: (appRootPath + 'farmer/update.html'), 
         controller: 'UpdateFarmerModalCtrler as ctrler',
-        size: 'lg', //'md','lg','sm'
+        size: 'md', //'md','lg','sm'
         resolve: { //used for passing parameters to modal controller
           farmer: function() {
             return vm.farmer;
@@ -252,16 +252,9 @@ angular.module('mainApp')
         amount: vm.deposit.amount
       };
 
-      notEmptyOrUndefThenAdd(data, 'period_id', vm.deposit.period_id);
-      if(!data.hasOwnProperty('period_id'))
-        notEmptyOrUndefThenAdd(data, 'period', vm.deposit.period);
-
+      notEmptyOrUndefThenAdd(data, 'period', vm.deposit.period);
       notEmptyOrUndefThenAdd(data, 'comment', vm.deposit.comment);
       notEmptyOrUndefThenAdd(data, 'ioAccount', vm.deposit.ioAccount);
-
-      console.log(vm.deposit);
-
-      console.log(data);
 
       $http.post('/api/account/deposit', data)
       .then(function(res) {
@@ -281,7 +274,6 @@ angular.module('mainApp')
         vm.isProcessing = false;
       })
 
-      //$uibModalInstance.close(vm.deposit);
     }
 
     vm.withdrawOp = function() {
@@ -312,7 +304,6 @@ angular.module('mainApp')
         vm.isProcessing = false;
       })
 
-      //$uibModalInstance.close(vm.withdraw);
     }
 
     vm.setFreezeOp = function() {
@@ -341,7 +332,6 @@ angular.module('mainApp')
         vm.isProcessing = false;
       })
 
-      //$uibModalInstance.close(vm.setFreeze);
     }
 
     vm.closeAccOp = function() {
@@ -370,7 +360,79 @@ angular.module('mainApp')
         vm.isProcessing = false;
       });
 
-      //$uibModalInstance.close(vm.closeAcc);
+    }
+
+    vm.accUserChangeOp = function() {
+      vm.isProcessing = true;
+      var data = {
+        _id: vm.account._id,
+        newUser: vm.accUserChange.newUser
+      };
+
+      notEmptyOrUndefThenAdd(data, 'comment', vm.accUserChange.comment);
+
+      $http.post('/api/account/change-acc-user', data)
+      .then(function(res) {
+        var resData = res.data;
+        if(resData.success) {
+          _.assign(vm.account, resData.result);
+          $uibModalInstance.close('過戶成功,已呈現最新資料');
+        }
+        else {
+          vm.pubErrorMsg('過戶失敗,' + resData.message);
+        }
+      })
+      .catch(function(err) {
+        vm.pubErrorMsg('過戶失敗,' + err.toString());
+      })
+      .finally(function() {
+        vm.isProcessing = false;
+      });
+    }
+
+    vm.accRecCurPage = 1;
+    vm.perPage = 7;
+    //vm.totalAccRecs = vm.perPage;
+
+    var opTranslate = {
+      'transact': '兌換',
+      'deposit': '入款',
+      'withdraw': '提款',
+      'close': '結清',
+      'freeze': '凍結',
+      'unfreeze': '解凍',
+      'create': '開戶',
+      'accUserChange': '過戶'
+    };
+
+    vm.getAccountRecords = function() {
+      $http.post('/api/read', {
+        listName: 'AccountRecord',
+        filters: {
+          account: vm.account._id
+        },
+        sort: 'date',
+        populate: 'operator period',
+        select: 'opType amount date operator comment period ioAccount transaction',
+        page: vm.accRecCurPage,
+        perPage: vm.perPage
+      })
+      .then(function(res) {
+        var data = res.data;
+        if(data.success) {
+          data.result.forEach(function(rec) {
+            rec.opType = opTranslate[rec.opType];
+          });
+          vm.accountRecs = data.result;
+          vm.totalAccRecs = data.total;
+        }
+        else {
+          vm.pubErrorMsg('讀取操作記錄失敗,' + data.message);
+        }
+      })
+      .catch(function(err) {
+        vm.pubErrorMsg('讀取操作記錄失敗,' + err.toString());
+      });
     }
 
     vm.cancel = function () {

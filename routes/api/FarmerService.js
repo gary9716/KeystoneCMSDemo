@@ -298,9 +298,9 @@ exports.search = function(req, res) {
   if(form.hasOwnProperty("_limit")) {
     farmerList.paginate({
         page: 1,
-        perPage: form._limit
+        perPage: form._limit,
+        filters: filters
       })
-      .where(filters)
       .select('name pid teleNum1 teleNum2 addr')
       .lean()
       .exec(function(err, data) {
@@ -320,6 +320,7 @@ exports.search = function(req, res) {
         }
 
       });
+      
   }
   else {
     farmerList.model.find(filters)
@@ -337,8 +338,7 @@ exports.search = function(req, res) {
         else {
           res.json({
             success: true,
-            result: data.results,
-            total: data.total
+            result: data
           });
         }
 
