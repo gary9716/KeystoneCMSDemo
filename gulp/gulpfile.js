@@ -55,20 +55,30 @@ gulp.task('concatLib', function(cb){
     //'jquery/jquery.form.min.js',
     //'bootstrap/bootstrap-3.3.5.min.js',
     //'bootstrap/validator.min.js',
-    'lodash/lodash.min.js',
+    //'lodash/lodash.min.js', //since we use ng-lodash, we don't need this dependency
     'angular/angular.min.js', 
     'angular/angular-locale_zh-tw.js',
     'angular/angular-ui-router.min.js',
-    'angular/angular-filter.min.js',
     'angular/angular-animate.min.js',
     'angular/ui-bootstrap-tpls-2.5.0.min.js',
-    'angular/xeditable.min.js',
+    'angular/ng-lodash.min.js',
+    'angular/angular-local-storage.min.js',
+    'angular/ng-file-upload-all.min.js',
+    'image-compressor.min.js',
+
+    //'angular/angular-filter.min.js',
+    //'angular/xeditable.min.js',
+  
+    //these two files are large, so just include in detail.html
+    //'html2canvas.min.js', 
+    //'jspdf.min.js',
+    
     ]).map(function(path) {
     return libPrefx + path;
   });
 
-  libSrcs.push('../bower_components/ng-lodash/build/ng-lodash.min.js');
-  libSrcs.push('../bower_components/angular-local-storage/dist/angular-local-storage.min.js');
+  //libSrcs.push('../bower_components/ng-lodash/build/ng-lodash.min.js');
+  //libSrcs.push('../bower_components/angular-local-storage/dist/angular-local-storage.min.js');
 
   return pump([gulp.src(libSrcs),
     concat('all-lib.js'),

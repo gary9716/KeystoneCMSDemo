@@ -228,6 +228,8 @@
         <label class="radio-item"><input type="radio" class="opt-radio" value="setFreeze" ng-model="ctrler.accountOp">{{ctrler.account.freeze? '解凍':'凍結'}}</label>
         <label class="radio-item"><input type="radio" class="opt-radio" value="close" ng-model="ctrler.accountOp">結清</label>
         <label class="radio-item"><input type="radio" class="opt-radio" value="accUserChange" ng-model="ctrler.accountOp">過戶</label>
+        <label class="radio-item"><input type="radio" class="opt-radio" value="printUnfreezeSheet" ng-model="ctrler.accountOp">列印解凍單</label>
+        <label class="radio-item"><input type="radio" class="opt-radio" value="printWithdrawSheet" ng-model="ctrler.accountOp">列印提款傳票</label>
       </div>
     
 
@@ -276,6 +278,8 @@
 
       <section ng-show="ctrler.accountOp==='setFreeze'" class="form-group">
         <div class="flex-row">
+          <!--<input type="file" ng-model="ctrler.setFreeze.unfreezeSheet" ng-show="ctrler.account.freeze" ng-change="ctrler.unfreezeSheetChange()">
+          -->
           <label class="col-md-2">備註</label>
           <div>
             <textarea rows="5" ng-model="ctrler.setFreeze.comment" ng-model-options="{ updateOn: 'blur' }" style="resize: none;" ng-trim="true"></textarea>
@@ -305,6 +309,24 @@
         </div>
       </section>
 
+      <section ng-show="ctrler.accountOp==='printUnfreezeSheet'" class="form-group">
+        <div class="flex-row">
+          <label class="col-md-2">備註</label>
+          <div>
+            <textarea rows="5" ng-model="ctrler.printUnfreezeSheet.comment" ng-model-options="{ updateOn: 'blur' }" style="resize: none;" ng-trim="true"></textarea>
+          </div>
+        </div>
+      </section>
+
+      <section ng-show="ctrler.accountOp==='printWithdrawSheet'" class="form-group">
+        <div class="flex-row">
+          <label class="col-md-2">備註</label>
+          <div>
+            <textarea rows="5" ng-model="ctrler.printWithdrawSheet.comment" ng-model-options="{ updateOn: 'blur' }" style="resize: none;" ng-trim="true"></textarea>
+          </div>
+        </div>
+      </section>
+
     </form>
 
 </div>
@@ -315,6 +337,8 @@
       <button ng-click="ctrler.setFreezeOp()" class="btn btn-success col-md-offset-4" ng-disabled="ctrler.isProcessing" ng-show="ctrler.accountOp==='setFreeze'">{{ctrler.account.freeze? '解凍':'凍結'}}</button>
       <button ng-click="ctrler.closeAccOp()" class="btn btn-success col-md-offset-4" ng-disabled="ctrler.isProcessing" ng-show="ctrler.accountOp==='close'">結清</button>
       <button ng-click="ctrler.accUserChangeOp()" class="btn btn-success col-md-offset-4" ng-disabled="ctrler.isProcessing" ng-show="ctrler.accountOp==='accUserChange'">過戶</button>
+      <button ng-click="ctrler.printUnfreezeSheetOp()" class="btn btn-success col-md-offset-4" ng-disabled="ctrler.isProcessing" ng-show="ctrler.accountOp==='printUnfreezeSheet'">列印</button>
+      <button ng-click="ctrler.printWithdrawSheetOp()" class="btn btn-success col-md-offset-4" ng-disabled="ctrler.isProcessing" ng-show="ctrler.accountOp==='printWithdrawSheet'">列印</button>
       
 
       <button class="btn" ng-class="{ 'btn-warning': (ctrler.accountOp && ctrler.accountOp.length > 0), 'btn-primary': (!ctrler.accountOp || ctrler.accountOp.length === 0) }" type="button" ng-click="ctrler.cancel()">{{(ctrler.accountOp && ctrler.accountOp.length > 0)? '取消' : '關閉'}}</button>

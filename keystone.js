@@ -64,7 +64,8 @@ keystone.init({
 	'session store': 'connect-redis',
 	'auto update': false,
 	'user model': 'User',
-	'auth' : true
+	'auth' : true,
+	'compress': false //controle the compress middleware myself
 });
 
 
@@ -82,6 +83,8 @@ keystone.set('locals', {
 	editable: keystone.content.editable,
 	helpers: helperFuncs()
 });
+
+//keystone.set('file limit', 1000000); //in bytes
 
 // Use our own sign in and sign out route
 keystone.set('signin url', '/auth');

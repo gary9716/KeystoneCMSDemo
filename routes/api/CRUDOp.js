@@ -60,7 +60,6 @@ exports.read = function(req, res) {
 
     query = targetList.paginate(paginateOpt);
 
-
   }
   else {
     
@@ -115,8 +114,6 @@ exports.read = function(req, res) {
           message: err.toString()
         });
       }
-
-      console.log(data);
 
       var resData;
 

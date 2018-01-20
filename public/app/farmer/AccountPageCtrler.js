@@ -390,9 +390,23 @@ angular.module('mainApp')
       });
     }
 
+    vm.printUnfreezeSheetOp = function() {
+      //TODO: gen PDF on client side
+      //(it seems that there is no need to validate through server?)
+      $uibModalInstance.close('列印解凍單成功');
+    }
+
+    vm.printWithdrawSheetOp = function() {
+      //TODO: gen PDF on client side
+      $uibModalInstance.close('列印提款傳票成功');
+    }
+
+    vm.unfreezeSheetChange = function() {
+      console.log(vm.setFreeze.unfreezeSheet);
+    }
+
     vm.accRecCurPage = 1;
     vm.perPage = 7;
-    //vm.totalAccRecs = vm.perPage;
 
     var opTranslate = {
       'transact': '兌換',

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>[[=model.sys.sysName]]</title>
-    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <!--<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">-->
     <link href="/styles/site.min.css" rel="stylesheet">   
     <style>
     html, body, .container-fluid {
@@ -40,8 +40,7 @@
                   </li>
                   [[~]]
               </ul>
-              <ul class="nav navbar-nav navbar-right">                
-                
+              <ul class="nav navbar-nav navbar-right">        
                 <li class="clickable"><a ng-click="openCachedFarmerList()"><i class="fa fa-archive"></i> 暫存農夫列表</a></li>
                 
                 <li class="clickable" ng-show="isPage('productSell')"><a ng-click="openShopCart()"><i class="fa fa-shopping-cart" aria-hidden="true"></i> 購物車</a></li>
@@ -102,9 +101,14 @@
     -->
 
     <div class="container">
-    <div uib-alert ng-repeat="alert in alerts track by $index" ng-class="'alert-' + (alert.type || 'warning')" dismiss-on-timeout="3000" close="alerts.splice(alerts.indexOf(alert),1);">{{::alert.msg}}</div>
+    <div uib-alert ng-repeat="alert in alerts track by $index" ng-class="'alert-' + (alert.type || 'warning')" dismiss-on-timeout="3000" close="alerts.splice(alerts.indexOf(alert),1);" ng-bind="alert.msg || ''"></div>
     </div>
-    <section ui-view></section>
+    <section ui-view>
+      <!--
+      TODO:
+      add loading view
+      -->
+    </section>
 
     <!-- This file provides the default styling for the KeystoneJS Content Editor
       - only renders when user is logged in and admin-->
@@ -125,7 +129,7 @@
     [[?]]
     
     <script src="/js/all-lib.js"></script>
-    
+
     <!-- admin JS and CSS code, needs to be placed behind lib code-->
     [[var code = helpers.isAdminEditorCSS(model.user);]]
     [[=code]]
@@ -133,22 +137,22 @@
     [[=code]]
 
     [[? model.env === 'production']]
-    <script src="/app-dist/whole-app.js"></script>
+    <script src="/app-dist/whole-app.js" defer></script>
     [[?? true]]
-    <script src="/app/app.js"></script>
-    <script src="/app/home/HomeCtrler.js"></script>
-    <script src="/app/common/filter/orFilter.js"></script>
-    <script src="/app/common/filter/listTo2DMat.js"></script>
-    <script src="/app/common/service/myValidation.js"></script>
-    <script src="/app/common/service/geoDataService.js"></script>
-    <script src="/app/farmer/FarmerPageCtrler.js"></script>
-    <script src="/app/farmer/AccountPageCtrler.js"></script>
-    <script src="/app/farmer/CachedFarmerListCtrler.js"></script>
-    <script src="/app/product/ProductPageCtrler.js"></script>
-    <script src="/app/product/ProductTypePageCtrler.js"></script>
-    <script src="/app/product/myNgCart.js"></script>
+    <script src="/app/app.js" defer></script>
+    <script src="/app/home/HomeCtrler.js" defer></script>
+    <script src="/app/common/filter/orFilter.js" defer></script>
+    <script src="/app/common/filter/listTo2DMat.js" defer></script>
+    <script src="/app/common/service/myValidation.js" defer></script>
+    <script src="/app/common/service/geoDataService.js" defer></script>
+    <script src="/app/farmer/FarmerPageCtrler.js" defer></script>
+    <script src="/app/farmer/AccountPageCtrler.js" defer></script>
+    <script src="/app/farmer/CachedFarmerListCtrler.js" defer></script>
+    <script src="/app/product/ProductPageCtrler.js" defer></script>
+    <script src="/app/product/ProductTypePageCtrler.js" defer></script>
+    <script src="/app/product/myNgCart.js" defer></script>
     [[?]]
-    
+
     <div class="container">
       <hr>
       <!-- Footer -->

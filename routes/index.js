@@ -22,6 +22,7 @@ var keystone = require('keystone');
 var middleware = require('./middleware');
 var importRoutes = keystone.importer(__dirname);
 var Constants = require(__base + 'Constants');
+var compression = require('compression');
 
 // Common Middleware
 keystone.pre('admin', middleware.blockRoute);
@@ -38,20 +39,29 @@ var routes = {
 exports = module.exports = function (app) {
 	
   // Views
-  app.get('/',routes.ctrler.defaultViewCtrler.bind({
+  app.get('/',
+    compression(),
+    routes.ctrler.defaultViewCtrler.bind({
     viewPath: 'app',
     state: keystone.get('defaultState')
   }), middleware.doViewRender);
 
-  app.get('/home',routes.ctrler.defaultViewCtrler.bind({
-    viewPath: 'app',
-    state: 'home'
-  }), middleware.doViewRender);
+  app.get('/auth', 
+    compression(),
+    routes.ctrler.signinOrRegister, 
+    middleware.doViewRender);
 
-  app.get('/auth', routes.ctrler.signinOrRegister, middleware.doViewRender);
+  //Gen PDF route
+  app.get('/test.pdf',
+    compression(),
+    routes.ctrler.defaultViewCtrler.bind({
+      viewPath: 'index'
+    }), 
+    middleware.doPDFGen);
 
   //APIs
   app.post('/api/read',
+    compression(),
     middleware.permissionCheck.bind({
       opName: 'read'
     }),
@@ -85,6 +95,7 @@ exports = module.exports = function (app) {
   );
 
   app.post('/api/farmer/search',
+    compression(),
     middleware.permissionCheck.bind({
       opName: 'read',
       listName: Constants.FarmerListName
@@ -93,6 +104,7 @@ exports = module.exports = function (app) {
   );
 
   app.post('/api/farmer/get-and-populate',
+    compression(),
     middleware.permissionCheck.bind([
       {
         opName: 'read',
@@ -206,7 +218,8 @@ exports = module.exports = function (app) {
     routes.api.ProductService.pTypeUpsert
   );
 
-  app.post('/api/product/get', 
+  app.post('/api/product/get',
+    compression(),
     middleware.permissionCheck.bind(
       {
         opName: 'read',

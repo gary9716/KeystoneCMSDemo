@@ -5,10 +5,11 @@ angular.module('mainApp', [
   // ...which depends on the modules below  
   'ngAnimate',
   'ui.router',
-  'angular.filter',
+  //'angular.filter',
   'ui.bootstrap',
   'ngCart',
-  'LocalStorageModule'
+  'LocalStorageModule',
+  'ngFileUpload'
 ])
 .constant('appRootPath',(function() {
   if(locals && locals.env) {
@@ -250,5 +251,6 @@ angular.module('mainApp')
       
     });
 
+    $rootScope.loadDone = true;
 }]);
 

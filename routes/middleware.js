@@ -15,6 +15,7 @@ var _ = require('lodash');
 var keystone = require('keystone');
 var UrlPattern = require('url-pattern');
 var htmlmin = require('htmlmin');
+var pdf = require('html-pdf');
 var keystonePathPrefix = '/'+ keystone.get('admin path');
 
 var routesToBlock = [keystonePathPrefix + '/signin', keystonePathPrefix + '/api/session/signin'];
@@ -118,6 +119,47 @@ var renderFunc = function (err, req, res) {
 exports.doViewRender = function(req, res) {
 	var view = new keystone.View(req, res);
 	view.render(renderFunc);
+}
+
+
+//option format reference:(https://www.npmjs.com/package/html-pdf)
+var pdfOpts = {
+  // Export options
+  "directory": (__base + "tmp"),       // The directory the file gets written into if not using .toFile(filename, callback). default: '/tmp'
+
+  // Papersize Options: http://phantomjs.org/api/webpage/property/paper-size.html
+  "format": "A4",        // allowed units: A3, A4, A5, Legal, Letter, Tabloid
+  "orientation": "portrait", // portrait or landscape
+
+  // Page options
+  /*
+  "border": {
+    "top": "2in",            // default is 0, units: mm, cm, in, px
+    "right": "1in",
+    "bottom": "2in",
+    "left": "1.5in"
+  },
+  */
+
+};
+
+exports.doPDFGen = function(req, res) {
+  //since we don't need to trigger render hooks in keystone
+  //(render hooks should be specified in index.js)
+  //we can just do server side rendering through res.render
+  res.render(
+    res.locals.viewPath,
+    null, //locals, we have set it on res
+    function(err, html) {
+      if(err) return res.status(500).send({ error: 'pdf產生失敗' });
+      
+      pdf.create(html, pdfOpts).toBuffer(function(err, buffer) {
+        res.send(buffer);
+      });
+
+    }
+  );
+
 }
 
 /* 依據內政部：
