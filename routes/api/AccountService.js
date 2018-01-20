@@ -81,10 +81,7 @@ exports.create = function(req, res) {
       });
     })
     .catch(function(err) {
-      res.json({
-        success: false,
-        message: err.toString()
-      });
+      res.ktSendRes(400, err.toString());
     });
   
 }
@@ -100,10 +97,7 @@ exports.close = function(req, res) {
     filters.accountID = form.accountID;
   }
   else {
-    return res.json({
-      success: false,
-      message: '沒有存取存摺的關鍵資訊'
-    });
+    return res.ktSendRes(400, '沒有存取存摺的關鍵資訊');
   }
 
   var closeDate = Date.now();
@@ -168,10 +162,7 @@ exports.close = function(req, res) {
 
   })
   .catch(function(err) {
-    res.json({
-      success: false,
-      message: err.toString()
-    });
+    res.ktSendRes(400,err.toString());
   });
 
 }
@@ -188,10 +179,7 @@ exports.setFreeze = function(req, res) {
     filters.accountID = form.accountID;
   }
   else {
-    return res.json({
-      success: false,
-      message: '沒有存取存摺的關鍵資訊'
-    });
+    return res.ktSendRes(400,'沒有存取存摺的關鍵資訊');
   }
 
   var newRec_id = mongoose.Types.ObjectId();
@@ -248,10 +236,7 @@ exports.setFreeze = function(req, res) {
     });
   })
   .catch(function(err) {
-    res.json({
-      success: false,
-      message: err.toString()
-    });
+    res.ktSendRes(400,err.toString());
   });
 
 
@@ -268,17 +253,11 @@ exports.changeAccUser = function(req, res) {
     filters.accountID = form.accountID;
   }
   else {
-    return res.json({
-      success: false,
-      message: '沒有存取存摺的關鍵資訊'
-    });
+    return res.ktSendRes(400,'沒有存取存摺的關鍵資訊');
   }
 
   if(!form.hasOwnProperty("newUser")) {
-    return res.json({
-      success: false,
-      message: '沒有欲過戶的對象資訊'
-    });
+    return res.ktSendRes(400,'沒有欲過戶的對象資訊');
   }
 
   var newRec_id = mongoose.Types.ObjectId();
@@ -338,10 +317,7 @@ exports.changeAccUser = function(req, res) {
     });
   })
   .catch(function(err) {
-    res.json({
-      success: false,
-      message: err.toString()
-    });
+    res.ktSendRes(400, err.toString());
   });
 
 }
@@ -357,17 +333,11 @@ exports.deposit = function(req, res) {
     filters.accountID = form.accountID;
   }
   else {
-    return res.json({
-      success: false,
-      message: '沒有存取存摺的關鍵資訊'
-    });
+    return res.ktSendRes(400, '沒有存取存摺的關鍵資訊');
   }
 
   if(!form.hasOwnProperty("amount")) {
-    return res.json({
-      success: false,
-      message: '沒有金額資訊'
-    });
+    return res.ktSendRes(400, '沒有金額資訊');
   }
 
   var nowDate = Date.now();
@@ -499,10 +469,7 @@ exports.deposit = function(req, res) {
 
   })
   .catch(function(err) {
-    return res.json({
-      success: false,
-      message: err.toString()
-    });
+    res.ktSendRes(400, err.toString());
   });
 
 }
@@ -518,17 +485,11 @@ exports.withdraw = function(req, res) {
     filters.accountID = form.accountID;
   }
   else {
-    return res.json({
-      success: false,
-      message: '沒有存取存摺的關鍵資訊'
-    });
+    return res.ktSendRes(400, '沒有存取存摺的關鍵資訊');
   }
 
   if(!form.hasOwnProperty("amount")) {
-    return res.json({
-      success: false,
-      message: '沒有金額資訊'
-    });
+    return res.ktSendRes(400, '沒有金額資訊');
   }
 
   var amount = 0;
@@ -613,10 +574,7 @@ exports.withdraw = function(req, res) {
     });
   })
   .catch(function(err) {
-    res.json({
-      success: false,
-      message: err.toString()
-    });
+    res.ktSendRes(400, err.toString());
   });
 
 }

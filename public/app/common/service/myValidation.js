@@ -100,6 +100,9 @@ angular.module('mainApp')
         else {
           return $q.reject('access denied');
         }
+      })
+      .catch(function(err) {
+        return $q.reject('access denied');
       });
     }
 

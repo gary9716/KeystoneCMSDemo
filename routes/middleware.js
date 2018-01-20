@@ -29,6 +29,7 @@ exports.blockRoute = function (req, res, next) {
   };
 
 	if(routesToBlock.some(testRoute)) {
+    res.myErrInfo = 'forbidden routes';
 		res.status(403).send('forbidden routes');
 	}
 	else
@@ -96,8 +97,9 @@ exports.requireUser = function (req, res, next) {
 
 var htmlMinify = function (err, html) {
 	//this would be bound in renderFunc
-	if(err) return this.status(500).send({ error: 'something blew up' });
-	
+	if(err) {
+    return this.ktSendRes(500, 'something blew up in htmlMinify');
+	}
 	this.send(
 		htmlmin(html, {
         collapseWhitespace: true,
@@ -111,7 +113,9 @@ var htmlMinify = function (err, html) {
 }
 
 var renderFunc = function (err, req, res) {
-	if(err) return res.status(500).send({ error: '[middleware renderFunc] something blew up' });
+	if(err) {
+    return res.ktSendRes(500, 'something blew up in renderFunc' );
+  }
 	var cb = htmlMinify.bind(res); //apply minify middleware
 	res.render(res.locals.viewPath,null,cb); //this would be bound in getRenderFunc
 }
@@ -151,8 +155,9 @@ exports.doPDFGen = function(req, res) {
     res.locals.viewPath,
     null, //locals, we have set it on res
     function(err, html) {
-      if(err) return res.status(500).send({ error: 'pdf產生失敗' });
-      
+      if(err) {
+        return res.ktSendRes(500, 'pdf產生失敗' );
+      }
       pdf.create(html, pdfOpts).toBuffer(function(err, buffer) {
         res.send(buffer);
       });
@@ -285,7 +290,7 @@ exports.checkPermissions = function (next) {
   }
 
   if(listName) {
-    console.log('test list:',listName);
+    //console.log('test list:',listName);
     keystone.list(Constants.RegulatedListName).model
     .findOne({ name: listName })
     .select('_id')
@@ -351,16 +356,16 @@ exports.checkPermissions = function (next) {
               return userRoleSet.has(role);
             })) {
               //user is permitted to operate this list
-              console.log(singleOpName, ":passed");
+              //console.log(singleOpName, ":passed");
               return true;
             }
             else {
-              console.log(singleOpName, ":failed");
+              //console.log(singleOpName, ":failed");
               return false;
             }
           }
           else {
-            console.log(singleOpName, ":failed 2");
+            //console.log(singleOpName, ":failed 2");
             return false;
           }
         }
@@ -408,9 +413,9 @@ exports.checkPermissions = function (next) {
 exports.permissionCheck = function(req, res, next) {
   //console.log("body:-----");
   //console.log(req.body);
-  console.log("user:------");
-  console.log(req.user);
-  console.log("-----------");
+  //console.log("user:------");
+  //console.log(req.user);
+  //console.log("-----------");
   
   var funcArray = [ exports.checkAuth.bind(req) ];
   var listName = req.body.listName ? req.body.listName : this.listName;
@@ -436,10 +441,7 @@ exports.permissionCheck = function(req, res, next) {
     });
   }
   else {
-    return res.json({
-      success: false,
-      message: '參數不足'
-    });
+    return res.ktSendRes(400, '參數不足');
   }
 
   funcArray.push(function(){
@@ -448,10 +450,7 @@ exports.permissionCheck = function(req, res, next) {
 
   async.series(funcArray, function(err) {
     if(err) {
-      return res.json({
-        success: false,
-        message: err.message
-      });
+      return res.ktSendRes(400, err.message);
     }
   });
     
@@ -501,11 +500,17 @@ exports.refreshSysInfo = function(req, res, next) {
   })
   .catch(function(err) {
     if(res)
-        res.json({
-          success: false,
-          message: err.toString()
-        });
+      return res.ktSendRes(400, err.toString());
     else
       next(err.toString());
   });
+}
+
+exports.addCustomResHandler = function(req, res, next) {
+  res.ktSendRes = function(code, msg) {
+    res.myErrInfo = msg;
+    res.status(code).send(msg);
+  }
+
+  next();
 }

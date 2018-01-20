@@ -20,7 +20,8 @@ angular.module('mainApp')
     var numItemInOneRow = 3;
 
     vm.getProducts = function(mode) {
-        return $http.post('/api/product/get',
+        return 
+        $http.post('/api/product/get',
         {
             mode: mode
         })
@@ -34,7 +35,7 @@ angular.module('mainApp')
             }
         })
         .catch(function(err) {
-            console.log(err.toString());
+            $rootScope.pubErrorMsg('抓取商品資訊失敗,' + err.data.toString());
         });
     }
 
@@ -133,7 +134,7 @@ angular.module('mainApp')
 
             })
             .catch(function(err) {
-                $rootScope.pubErrorMsg('兌換失敗,原因' + err.toString());
+                $rootScope.pubErrorMsg('兌換失敗,原因' + err.data.toString());
             })
 
             
@@ -274,7 +275,7 @@ angular.module('mainApp')
                     }
                 })
                 .catch(function(err) {
-                    $rootScope.pubErrorMsg(err.toString());
+                    $rootScope.pubErrorMsg(err.data.toString());
                 });
         }
 
@@ -317,7 +318,7 @@ angular.module('mainApp')
                     }
                 })
                 .catch(function(err) {
-                    console.log(err.toString());
+                    $rootScope.pubErrorMsg('刪除商品失敗,' + err.data.toString());
                 });
 
             }
@@ -371,7 +372,7 @@ angular.module('mainApp')
             }
           })
           .catch(function(err) {
-            console.log(err);
+            $rootScope.pubErrorMsg('抓取商品類型資訊失敗,' + err.data.toString());
           });
     }
 
@@ -575,7 +576,7 @@ angular.module('mainApp')
                 }
             })
             .catch(function(err) {
-                vm.pubErrorMsg('系統有些錯誤,請再試一次,' + err.toString());
+                vm.pubErrorMsg('失敗,' + err.data.toString());
             })
             .finally(function(){
                 vm.isUpdatingAccount = false;

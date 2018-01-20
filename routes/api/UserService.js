@@ -36,10 +36,7 @@ var signInWithId = function(req, res, user, successMsg) {
       console.log('[signInWithId]  - Failed signing in.', err);
       console.log('------------------------------------------------------------');
       
-      return res.json({
-        success: false,
-        message: (err && err.message ? err.message : false) || '不好意思, 登錄失敗, 請重新再試一次'
-      });
+      return res.ktSendRes(400,(err && err.message ? err.message : false) || '不好意思, 登錄失敗, 請重新再試一次');
     }
 
     console.log('[signInWithId]  - Signing in user...');
@@ -52,18 +49,12 @@ var signInWithId = function(req, res, user, successMsg) {
 exports.signin = function (req, res) {
   
   if (!keystone.security.csrf.validate(req)) {
-    return res.json({
-      success: false,
-      message: '過期憑證,請刷新登入頁面'
-    });
+    return res.ktSendRes(400,'過期憑證,請刷新登入頁面');
   }
 
   User.model.findOne({ userID: req.body['userID'] }).exec(function(err, user) {
     if (err || !user) {
-      return res.json({
-        success: false,
-        message: (err && err.message ? err.message : false) || '不好意思, 登錄失敗, 請重新再試一次'
-      });
+      return res.ktSendRes(400,(err && err.message ? err.message : false) || '不好意思, 登錄失敗, 請重新再試一次');
     }
     else {
       user._.password.compare(req.body['password'], function (err, isMatch) {
@@ -71,16 +62,10 @@ exports.signin = function (req, res) {
           return signInWithId(req, res, user, '登錄成功');
         } 
         else if (err) {
-          return res.json({ 
-            success: false,
-            message: err.toString()
-          });
+          return res.ktSendRes(400,err.toString());
         } 
         else {
-          return res.json({ 
-            success: false,
-            message: '密碼不合'
-          });
+          return res.ktSendRes(400,'密碼不合');
         }
       });
     }
@@ -188,10 +173,7 @@ exports.register = function (req, res) {
     if (err) {
       console.log('[register]  - error:', err);
       console.log('------------------------------------------------------------');
-      return res.json({
-        success: false,
-        message: (err && err.message ? err.message : false) || '不好意思,註冊途中出現一些問題,請再試一次'
-      });
+      return res.ktSendRes(400, (err && err.message ? err.message : false) || '不好意思,註冊途中出現一些問題,請再試一次');
     }
   });
 

@@ -12,7 +12,7 @@ exports.upsert = function(req, res) {
   var mode = this.mode;
 
   if(!form.hasOwnProperty("pid")) {
-    return res.json({
+    return res.status(400).json({
         success: false,
         message: '沒有身分證字號'
       });
@@ -21,7 +21,7 @@ exports.upsert = function(req, res) {
     form.pid = form.pid.toUpperCase();
 
     if(!middleware.checkPID(form.pid))
-      return res.json({
+      return res.status(400).json({
         success: false,
         message: '身分證格式不合'
       });
@@ -124,148 +124,18 @@ exports.upsert = function(req, res) {
     });
   })
   .catch(function(err) {
-    return res.json({
-      success: false,
-      message: err.toString()
-    });
+    res.myErrInfo = err.toString();
+    return res.ktSendRes(400, err.toString());
   });
 
 }
-
-/*
-exports.register = function(req, res) {
-  var form = req.body;
-
-  if(form.hasOwnProperty("pid")) {
-    form.pid = form.pid.toUpperCase();
-
-    if(!middleware.checkPID(form.pid))
-      return res.json({
-        success: false,
-        message: '身分證格式不合'
-      });
-  }
-
-  if(form.hasOwnProperty("teleNum1")) {
-    form.teleNum1 = middleware.getPureNumStr(form.teleNum1);
-  }
-
-  if(form.hasOwnProperty("teleNum2")) {
-    form.teleNum2 = middleware.getPureNumStr(form.teleNum2);
-  }
-
-  let finalData = {
-    name: form.name ? form.name:'',
-    pid: form.pid ? form.pid:'',
-    birth: form.birth ? form.birth:'',
-    teleNum1: form.teleNum1 ? form.teleNum1:'',
-    teleNum2: form.teleNum2 ? form.teleNum2:'',
-    city: form.city ? form.city:'',
-    dist: form.dist ? form.dist:'',
-    village: form.village ? form.village:'',
-    addr: form.addr ? form.addr:''
-  };
-
-  farmerList.model
-    .findOne({
-      pid: form.pid
-    })
-    .lean()
-    .exec()
-    .then(function(farmer) {
-      if(farmer) {
-        return Promise.reject('已存在相同身分證字號的帳號');
-      }
-      else {
-        var newFarmer = new farmerList.model(finalData);
-        newFarmer._req_user = req.user;
-        return newFarmer.save();
-      }
-    })
-    .then(function(savFarmer) {
-      return res.json({
-        success: true,
-        result: savFarmer.toObject()
-      });
-    })
-    .catch(function(err) {
-      return res.json({
-        success: false,
-        message: err.toString()
-      });
-    });
-
-}
-
-exports.update = function(req, res) {
-  var form = req.body;
-
-  farmerList.model
-    .findOne({ pid: form.pid })
-    .exec()
-    .then(function(farmer) {
-      if(!farmer) {
-        return Promise.reject('未找到相對應的農民帳號');
-      }
-
-      if(form.hasOwnProperty("teleNum1")) {
-        farmer.teleNum1 = middleware.getPureNumStr(form.teleNum1);
-      }
-
-      if(form.hasOwnProperty("teleNum2")) {
-        farmer.teleNum2 = middleware.getPureNumStr(form.teleNum2);
-      }
-
-      if(form.hasOwnProperty("name")) {
-        farmer.name = form.name;
-      }
-
-      if(form.hasOwnProperty("city")) {
-        farmer.city = form.city;
-      }
-
-      if(form.hasOwnProperty("dist")) {
-        farmer.dist = form.dist;
-      }
-
-      if(form.hasOwnProperty("village")) {
-        farmer.village = form.village;
-      }
-
-      if(form.hasOwnProperty("addr")) {
-        farmer.addr = form.addr;
-      }
-      
-      farmer._req_user = req.user;
-
-      return farmer.save();
-
-    })
-    .then(function(savFarmer) {
-      return res.json({
-        success: true,
-        result: savFarmer.toObject()
-      });
-    })
-    .catch(function(err) {
-      res.json({
-        success: false,
-        message: err.toString()
-      });
-    });
-
-}
-*/
 
 exports.search = function(req, res) {
   var form = req.body;
 
   if(!_.values(form).some(x => x !== undefined))
-    return res.json({
-      success: false,
-      message: '條件未指定'
-    });
-
+    return res.ktSendRes(400, '條件未指定');
+    
   var filters = {};
   if(form.hasOwnProperty("pid")) {
     form.pid = form.pid.toUpperCase();
@@ -306,10 +176,7 @@ exports.search = function(req, res) {
       .exec(function(err, data) {
 
         if(err) {
-          res.json({
-            success: false,
-            message: err.toString()
-          });
+          return res.ktSendRes(400, err.toString());
         }
         else {
           res.json({
@@ -396,10 +263,7 @@ exports.getAndPopulate = function(req, res) {
       });
     })
     .catch(function(err) {
-      return res.json({
-        success: false,
-        message: err.toString()
-      });
+      return res.ktSendRes(400, err.toString());
     });
 
 }

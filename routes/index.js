@@ -23,10 +23,58 @@ var middleware = require('./middleware');
 var importRoutes = keystone.importer(__dirname);
 var Constants = require(__base + 'Constants');
 var compression = require('compression');
+var path = require('path');
+var fs = require('fs');
+var morgan = require('morgan');
+var logDirectory = path.join(__base, 'Logs');
+var util = require('util');
+
+// ensure log directory exists
+fs.existsSync(logDirectory) || fs.mkdirSync(logDirectory);
+
+function pad(num) {
+    return (num > 9 ? "" : "0") + num;
+}
+ 
+const logNameBase = 'access.log';
+function generator(time, index) {
+    if(! time)
+        return logNameBase;
+ 
+    var month  = time.getFullYear() + "" + pad(time.getMonth() + 1);
+    var day    = pad(time.getDate());
+    var hour   = pad(time.getHours());
+    var minute = pad(time.getMinutes());
+ 
+    return month + "/" + month +
+        day + "-" + hour + minute + "-" + index + "-" +logNameBase;
+}
+
+//rotating logging sys
+var rfs    = require('rotating-file-stream');
+var accessLogStream = rfs(generator, {
+    //size:     '10M', // rotate every 10 MegaBytes written
+    interval: '1d',  // rotate daily
+    compress: 'gzip', // compress rotated files
+    maxFiles: 45, //keep 30 days log
+    path: logDirectory
+});
+
+morgan.token('sysUser', function (req) {
+  var user = req.user;
+  if(user) 
+    return util.format('{uid: %s, name: %s, roles: %s, admin: %s}', user.userID, user.name, user.roles? user.roles.toString(): '', user.isAdmin );
+  else
+    return undefined;
+});
+
+morgan.token('errInfo', function (req, res) {
+  return res.myErrInfo? res.myErrInfo: res.statusMessage;
+});
 
 // Common Middleware
 keystone.pre('admin', middleware.blockRoute);
-keystone.pre('routes', middleware.initLocals);
+keystone.pre('routes', middleware.initLocals, middleware.addCustomResHandler);
 keystone.pre('render', middleware.flashMessages);
 
 // Import Route Controllers
@@ -37,7 +85,14 @@ var routes = {
 
 // Setup Route Bindings
 exports = module.exports = function (app) {
-	
+
+  //log request error to log files
+  app.use(morgan('{date:":date[clf]", ip:":remote-addr", user::sysUser, method:":method :url", code:":status", msg:":errInfo", agent:":user-agent"}', { 
+    stream: accessLogStream,
+    //only log error, skip success request
+    skip: function (req, res) { return res.statusCode < 400 }, 
+  }));
+
   // Views
   app.get('/',
     compression(),

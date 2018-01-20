@@ -27,7 +27,7 @@ angular.module('mainApp')
             }
           })
           .catch(function(err) {
-            console.log(err);
+            $rootScope.pubErrorMsg('抓取商品類型資訊失敗,' + err.data.toString());
           });
     }
 
@@ -50,11 +50,11 @@ angular.module('mainApp')
           }
         }
         else {
-          $rootScope.pubErrorMsg('更新失敗,原因：'+ data.message);
+          $rootScope.pubErrorMsg('更新失敗,'+ data.message);
         }
       })
       .catch(function(err) {
-        $rootScope.pubErrorMsg(err.toString());
+        $rootScope.pubErrorMsg('更新失敗,' + err.data.toString());
       });
     }
 

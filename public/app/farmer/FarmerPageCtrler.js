@@ -28,6 +28,8 @@ angular.module('mainApp')
                 return data;
               })
               .catch(function(err) {
+                var msg = err.data? err.data.toString() : err.toString();
+                $rootScope.pubErrorMsg('抓取地理資訊失敗,' + msg);
                 console.log(err);
               });
     }
@@ -92,8 +94,7 @@ angular.module('mainApp')
         }
       })
       .catch(function(err) {
-        $rootScope.pubErrorMsg('系統似乎出現一些錯誤,' + err.toString());
-        console.log(err);
+        $rootScope.pubErrorMsg('註冊失敗,' + err.data.toString());
       })
       .finally(function() {
         vm.isRegistering = false;
@@ -125,10 +126,6 @@ angular.module('mainApp')
       .then(function(data) {
         if($state.current.name === 'farmerRegister')
           setRestOfDefaultValues();
-      })
-      .catch(function(err) {
-        $rootScope.pubErrorMsg('系統似乎出現一些錯誤,' + err.toString());
-        console.log(err);
       });
     }
 
@@ -161,7 +158,7 @@ angular.module('mainApp')
         }
       })
       .catch(function(err) {
-        $rootScope.pubErrorMsg('系統似乎出現一些錯誤,' + err.toString());
+        $rootScope.pubErrorMsg('搜尋失敗,' + err.data.toString());
         console.log(err);
       })
       .finally(function() {

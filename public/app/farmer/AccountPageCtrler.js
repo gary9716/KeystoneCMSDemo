@@ -40,7 +40,7 @@ angular.module('mainApp')
         }
       })
       .catch(function(err) {
-        $rootScope.pubErrorMsg('系統似乎出現一些錯誤');
+        $rootScope.pubErrorMsg('抓取農夫存摺資訊失敗,' + err.data.toString());
         console.log(err);
       });
 
@@ -69,7 +69,7 @@ angular.module('mainApp')
         }
       })
       .catch(function(err) {
-        $rootScope.pubErrorMsg('系統似乎出現一些錯誤');
+        $rootScope.pubErrorMsg('開立存摺失敗,' + err.data.toString());
         console.log(err);
       });
 
@@ -143,7 +143,7 @@ angular.module('mainApp')
           }
         })
         .catch(function(err) {
-            $rootScope.pubErrorMsg('更新失敗,' + err.toString());
+            $rootScope.pubErrorMsg('更新失敗,' + err.data.toString());
         });
       })
       .catch(function () { 
@@ -268,7 +268,7 @@ angular.module('mainApp')
         }
       })
       .catch(function(err) {
-        vm.pubErrorMsg('入款失敗,' + err.toString());
+        vm.pubErrorMsg('入款失敗,' + err.data.toString());
       })
       .finally(function() {
         vm.isProcessing = false;
@@ -298,7 +298,7 @@ angular.module('mainApp')
         }
       })
       .catch(function(err) {
-        vm.pubErrorMsg('提款失敗,' + err.toString());
+        vm.pubErrorMsg('提款失敗,' + err.data.toString());
       })
       .finally(function() {
         vm.isProcessing = false;
@@ -326,7 +326,7 @@ angular.module('mainApp')
         }
       })
       .catch(function(err) {
-        vm.pubErrorMsg('失敗,' + err.toString());
+        vm.pubErrorMsg('失敗,' + err.data.toString());
       })
       .finally(function() {
         vm.isProcessing = false;
@@ -354,7 +354,7 @@ angular.module('mainApp')
         }
       })
       .catch(function(err) {
-        vm.pubErrorMsg('結清失敗,' + err.toString());
+        vm.pubErrorMsg('結清失敗,' + err.data.toString());
       })
       .finally(function() {
         vm.isProcessing = false;
@@ -383,7 +383,7 @@ angular.module('mainApp')
         }
       })
       .catch(function(err) {
-        vm.pubErrorMsg('過戶失敗,' + err.toString());
+        vm.pubErrorMsg('過戶失敗,' + err.data.toString());
       })
       .finally(function() {
         vm.isProcessing = false;
@@ -445,7 +445,7 @@ angular.module('mainApp')
         }
       })
       .catch(function(err) {
-        vm.pubErrorMsg('讀取操作記錄失敗,' + err.toString());
+        vm.pubErrorMsg('讀取操作記錄失敗,' + err.data.toString());
       });
     }
 
@@ -471,9 +471,6 @@ angular.module('mainApp')
               .then(function(data) {
                 vm[targetName] = data;
                 return data;
-              })
-              .catch(function(err) {
-                console.log(err);
               });
     }
 
@@ -510,7 +507,8 @@ angular.module('mainApp')
         });
       })
       .catch(function(err) {
-        $rootScope.pubErrorMsg('系統似乎出現一些錯誤');
+        var msg = err.data? err.data.toString() : err.toString();
+        $rootScope.pubErrorMsg('抓取地理資訊失敗,' + msg);
         console.log(err);
       });
     }
