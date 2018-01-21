@@ -190,8 +190,8 @@ angular.module('mainApp')
   }]
 )
 .controller('AccountDetailModalCtrler', 
-  ['$uibModalInstance', 'account', '$http', 'lodash', '$q',
-  function($uibModalInstance, account, $http, _ , $q) {
+  ['$uibModalInstance', 'account', '$http', 'lodash', '$q', 'Upload',
+  function($uibModalInstance, account, $http, _ , $q, Upload) {
     var vm = this;
     vm.account = account;
     vm.closeAcc = {};
@@ -314,7 +314,23 @@ angular.module('mainApp')
 
       notEmptyOrUndefThenAdd(data, 'comment', vm.setFreeze.comment);
 
-      $http.post('/api/account/set-freeze', data)
+      var fd = new FormData();
+      if(vm.setFreeze.unfreezeSheet)
+        fd.append('relatedFile', vm.setFreeze.unfreezeSheet);
+
+      fd.append('opData', angular.toJson(data)); //convert it into json string
+
+      /*
+      $http.post('/api/account/set-freeze', fd, {
+            transformRequest: null,
+            headers: {'Content-type': undefined }
+      })
+      */
+      Upload.http({
+        url: '/api/account/set-freeze',
+        headers:  {'Content-type': undefined },
+        data: fd
+      })
       .then(function(res) {
         var resData = res.data;
         if(resData.success) {
@@ -330,7 +346,11 @@ angular.module('mainApp')
       })
       .finally(function() {
         vm.isProcessing = false;
-      })
+      },
+      function(evt) {
+        // progress notify
+        vm.setFreeze.uploadProgress = parseInt(100.0 * evt.loaded / evt.total);
+      });
 
     }
 

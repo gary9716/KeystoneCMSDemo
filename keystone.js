@@ -83,7 +83,7 @@ keystone.set('locals', {
 	helpers: helperFuncs()
 });
 
-//keystone.set('file limit', 1000000); //in bytes
+keystone.set('file limit', 1000000); //in bytes(1MB)
 
 // Use our own sign in and sign out route
 keystone.set('signin url', '/auth');

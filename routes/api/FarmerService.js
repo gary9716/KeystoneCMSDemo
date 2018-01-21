@@ -12,19 +12,13 @@ exports.upsert = function(req, res) {
   var mode = this.mode;
 
   if(!form.hasOwnProperty("pid")) {
-    return res.status(400).json({
-        success: false,
-        message: '沒有身分證字號'
-      });
+    return res.ktSendRes(400, '沒有身分證字號');
   }
   else {
     form.pid = form.pid.toUpperCase();
 
     if(!middleware.checkPID(form.pid))
-      return res.status(400).json({
-        success: false,
-        message: '身分證格式不合'
-      });
+      return res.ktSendRes(400, '身分證格式不合');
   }
 
   if(form.hasOwnProperty("teleNum1")) {
@@ -179,7 +173,7 @@ exports.search = function(req, res) {
           return res.ktSendRes(400, err.toString());
         }
         else {
-          res.json({
+          return res.json({
             success: true,
             result: data.results,
             total: data.total

@@ -56,7 +56,7 @@ var accessLogStream = rfs(generator, {
     //size:     '10M', // rotate every 10 MegaBytes written
     interval: '1d',  // rotate daily
     compress: 'gzip', // compress rotated files
-    maxFiles: 45, //keep 30 days log
+    maxFiles: 45, //keep 45 days log
     path: logDirectory
 });
 
@@ -306,32 +306,6 @@ exports = module.exports = function (app) {
     routes.api.ProductService.transact
   );
   
-  /*
-  app.post('/api/product/create',
-    middleware.permissionCheck.bind(
-      {
-        opName: 'create',
-        listName: Constants.ProductListName
-      }
-    ),
-    routes.api.ProductService.upsert.bind({
-      mode: 'create'
-    })
-  );
-
-  app.post('/api/product/update',
-    middleware.permissionCheck.bind(
-      {
-        opName: 'update',
-        listName: Constants.ProductListName
-      }
-    ),
-    routes.api.ProductService.upsert.bind({
-      mode: 'update'
-    })
-  );
-  */
-
   app.post('/api/product/upsert',
     middleware.permissionCheck.bind(
       {

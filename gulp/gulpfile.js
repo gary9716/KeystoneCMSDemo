@@ -64,7 +64,7 @@ gulp.task('concatLib', function(cb){
     'angular/ng-lodash.min.js',
     'angular/angular-local-storage.min.js',
     'angular/ng-file-upload-all.min.js',
-    'image-compressor.min.js',
+    //'image-compressor.min.js', //image compressed seems include by ng-file-upload
 
     //'angular/angular-filter.min.js',
     //'angular/xeditable.min.js',

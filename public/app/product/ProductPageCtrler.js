@@ -20,8 +20,7 @@ angular.module('mainApp')
     var numItemInOneRow = 3;
 
     vm.getProducts = function(mode) {
-        return 
-        $http.post('/api/product/get',
+        return $http.post('/api/product/get',
         {
             mode: mode
         })

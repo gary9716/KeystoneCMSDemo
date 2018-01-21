@@ -61,3 +61,5 @@ typings/
 
 **/.credentials/*
 googleDriveUtil/client_secret_googledrive.json
+
+uploads/*

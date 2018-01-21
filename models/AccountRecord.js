@@ -5,6 +5,22 @@ var Constants = require(__base + 'Constants');
 var mongoose = keystone.get('mongoose');
 var Schema = mongoose.Schema;
 
+var myStorage = new keystone.Storage({
+  adapter: keystone.Storage.Adapters.FS,
+  fs: {
+    path: (__base + 'uploads/accRecRelated/'),
+  },
+  schema: {
+    size: true,
+    mimetype: true,
+    path: false,
+    originalname: true,
+    url: false,
+  }
+});
+
+keystone.set('accRecFileStorageAdapter', myStorage.adapter);
+
 //console.log(Constants.AccountRecordListName);
 var AccountRecord = new keystone.List(Constants.AccountRecordListName, {
   label: '存摺紀錄',
@@ -36,7 +52,13 @@ AccountRecord.add({
   //conditional fields
   ioAccount: { type: String, label: '對口帳戶', index: true, trim: true, dependsOn: { opType: ['deposit', 'withdraw'] } },
   period: { type: Types.Relationship, ref: Constants.PeriodListName, label: '期別', index: true, trim: true, dependsOn: { opType: 'deposit' } },
-  transaction: { type: Types.Relationship, label: '兌領交易', ref: Constants.TransactionListName, dependsOn: { opType: 'transact' } }
+  transaction: { type: Types.Relationship, label: '兌領交易', ref: Constants.TransactionListName, dependsOn: { opType: 'transact' } },
+  relatedFile: {
+    label: '相關檔案',
+    type: Types.File,
+    storage: myStorage,
+    initial: true
+  },
 });
 
 AccountRecord.schema.add({

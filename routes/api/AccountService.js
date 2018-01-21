@@ -7,8 +7,12 @@ var farmerList = keystone.list(Constants.FarmerListName);
 var accountList = keystone.list(Constants.AccountListName);
 var accountRecList = keystone.list(Constants.AccountRecordListName);
 var periodList = keystone.list(Constants.PeriodListName);
-
+//var accRecRelatedFileList = keystone.list(Constants.AccRecRelatedFileListName);
+var mime = require('mime-to-extensions');
+var moment = require('moment');
 var mongoose = keystone.get('mongoose');
+var path = require('path');
+var fs = require('fs');
 
 exports.create = function(req, res) {
   var form = req.body;
@@ -167,9 +171,17 @@ exports.close = function(req, res) {
 
 }
 
-exports.setFreeze = function(req, res) {
-  var form = req.body;
+var accRecFileStorageAdapter = keystone.get('accRecFileStorageAdapter');
 
+var getUnfreezeFilename = function(file, cb) {
+  var account = this.account;
+  var filename = ('unfreeze_' + account.accountID + '_' + moment().format('YYYY-MM-DD HH-mm-ss') + '.' + mime.extension(file.mimetype));
+  cb(null, filename);
+}
+
+exports.setFreeze = function(req, res) {
+  var form = JSON.parse(req.body.opData);
+  
   var filters = {};
 
   if(form.hasOwnProperty("_id")) {
@@ -184,7 +196,7 @@ exports.setFreeze = function(req, res) {
 
   var newRec_id = mongoose.Types.ObjectId();
   var savAccount;
-
+  var savRec;
   accountList.model.findOne(filters)
   .populate('farmer')
   .exec()
@@ -194,6 +206,8 @@ exports.setFreeze = function(req, res) {
 
     if(!account.active) 
       return Promise.reject('此存摺已被結清');
+
+    var nowDate = Date.now();
 
     var postAccBk = {
       accountID: account.accountID,
@@ -211,19 +225,45 @@ exports.setFreeze = function(req, res) {
       _id: newRec_id,
       account: account._id,
       opType: account.freeze? 'unfreeze' : 'freeze',
-      date: Date.now(),
+      date: nowDate,
       operator: req.user._id,
       comment: form.comment? form.comment: '',
       postAccBk: postAccBk
     });
-
     newRec._req_user = req.user;
-    return newRec.save();
+    
+    var relatedFile = req.files.relatedFile;
+    if(relatedFile) {
+      return new Promise(function(resolve, reject) {
+        fs.access(relatedFile.path, fs.constants.F_OK, (err) => {
+          if(err) reject(err.toString());
+
+          var boundGetFilename = getUnfreezeFilename.bind({
+            account: account,
+          });
+
+          accRecFileStorageAdapter.getFilename = boundGetFilename;
+          accRecFileStorageAdapter.retryFilename = boundGetFilename;
+
+          newRec._.relatedFile.upload(relatedFile, (err2) => {
+              if (err2) return reject(err2.toString());
+
+              resolve(newRec.save());
+          });
+
+        });
+        
+      });
+    }
+    else {
+      return newRec.save();
+    }
     
   })
-  .then(function(savRec) {
-    
-    savAccount.freeze = savRec.postAccBk.freeze;
+  .then(function(_savRec) {
+    savRec = _savRec;
+
+    savAccount.freeze = _savRec.postAccBk.freeze;
     savAccount.lastRecord = newRec_id;
     savAccount._req_user = req.user;
 
@@ -232,7 +272,8 @@ exports.setFreeze = function(req, res) {
   .then(function(_savAccount) {
     return res.json({
       success: true,
-      result: _savAccount.toObject()
+      result: _savAccount.toObject(),
+      rec: savRec.toObject()
     });
   })
   .catch(function(err) {
