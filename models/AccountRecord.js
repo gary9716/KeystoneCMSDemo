@@ -8,12 +8,12 @@ var Schema = mongoose.Schema;
 var myStorage = new keystone.Storage({
   adapter: keystone.Storage.Adapters.FS,
   fs: {
-    path: (__base + 'uploads/accRecRelated/'),
+    path: (process.env.FILE_UPLOAD_PATH + 'accRecFiles'),
   },
   schema: {
     size: true,
     mimetype: true,
-    path: false,
+    path: true,
     originalname: true,
     url: false,
   }

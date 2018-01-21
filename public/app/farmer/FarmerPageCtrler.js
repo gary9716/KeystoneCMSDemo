@@ -87,7 +87,9 @@ angular.module('mainApp')
         if(data.success) {
           console.log('register farmer success');
           $rootScope.pubSuccessMsg('註冊成功,即將返回入口頁面');
-          setTimeout($state.go('farmer'), 3000);
+          setTimeout(function() {
+            $state.go('farmer');
+          }, 3000);
         }
         else {
           $rootScope.pubWarningMsg('註冊失敗,' + data.message);

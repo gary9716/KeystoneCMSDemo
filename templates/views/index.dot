@@ -1,7 +1,0 @@
----
-layout: layouts/pdfBase.dot
-title: Index page
----
-[[##body:
-  Hello world from index.dot
-#]]

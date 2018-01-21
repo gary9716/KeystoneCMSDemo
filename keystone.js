@@ -12,10 +12,17 @@ var helperFuncs = require('./templates/views/helpers/index');
 var _ = require('lodash');
 var middleware = require('./routes/middleware');
 var Constants = require(__base + 'Constants');
+var fs = require('fs');
 
 var mongoose = keystone.get('mongoose');
 
 keystone.set('defaultState', process.env.DEFAULT_STATE || 'home' );
+
+if(!process.env.FILE_UPLOAD_PATH)
+	throw new Error('please specify file upload directory in .env');
+
+var uploadDir = process.env.FILE_UPLOAD_PATH
+fs.existsSync(uploadDir) || fs.mkdirSync(uploadDir)
 
 // Initialise Keystone with your project's configuration.
 // See http://keystonejs.com/guide/config for available options
@@ -70,7 +77,6 @@ keystone.init({
 
 // Load your project's Models
 keystone.import('models');
-Fawn.init(process.env.MONGO_URI);
 
 // Setup common locals for your templates. The following are required for the
 // bundled templates and layouts. Any runtime locals (that should be set uniquely

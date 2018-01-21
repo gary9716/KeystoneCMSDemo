@@ -10,15 +10,38 @@
 
 var async = require('async');
 var Constants = require(__base + 'Constants');
-
 var _ = require('lodash');
 var keystone = require('keystone');
 var UrlPattern = require('url-pattern');
 var htmlmin = require('htmlmin');
-var pdf = require('html-pdf');
 var keystonePathPrefix = '/'+ keystone.get('admin path');
 
 var routesToBlock = [keystonePathPrefix + '/signin', keystonePathPrefix + '/api/session/signin'];
+
+//var pdf = require('html-pdf');
+
+var Pdfmake = require('pdfmake');
+
+var fonts = {
+  'cwTeXKai': {
+    normal: __base + 'fonts/cwTeXKai-zhonly.ttf',
+  },
+
+  'cwTeXMing': {
+    normal: __base + 'fonts/cwTeXMing-zhonly.ttf',
+  },
+
+  Roboto: {
+    normal: __base + 'fonts/Roboto-Regular.ttf',
+    bold: __base + 'fonts/Roboto-Medium.ttf',
+    italics: __base + 'fonts/Roboto-Italic.ttf',
+    bolditalics: __base + 'fonts/Roboto-MediumItalic.ttf'
+  }
+
+};
+
+var printer = new Pdfmake(fonts);
+var fs = require('fs');
 
 exports.blockRoute = function (req, res, next) {
   var urlPattern = new UrlPattern(req.path);
@@ -125,32 +148,32 @@ exports.doViewRender = function(req, res) {
 	view.render(renderFunc);
 }
 
-
-//option format reference:(https://www.npmjs.com/package/html-pdf)
-var pdfOpts = {
-  // Export options
-  "directory": (__base + "tmp"),       // The directory the file gets written into if not using .toFile(filename, callback). default: '/tmp'
-
-  // Papersize Options: http://phantomjs.org/api/webpage/property/paper-size.html
-  "format": "A4",        // allowed units: A3, A4, A5, Legal, Letter, Tabloid
-  "orientation": "portrait", // portrait or landscape
-
-  // Page options
-  /*
-  "border": {
-    "top": "2in",            // default is 0, units: mm, cm, in, px
-    "right": "1in",
-    "bottom": "2in",
-    "left": "1.5in"
-  },
-  */
-
-};
-
-exports.doPDFGen = function(req, res) {
+exports.doPDFGenViaHTMLToPDF = function(req, res) {
   //since we don't need to trigger render hooks in keystone
   //(render hooks should be specified in index.js)
   //we can just do server side rendering through res.render
+  
+  //option format reference:(https://www.npmjs.com/package/html-pdf)
+  var pdfOpts = {
+      // Export options
+      "directory": (__base + "tmp"),       // The directory the file gets written into if not using .toFile(filename, callback). default: '/tmp'
+
+      // Papersize Options: http://phantomjs.org/api/webpage/property/paper-size.html
+      "format": "A4",        // allowed units: A3, A4, A5, Legal, Letter, Tabloid
+      "orientation": "portrait", // portrait or landscape
+      "base": req.protocol + '://' + req.get('host') 
+      // Page options
+      /*
+      "border": {
+        "top": "2in",            // default is 0, units: mm, cm, in, px
+        "right": "1in",
+        "bottom": "2in",
+        "left": "1.5in"
+      },
+      */
+
+    };
+
   res.render(
     res.locals.viewPath,
     null, //locals, we have set it on res
@@ -159,11 +182,36 @@ exports.doPDFGen = function(req, res) {
         return res.ktSendRes(500, 'pdf產生失敗' );
       }
       pdf.create(html, pdfOpts).toBuffer(function(err, buffer) {
+        res.set('Content-Type', 'application/pdf');
         res.send(buffer);
       });
 
     }
   );
+
+}
+
+exports.doPDFGenViaPDFMake = function(req, res) {
+
+  //if we forget to add .js ,it would be treated as object and cannot be used
+  //as function
+  var docPath = __base + 'pdfmake-docs/' + (req.query.doc? req.query.doc : this.defaultDoc) + '.js';
+
+  var docDefinition = require(docPath)(req,res);
+
+  //filename should be customized for each req
+  if(!res.locals.filename) 
+    res.locals.filename = 'temp.pdf';
+
+  var pdfDoc = printer.createPdfKitDocument(docDefinition);
+  
+  //give browser some hint
+  res.set('Content-Type', 'application/pdf');
+  //set browser default download filename
+  res.set('Content-disposition', 'attachment; filename=' + res.locals.filename);
+  
+  pdfDoc.pipe(res);
+  pdfDoc.end();
 
 }
 

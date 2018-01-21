@@ -1,0 +1,22 @@
+---
+layout: ../layouts/pdfBase.dot
+title: 解凍單
+---
+[[##body:
+  <style>
+  body {
+    font-family: serif;
+  }
+  .info-row {
+    display: flex; align-items: center;
+  }
+
+  </style>
+  <div class="content">
+    <h3 class="title text-center">解凍單</h3>
+    <div class="info-row">
+      <label class="col-md-3 text-center">存摺擁有人</label>
+      <label class="col-md-9 text-left">某甲</label>
+    </div>
+  </div>
+#]]

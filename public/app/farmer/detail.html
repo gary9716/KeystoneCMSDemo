@@ -281,7 +281,7 @@
           <div class="col-md-4">
             <div class="flex-row" ng-show="ctrler.account.freeze">
               <label class="col-md-4">解凍單</label>
-              <div class="btn btn-primary" ngf-select="ctrler.fileSelect()" ng-model="ctrler.setFreeze.unfreezeSheet" name="unfreezeSheetFile" ngf-pattern="'image/*'" ngf-accept="'image/*'" ngf-max-size="1MB" ngf-resize="{ quality: 0.4 }">選擇</div>
+              <div class="btn btn-primary" ngf-select="ctrler.unfreezeFileSelect($file, $invalidFiles)" ng-model="ctrler.setFreeze.unfreezeSheet" name="unfreezeSheetFile" ngf-pattern="'image/*'" ngf-accept="'image/*'" ngf-max-size="ctrler.FileSizeLimit" ngf-resize="{ quality: 0.4 }">選擇</div>
 
             </div>
             <div class="flex-row">
@@ -297,6 +297,7 @@
             <img ngf-thumbnail="ctrler.setFreeze.unfreezeSheet" class="col-md-8">
             </div>
             <div class="row col-md-10">
+            <label ng-show="ctrler.errFile" class="text-danger">檔案:{{ctrler.errFile.name}} {{ctrler.errFile.errorChMsg}} </label>
             <uib-progressbar ng-show="ctrler.setFreeze.uploadProgress >= 0" animate="false" value="ctrler.setFreeze.uploadProgress" type="success"><b>{{ctrler.setFreeze.uploadProgress}}%</b></uib-progressbar>
             </div>
           </div>

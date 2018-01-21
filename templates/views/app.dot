@@ -130,6 +130,8 @@
     
     <script src="/js/all-lib.js"></script>
 
+    <script src="/js/pdfmake.min.js" defer></script>
+        
     <!-- admin JS and CSS code, needs to be placed behind lib code-->
     [[var code = helpers.isAdminEditorCSS(model.user);]]
     [[=code]]

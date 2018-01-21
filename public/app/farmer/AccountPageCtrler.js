@@ -306,6 +306,17 @@ angular.module('mainApp')
 
     }
 
+    vm.FileSizeLimit = '1MB';
+    vm.unfreezeFileSelect = function(file, errFiles) {
+      vm.errFile = errFiles && errFiles[0];
+      if(vm.errFile.$error === 'maxSize') {
+        vm.errFile.errorChMsg = '超過檔案限制 ' + vm.FileSizeLimit;
+      }
+      else {
+        vm.errFile.errorChMsg = vm.errFile.$error;
+      }
+    }
+
     vm.setFreezeOp = function() {
       vm.isProcessing = true;
       var data = {
