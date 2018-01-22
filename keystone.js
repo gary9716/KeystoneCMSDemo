@@ -66,7 +66,6 @@ keystone.init({
 	'views': 'templates/views',
 	'view engine': 'dot',
 	'custom engine': dotEngine.__express,
-	//'emails': 'templates/emails',
 	'session store': 'connect-redis',
 	'auto update': false,
 	'user model': 'User',

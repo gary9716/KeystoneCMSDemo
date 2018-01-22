@@ -55,6 +55,10 @@ module.exports = function(req, res) {
       ]
     },
 
+    defaultStyle: {
+      font: 'msjh'
+    },
+
     styles: {
       header: {
         fontSize: 22,
@@ -63,7 +67,7 @@ module.exports = function(req, res) {
       anotherStyle: {
         italics: true,
         alignment: 'right'
-      }
+      },
     },
 
     images: {
@@ -91,6 +95,14 @@ module.exports = function(req, res) {
       // if you don't need styles, you can use a simple string to define a paragraph
       'This is a standard paragraph, using default style',
 
+      { text: '中文字型測試，你說那是啥'},
+
+      { text: '明體', font: 'ming' },
+
+      { text: '中文字型測試, 楷體', font: 'kai', decoration: 'lineThrough'},
+      
+      { text: '黑體粗,大小20,標底線', bold: true, fontSize:20, decoration: 'underline' },
+
       // using a { text: '...' } object lets you set styling properties
       { text: 'This paragraph will have a bigger font', fontSize: 15 },
 
@@ -99,6 +111,14 @@ module.exports = function(req, res) {
       
       // margin: [horizontal, vertical]
       { text: 'another text', margin: [5, 2] },
+
+      {text: 'Underline decoration', decoration: 'underline'},
+      {text: 'Dashed style', decoration: 'underline', decorationStyle: 'dashed'},
+      {text: 'Dotted style', decoration: 'underline', decorationStyle: 'dotted'},
+      {text: 'Double style', decoration: 'underline', decorationStyle: 'double'},
+      {text: 'Wavy style', decoration: 'underline', decorationStyle: 'wavy'},
+      {text: 'Line Through decoration', decoration: 'lineThrough'},
+      {text: 'Overline decoration', decoration: 'overline'},
 
       // if you set the value of text to an array instead of a string, you'll be able
       // to style any part individually

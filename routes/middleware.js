@@ -23,21 +23,18 @@ var routesToBlock = [keystonePathPrefix + '/signin', keystonePathPrefix + '/api/
 var Pdfmake = require('pdfmake');
 
 var fonts = {
-  'cwTeXKai': {
-    normal: __base + 'fonts/cwTeXKai-zhonly.ttf',
+  'ming' : {
+    normal: __base + 'fonts/pming.ttf'
   },
 
-  'cwTeXMing': {
-    normal: __base + 'fonts/cwTeXMing-zhonly.ttf',
+  'msjh': {
+    normal: __base + 'fonts/msjhl.ttf',
+    bold: __base + 'fonts/msjhb.ttf',
   },
 
-  Roboto: {
-    normal: __base + 'fonts/Roboto-Regular.ttf',
-    bold: __base + 'fonts/Roboto-Medium.ttf',
-    italics: __base + 'fonts/Roboto-Italic.ttf',
-    bolditalics: __base + 'fonts/Roboto-MediumItalic.ttf'
-  }
-
+  'kai': {
+    normal: __base + 'fonts/kaiu.ttf'
+  },
 };
 
 var printer = new Pdfmake(fonts);

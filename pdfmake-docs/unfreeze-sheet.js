@@ -10,6 +10,10 @@ module.exports = function(req, res) {
       author: 'kt chou',
     },
 
+    defaultStyle: {
+      font: 'msjh'
+    },
+
     content: [
       'First paragraph',
       'Another paragraph, this time a little bit longer to make sure, this line will be divided into at least two lines',
