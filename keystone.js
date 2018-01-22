@@ -59,7 +59,7 @@ dotEngine.settings.dot = {
 keystone.init({
 	'name': '白米兌換管理系統',
 	'brand': '白米兌換管理系統',
-
+	'port': 8080,
 	'less': 'public',
 	'static': 'public',
 	'favicon': 'public/favicon.ico',
