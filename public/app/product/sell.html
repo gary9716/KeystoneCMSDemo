@@ -3,37 +3,97 @@
 -->
 
 <div class="container">
-  <div ng-show="ctrler.products.length === 0" class="form-group text-center">
-    <label>目前沒有任何商品 請至商品管理頁面進行新增</label>
+  <div ng-show="ctrler.productList.length === 0" class="form-group text-center">
+    <label>目前沒有可販售的商品</label>
   </div>
-  <!-- dont directly apply listTo2DMat filter to ng-repeat expression here. 
-    it's unstable -->
-  <div class="row" ng-repeat="productsPerRow in ctrler.products">
-    <div class="col-md-4" ng-repeat="product in productsPerRow track by product._id" ng-include="'product-layout-v1.html'"></div>
-  </div>
-</div> <!-- .container -->
 
+  <table id="saleable-product-table" style="margin: 0px auto 10px;" ng-hide="ctrler.productList.length === 0" class="table table-bordered table-responsive">
+    <thead>
+        <th class="text-center" style="width: 10%">類型</th>
+        <th class="text-center" style="width: 15%">編號</th>
+        <th class="text-center" style="width: 17%">名稱</th>
+        <th class="text-center" style="width: 17%">價格</th>
+        <th class="text-center" style="width: 15%">包數</th>
+        <th class="text-center" style="width: 12%">操作</th>
+    </thead>
+    <tbody>
+      <tr ng-repeat="product in ctrler.productList track by product._id">
+        <td>{{product.pType.name}}</td>
+        <td>{{product.pid}}</td>
+        <td>{{product.name}}</td>
+        <td>
+          <table class="product-price-table table-responsive" style="text-align: left;">
+              <tr ng-hide="product.isInCart && product.price===product.exchangePrice">
+                <td class="txt-col"><label class="price-selector"><input type="radio" class="price-radio" ng-value="product.marketPrice" ng-model="product.price" ng-model-options="{ debounce: 200 }" ng-hide="product.isInCart">定價</label></td> 
+                <td class="price-col">{{::product.marketPrice}} 元</td>
+              </tr>
+              <tr ng-hide="product.isInCart && product.price===product.marketPrice">
+                <td class="txt-col"><label class="price-selector"><input type="radio" class="price-radio" ng-value="product.exchangePrice" ng-model="product.price" ng-model-options="{ debounce: 200 }" ng-hide="product.isInCart">兌換價</label></td> 
+                <td class="price-col">{{::product.exchangePrice}} 元</td>
+              </tr>
+          </table>
+        </td>
+        <td>
+          <div class="input-group" ng-hide="product.isInCart">
+            <span class="input-group-btn">
+              <button class="btn btn-default btn-info" ng-click="ctrler.changeQty(product,-1);"><span class="fa fa-minus"></span></button>
+            </span>
+            <input type="number" name="qty" ng-model="product.quantity" ng-model-options="{ debounce: 200 }" class="form-control text-center" min="1" required>
+            <span class="input-group-btn">
+              <button class="btn btn-default btn-info" ng-click="ctrler.changeQty(product,1);"><span class="fa fa-plus"></span></button>
+            </span>
+          </div>
+          <label class="text-center" ng-show="product.isInCart">{{product.quantity}} 包</label>
+        </td>
+        <td>
+          <button ng-hide="product.isInCart" ng-click="ctrler.addItemToCart(product)" ng-disabled="pForm.$invalid" type="button" class="btn btn-primary"><i class="fa fa-shopping-cart"></i> 加到購物車</button>
+          <button ng-show="product.isInCart" ng-click="ctrler.rmItemFromCart(product)" type="button" class="btn btn-danger"><i class="fa fa-times"></i> 從購物車移除</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+</div> <!-- .container -->
+  
 <style>
+  table#saleable-product-table {
+    width: 100%;
+    height: 100%;
+    display: table;
+    text-align: center;
+  }
+
+  table#saleable-product-table td {
+    display: table-cell;
+    vertical-align: middle;
+  }
+
   /* hide input number's arrows */
-  form.product-preview-form input[type=number]::-webkit-inner-spin-button, 
-  form.product-preview-form input[type=number]::-webkit-outer-spin-button { 
+  input[type=number]::-webkit-inner-spin-button, 
+  input[type=number]::-webkit-outer-spin-button { 
       -webkit-appearance: none;
-      -moz-appearance: none;
-      appearance: none;
       margin: 0; 
   }
   
-  table.product-table {
+  input[type=number] {
+      -moz-appearance:textfield;
+  }
+
+  .product-price-table input.price-radio, 
+  form#cart-form input.opt-radio {
+    width:0.85em; height:0.85em;
+  }
+
+  table.product-price-table {
     padding: 0;
   }
 
-  table.product-table td.price-col {
-    padding-left: 1em; 
+  table.product-price-table .price-selector {
+    padding-top: 5px;
   }
 
-  table.product-table input.price-radio, 
-  form#cart-form input.opt-radio {
-    width:0.85em; height:0.85em;
+  table.product-price-table td.price-col {
+    padding-left: 1em; 
   }
 
   form.product-preview-form div.product-info-row {
@@ -47,64 +107,6 @@
 </style>
 
 <!-- templates start -->
-<!-- product layout -->
-<script type="text/ng-template" id="product-layout-v1.html">
-  <div class="well" style="padding: 5px 20px 20px;">
-    <!-- no image
-    <img ng-src="{{::product.image}}" alt="" class="img-responsive">
-    -->
-    <form name="pForm" class="product-preview-form">
-      <div class="caption">
-        <!-- maybe we may need this in future
-        <h4><a class="clickable" ng-click="ctrler.viewDetail()">{{::product.name}}</a></h4>
-        -->
-        <h3 class="text-center" style="margin-top:10px;">{{::product.name}}</h3>
-        <label>每包重{{::product.weight}}kg</label>
-          <div class="product-info-row">
-            <label>{{product.isInCart? '決定方案：':'可選方案：'}}</label>
-            <div class="col-md-8">
-              <table class="product-table table-responsive">
-                <tr ng-hide="product.isInCart && product.price===product.exchangePrice">
-                  <td class="txt-col"><label><input type="radio" class="price-radio" ng-value="product.marketPrice" ng-model="product.price" ng-model-options="{ debounce: 100 }" ng-hide="product.isInCart">定價</label></td> 
-                  <td class="price-col">{{::product.marketPrice}} 元</td>
-                </tr>
-                <tr ng-hide="product.isInCart && product.price===product.marketPrice">
-                  <td class="txt-col"><label><input type="radio" class="price-radio" ng-value="product.exchangePrice" ng-model="product.price" ng-model-options="{ debounce: 100 }" ng-hide="product.isInCart">兌換價</label></td> 
-                  <td class="price-col">{{::product.exchangePrice}} 元</td>
-                </tr>
-              </table>
-            </div>
-          </div>
-
-<!--
-          <div class="form-group product-info-row" style="min-height: 2em;">
-            <label>最終單價：</label>
-            <input type="number" name="price" ng-model="product.price" ng-model-options="{ debounce: 200 }" class="col-sm-4 col-md-7 text-center" ng-hide="product.isInCart" required>
-            <label class="col-sm-4 col-md-7 text-center" ng-show="product.isInCart">{{product.price}} 元</label>
-          </div>
--->
-          <div class="product-info-row" style="margin-top:3px; margin-bottom:10px;">
-            <label>{{product.isInCart?'已加包數':'欲加包數'}}：</label>
-            <!-- quantity selector -->
-            <div class="input-group col-sm-4 col-md-7" ng-hide="product.isInCart">
-              <span class="input-group-btn">
-                <button class="btn btn-default btn-info" ng-click="ctrler.changeQty(product,-1);"><span class="fa fa-minus"></span></button>
-              </span>
-              <input type="number" name="qty" ng-model="product.quantity" ng-model-options="{ debounce: 200 }" class="form-control text-center" min="1" required>
-              <span class="input-group-btn">
-                <button class="btn btn-default btn-info" ng-click="ctrler.changeQty(product,1);"><span class="fa fa-plus"></span></button>
-              </span>
-            </div>
-            <label class="col-sm-4 col-md-7 text-center" ng-show="product.isInCart">{{product.quantity}} 包</label>
-          </div>
-      </div>
-      <div class="btn-ground text-center">
-          <button ng-hide="product.isInCart" ng-click="ctrler.addItemToCart(product)" ng-disabled="pForm.$invalid" type="button" class="btn btn-primary"><i class="fa fa-shopping-cart"></i> 加到購物車</button>
-          <button ng-show="product.isInCart" ng-click="ctrler.rmItemFromCart(product)" type="button" class="btn btn-danger"><i class="fa fa-times"></i> 從購物車移除</button>
-      </div>
-    </form>
-  </div>
-</script>
 
 <!-- checkout modal -->
 <script type="text/ng-template" id="cart-and-checkout.html">

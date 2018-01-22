@@ -15,9 +15,6 @@ angular.module('mainApp')
     var listTo2DMat = $filter('listTo2DMat');
 
     var vm = this;
-    var productList = [];
-    vm.products = [];
-    var numItemInOneRow = 3;
 
     vm.getProducts = function(mode) {
         return $http.post('/api/product/get',
@@ -27,7 +24,7 @@ angular.module('mainApp')
         .then(function(res) {
             var data = res.data;
             if(data.success) {
-                productList = data.result;
+                vm.productList = data.result;
             }
             else {
                 console.log(data.message);
@@ -38,47 +35,11 @@ angular.module('mainApp')
         });
     }
 
-    /*
-    //dummy data
-    var names = ['在來米','蓬萊米','越光米','池上米'];
-    var weights = [2.5, 3, 5, 10];
-    var mPrices = [250, 400, 700, 1000];
-    var exPrices = [200, 300, 600, 700];
-
-    productList = names.map(function(name, index) { 
-      
-      var productInfo = { //this should be pull from DB
-        _id: index + 1,
-        name: name,
-        weight: weights[index],
-        marketPrice: mPrices[index],
-        exchangePrice: exPrices[index],
-        startSaleDate: Date.now()
-      };
-
-      var item = ngCart.getItemById(productInfo._id);
-      var productItem;
-    
-      if(item) {
-        _.assign(item, productInfo); //preserve price and quantity
-        productItem = item;
-      }
-      else {
-        productInfo.price = productInfo.marketPrice;
-        productInfo.quantity = 1;
-        productItem = new ngCartItem(productInfo);
-      }
-        
-      return productItem;
-    });
-    */
-    
-
     if($state.current.name === 'productSell') { //sell page(sell.html)
         
         vm.clearCart = function() {
             ngCart.empty();
-            productList.forEach(function(product) {
+            vm.productList.forEach(function(product) {
                 product.isInCart = false;
             });
         }
@@ -201,7 +162,7 @@ angular.module('mainApp')
         vm.getProducts('saleable')
         .then(function() {
             //refresh product state after restore cart record from localstorage
-            productList = productList.map(function(product) {
+            vm.productList = vm.productList.map(function(product) {
                 var item = ngCart.getItemById(product._id);
                 if(item) {
                     product.isInCart = true;
@@ -217,38 +178,18 @@ angular.module('mainApp')
                     return product;
                 }
             });
-
-            //put data onto view
-            vm.products = listTo2DMat(productList,numItemInOneRow); //each row contains 3 product
   
         });
     }
     else if($state.current.name === 'productManage') { //manage page(manage.html)
 
         var removeProductFromList = function(product) {
-            var index = _.findIndex(productList, function(_product) {
+            var index = _.findIndex(vm.productList, function(_product) {
                 return _product._id === product._id;
             });
 
             if(index !== -1) {
-                productList.splice(index, 1);
-                vm.products = listTo2DMat(productList,numItemInOneRow);       
-            }
-        }
-
-        //actually this should be wrapped into an object that is responsible for rendering view
-        var insertProductAndUpdateView = function(product) {
-            productRow = _.find(vm.products,function(rowOfProducts) {
-                return rowOfProducts.length < numItemInOneRow;
-            });
-
-            if(productRow) {
-                productRow.push(product);
-            }
-            else { //every row is full
-                productRow = [];
-                productRow.push(product);
-                vm.products.push(productRow);
+                vm.productList.splice(index, 1);
             }
         }
 
@@ -258,14 +199,14 @@ angular.module('mainApp')
                     var data = res.data;
                     if(data.success) {
                       var newProduct = data.result;
-                      var productInList = _.find(productList, function(product) {
+                      var productInList = _.find(vm.productList, function(product) {
                         return product._id === newProduct._id;
                       });
                       
                       if(productInList)
                         _.assign(productInList, newProduct);
                       else
-                        insertProductAndUpdateView(newProduct); 
+                        vm.productList.push(newProduct);
 
                       $rootScope.pubSuccessMsg('新增成功,已更新畫面');
                     }
@@ -323,14 +264,22 @@ angular.module('mainApp')
             }
         }
 
-        vm.getProducts('all')
-        .then(function() {
+        vm.getProductStatus = function(product) {
+            if(!product.canSale) {
+                return '下架中';
+            }
 
-            //put data onto view
-            vm.products = listTo2DMat(productList,numItemInOneRow); //each row contains 3 product
+            var startSaleDate = new Date(product.startSaleDate);
+            
+            if(startSaleDate.getTime() < Date.now()) {
+                return '等待上架';
+            }
+            else {
+                return '販售中';
+            }
+        }
 
-        });
-
+        vm.getProducts('all');
     }
 
   }]

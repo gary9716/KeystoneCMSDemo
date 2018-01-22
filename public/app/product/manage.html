@@ -3,29 +3,68 @@
 -->
 
 <div class="container">
-  <div ng-show="ctrler.products.length === 0" class="form-group text-center">
+  <div ng-show="ctrler.productList.length === 0" class="form-group text-center">
     <label>目前沒有任何商品 請新增商品</label>
   </div>
 
-  <!-- dont directly apply listTo2DMat filter to ng-repeat expression here. 
-    it's unstable -->
-  <div class="row" ng-repeat="productsPerRow in ctrler.products">
-    <div class="col-md-4" ng-repeat="product in productsPerRow track by product._id" ng-include="'product-edit-layout-v1.html'"></div>
-  </div>
+  <table id="all-product-table" ng-hide="ctrler.productList.length === 0" class="table table-bordered table-responsive">
+    <thead>
+        <th class="text-center" style="width: 10%">類型</th>
+        <th class="text-center" style="width: 15%">編號</th>
+        <th class="text-center" style="width: 17%">名稱</th>
+        <th class="text-center" style="width: 10%">定價</th>
+        <th class="text-center" style="width: 10%">兌換價</th>
+        <th class="text-center" style="width: 10%">上架日期</th>
+        <th class="text-center" style="width: 8%">可上架</th>
+        <th class="text-center" style="width: 10%">當前狀態</th>
+        <th class="text-center" style="width: 10%">操作</th>
+    </thead>
+    <tbody>
+      <tr ng-repeat="product in ctrler.productList track by product._id">
+        <td>{{product.pType.name}}</td>
+        <td>{{product.pid}}</td>
+        <td>{{product.name}}</td>
+        <td>{{product.marketPrice}}</td>
+        <td>{{product.exchangePrice}}</td>
+        <td>{{product.startSaleDate | date: 'yyyy/MM/dd'}}</td>
+        <td>{{product.canSale? '是':'否'}}</td>
+        <td>{{ctrler.getProductStatus(product)}}</td>
+        <td>
+          <button ng-click="ctrler.openProductEditModal(product)" type="button" class="btn btn-primary"><i class="fa fa-pencil-square-o"></i> 修改</button>
+          <button style="margin-top:5px;" ng-click="ctrler.deleteProduct(product)" type="button" class="btn btn-danger"><i class="fa fa-remove"></i> 移除</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
 </div> <!-- .container -->
 
+
 <style>
+  table#all-product-table {
+    width: 100%;
+    height: 100%;
+    display: table;
+    text-align: center;
+  }
+
+  table#all-product-table td {
+    display: table-cell;
+    vertical-align: middle;
+  }
+  
   form#pEditModalForm div.product-info-row {
     display: flex; align-items: center;
   }
   input[type=number]::-webkit-inner-spin-button, 
   input[type=number]::-webkit-outer-spin-button { 
       -webkit-appearance: none;
-      -moz-appearance: none;
-      appearance: none;
       margin: 0; 
   }
 
+  input[type=number] {
+      -moz-appearance:textfield;
+  }
 </style>
 
 <!-- templates start -->
@@ -37,7 +76,7 @@
     <div class="form-group product-info-row">
       <label class="col-md-4 text-right">商品類型</label>
       <div class="col-md-5">
-        <select ng-model="ctrler.product.pType" ng-change="ctrler.pTypeSelect()" style="min-height:2em; min-width:5em;" required>
+        <select ng-model="ctrler.product.pType" ng-change="ctrler.pTypeSelect()"  required>
           <option ng-repeat="pTypeVal in ctrler.pTypeVals track by pTypeVal._id" ng-value="pTypeVal">{{::pTypeVal.name}}</option>  
         </select>
       </div>
@@ -107,71 +146,4 @@
 </div>
 </script>
 
-<!-- product layout -->
-<script type="text/ng-template" id="product-edit-layout-v1.html">
-  <form name="pManageForm" class="well">
-    <div class="form-group">
-
-      <div class="product-info-row">
-        <label class="col-md-5">商品類型</label>
-        <div>
-        <label>{{product.pType.name}}</label>
-        </div>
-      </div>
-
-      <div class="product-info-row">
-        <label class="col-md-5">商品編號</label>
-        <div>
-          <label>{{product.pid}}</label>
-        </div>
-      </div>
-
-      <div class="product-info-row">
-        <label class="col-md-5">商品名稱</label>
-        <div>
-          <label>{{product.name}}</label>
-        </div>
-      </div>
-<!--
-      <div class="product-info-row">
-        <label class="col-md-5">每包重量</label>
-        <div>
-          <label>{{product.weight}}kg</label>
-        </div>
-      </div>
--->
-      <div class="product-info-row">
-        <label class="col-md-5">定價</label>
-        <div>
-          <label>{{product.marketPrice}}</label>
-        </div>
-      </div>
-
-      <div class="product-info-row">
-        <label class="col-md-5">兌換價</label>
-        <div>
-          <label>{{product.exchangePrice}}</label>
-        </div>
-      </div>
-      
-      <div class="product-info-row">
-        <label class="col-md-5">上架日期</label>
-        <div>
-          <label>{{product.startSaleDate | date : 'yyyy/MM/dd'}}</label>
-        </div>
-      </div>
-<!--
-      <div class="product-info-row">
-        <label class="col-md-5">是否上架</label>
-        <label>{{product.canSale? '是':'否'}}</label>
-      </div>
--->
-    </div>
-
-    <div class="form-group btn-ground text-center">
-        <button ng-click="ctrler.openProductEditModal(product)" type="button" class="btn btn-primary"><i class="fa fa-pencil-square-o"></i> 修改</button>
-        <button ng-click="ctrler.deleteProduct(product)" type="button" class="btn btn-danger"><i class="fa fa-remove"></i> 移除</button>
-    </div>
-  </form>  
-</script>
 <!-- templates end -->
