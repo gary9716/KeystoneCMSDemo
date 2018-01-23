@@ -1,7 +1,7 @@
 angular.module('mainApp')
 .controller('CachedFarmerListCtrler',
-['cachedFarmersKey', 'lodash', 'localStorageService',
-  function(cachedFarmersKey, _ , localStorageService) {
+['cachedFarmersKey', 'lodash', 'localStorageService', '$state', '$uibModalInstance',
+  function(cachedFarmersKey, _ , localStorageService, $state, $uibModalInstance) {
     var vm = this;
     
     var farmers = localStorageService.get(cachedFarmersKey);
@@ -20,6 +20,12 @@ angular.module('mainApp')
         localStorageService.set(cachedFarmersKey, vm.farmers);
       }
     };
+
+    vm.goDetailPage = function(farmer) {
+      localStorageService.set('farmerDetail:farmerPID', farmer.pid);
+      $state.go('farmerDetail');
+      $uibModalInstance.dismiss();
+    }
 
   }
 ]); 

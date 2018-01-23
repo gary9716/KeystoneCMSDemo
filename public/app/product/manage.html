@@ -3,6 +3,7 @@
 -->
 
 <div class="container">
+  <legend>所有商品</legend>
   <div ng-show="ctrler.productList.length === 0" class="form-group text-center">
     <label>目前沒有任何商品 請新增商品</label>
   </div>
@@ -39,6 +40,8 @@
 
 </div> <!-- .container -->
 
+<div ng-include="ctrler.productTypeTemplatePath">
+</div>
 
 <style>
   table#all-product-table {

@@ -41,20 +41,20 @@
                   [[~]]
               </ul>
               <ul class="nav navbar-nav navbar-right">        
-                <li class="clickable"><a ng-click="openCachedFarmerList()"><i class="fa fa-archive"></i> 暫存農夫列表</a></li>
+                <li class="clickable" ng-hide="!isLogin() || isPage('productManage')"><a ng-click="openCachedFarmerList()"><i class="fa fa-archive"></i> 暫存農夫列表</a></li>
                 
-                <li class="clickable" ng-show="isPage('productSell')"><a ng-click="openShopCart()"><i class="fa fa-shopping-cart" aria-hidden="true"></i> 購物車</a></li>
+                <li class="clickable" ng-show="isLogin() && isPage('productSell')"><a ng-click="openShopCart()"><i class="fa fa-shopping-cart" aria-hidden="true"></i> 購物車</a></li>
                 
-                <li class="clickable" ng-show="isPage('productManage')"><a ng-click="openProductEdit()"><i class="fa fa-cloud-upload" aria-hidden="true"></i> 增加商品</a></li>
+                <li class="clickable" ng-show="isLogin() && isPage('productManage')"><a ng-click="openProductEdit()"><i class="fa fa-cloud-upload" aria-hidden="true"></i> 增加商品</a></li>
 
-                <li class="clickable" ng-show="isPage('productType')"><a ng-click="openProductTypeEdit()"><i class="fa fa-cloud-upload" aria-hidden="true"></i> 增加商品類型</a></li>
+                <li class="clickable" ng-show="isLogin() && isPage('productManage')"><a ng-click="openProductTypeEdit()"><i class="fa fa-cloud-upload" aria-hidden="true"></i> 增加類型</a></li>
 
                 [[?model.user]]
                 [[var result= helpers.getKeystoneAttr('signout url');]]
-                <li><a href=[[=result]]>Sign Out</a></li>
+                <li><a href=[[=result]]>登出</a></li>
                 [[?? true]]
                 [[var result= helpers.getKeystoneAttr('signin url');]]
-                <li><a href=[[=result]]>Sign In</a></li>
+                <li><a href=[[=result]]>登入</a></li>
                 [[?]]
               </ul>
             </div>
@@ -130,8 +130,6 @@
     
     <script src="/js/all-lib.js"></script>
 
-    <script src="/js/pdfmake.min.js" defer></script>
-        
     <!-- admin JS and CSS code, needs to be placed behind lib code-->
     [[var code = helpers.isAdminEditorCSS(model.user);]]
     [[=code]]

@@ -110,6 +110,13 @@ angular.module('mainApp')
       }
 
     })
+
+    .state({
+      name: 'product',
+      templateUrl: appRootPath + 'product/index.html',
+      url: '/product/',
+    })
+
     .state({
       name: 'productSell',
       templateUrl: appRootPath + 'product/sell.html',
@@ -184,7 +191,6 @@ angular.module('mainApp')
 .run(['$state', '$window', '$http', '$uibModal', '$rootScope', '$transitions', 'myValidation', 'cachedFarmersKey', 'appRootPath',
   function ($state, $window, $http, $uibModal, $rootScope, $transitions, myValidation, cachedFarmersKey, appRootPath) {
     console.log('config end, angular app start to run');
-    
     $rootScope.locals = locals; //access global variable locals in $rootScope 
 
     $rootScope.alerts = [];
@@ -204,6 +210,9 @@ angular.module('mainApp')
       $rootScope.alerts.push({ type:'danger', msg: msg }); 
     }
 
+    $rootScope.isLogin = function() {
+      return locals.user;
+    }
 
     $rootScope.isPage = function(pageName){
       return $state.current.name === pageName;

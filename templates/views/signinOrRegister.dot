@@ -3,6 +3,11 @@ layout: layouts/signinBase.dot
 title: 登入頁面
 ---
 [[##body:
+  <style>
+  form#register-form div.info-row {
+    display: flex; align-items: center;
+  }
+  </style>
   <div class="container">
     <div id="ajax-msg"></div>
   </div>
@@ -13,10 +18,10 @@ title: 登入頁面
           <div class="panel-heading">
             <div class="row">
               <div class="col-xs-6">
-                <a href="#" class="active" id="login-form-link">Login</a>
+                <a href="#" class="active" id="login-form-link">登入</a>
               </div>
               <div class="col-xs-6">
-                <a href="#" id="register-form-link">Register</a>
+                <a href="#" id="register-form-link">註冊</a>
               </div>
             </div>
             <hr>
@@ -41,7 +46,7 @@ title: 登入頁面
                   <div class="form-group">
                     <div class="row">
                       <div class="col-sm-6 col-sm-offset-3">
-                        <input type="submit" id="login-submit" tabindex="4" class="form-control btn btn-login" value="Log In">
+                        <input type="submit" id="login-submit" tabindex="4" class="form-control btn btn-login" value="登入">
                       </div>
                     </div>
                   </div>
@@ -61,24 +66,23 @@ title: 登入頁面
                     <label class="control-label col-md-3">使用者ID</label>
                     <input type="text" style="min-height:40px;" name="userID" id="registerUsername" class="col-md-8" placeholder="使用者ID" required>
                   </div>
-                  <div class="form-group">
+                  <div class="form-group" style="margin-bottom:0px;">
                     <label class="control-label col-md-3">Email</label>
                     <input type="email" name="email" id="email" class="col-md-8" style="min-height:40px;" placeholder="Email">
                     <div class="help-block with-errors col-md-12"></div>
                   </div>
                   [[?model.shops && model.shops.length]]
-                  <div class="form-group">
-                    <div class="row">
+                  <div class="form-group info-row">
                       <label class="control-label col-md-3">所屬兌換處:</label>
                       <select id="shop-selector" style="min-width:100px; margin-top: 8px;" name="shop">
                         [[~ model.shops:shop]]
                         <option value=[[=shop._id]]>[[=shop.name]]</option>
                         [[~]]
                       </select>
-                    </div>
+                    
                   </div>
                   [[?]]
-                  <div class="form-group">
+                  <div class="form-group" style="margin-bottom:0px;">
                     <label class="control-label col-md-3">密碼</label>
                     <input type="password" name="password" id="registerPass" data-minlength="6" class="col-md-8" required placeholder="密碼">
                     <div class="help-block col-md-offset-3 col-md-5">至少六位數</div>
@@ -91,7 +95,7 @@ title: 登入頁面
                   <div class="form-group">
                     <div class="row">
                       <div class="col-sm-6 col-sm-offset-3">
-                        <input type="submit" id="register-submit" tabindex="4" class="form-control btn btn-register" value="Register Now">
+                        <input type="submit" id="register-submit" tabindex="4" class="form-control btn btn-register" value="註冊">
                       </div>
                     </div>
                   </div>

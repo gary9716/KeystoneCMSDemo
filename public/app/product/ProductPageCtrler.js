@@ -1,7 +1,7 @@
 angular.module('mainApp')
 .controller('ProductPageCtrler', 
-  ['$http', '$window', '$state', 'ngCart', '$filter', '$rootScope', '$uibModal', 'ngCartItem', '$scope', 'lodash', 'localStorageService', 'cachedFarmersKey',
-  function($http, $window, $state, ngCart, $filter, $rootScope, $uibModal, ngCartItem, $scope, _ , localStorageService, cachedFarmersKey) {
+  ['appRootPath','$http', '$window', '$state', 'ngCart', '$filter', '$rootScope', '$uibModal', 'ngCartItem', '$scope', 'lodash', 'localStorageService', 'cachedFarmersKey',
+  function(appRootPath, $http, $window, $state, ngCart, $filter, $rootScope, $uibModal, ngCartItem, $scope, _ , localStorageService, cachedFarmersKey) {
 
     //TODO and features:
     
@@ -15,6 +15,8 @@ angular.module('mainApp')
     var listTo2DMat = $filter('listTo2DMat');
 
     var vm = this;
+
+    vm.productTypeTemplatePath = appRootPath + 'product/product-type.html';
 
     vm.getProducts = function(mode) {
         return $http.post('/api/product/get',
