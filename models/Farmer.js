@@ -3,7 +3,7 @@ var Constants = require(__base + 'Constants');
 var Types = keystone.Field.Types;
 
 var Farmer = new keystone.List(Constants.FarmerListName, {
-  label: '農夫',
+  label: '農民',
   nodelete: true,
 });
 Farmer.add({

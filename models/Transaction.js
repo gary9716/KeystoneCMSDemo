@@ -8,9 +8,9 @@ var Schema = mongoose.Schema;
 //console.log(Constants.TransactionListName);
 var Transaction = new keystone.List(Constants.TransactionListName, {
   label: '兌換紀錄',
-  //noedit: true,
-  //nodelete: true,
-  //nocreate: true,
+  noedit: true,
+  nodelete: true,
+  nocreate: true,
 });
 
 var productRec = new Schema({
@@ -20,7 +20,18 @@ var productRec = new Schema({
   weight : { type: Number, label: '每包重(KG)', default: 0 },
   price: { type: Number, label: '最終價格(每包）' },
   qty : { type: Number, label: '包數' },
-});
+},{ _id: false }); //disable _id
+
+var accBkSchema = new Schema({
+  accountID: { type: String, label:'存摺編號' ,index: true, required: true, trim: true },
+  farmer: { type: Schema.Types.ObjectId, label:'擁有者', ref: Constants.FarmerListName, required: true },
+  accountUser: { type: String, label:'使用者', trim: true },
+  active: { type: Boolean, label:'未結清', default: true, initial: true },
+  freeze: { type: Boolean, label:'凍結中', default: false, initial: true },
+  createdAt: { type: Date, label: '開戶時間', required: true },
+  closedAt: { type: Date, label: '結清時間' },
+  balance: { type: Number, label:'餘額', default: 0 }
+},{ _id: false }); //disable _id
 
 Transaction.add({
   date: { type: Types.Datetime, format: 'YYYY-MM-DD kk:mm:ss', label: '交易時間' },
@@ -36,22 +47,11 @@ Transaction.schema.add({
   },
   accRecBk: {
     type: {
-      opType: { type: String },
       comment: { type: String },
     }
   },
   postAccBk: {
-    type: {
-      _id: { type: Schema.Types.ObjectId, label:'存摺', ref: Constants.AccountListName, required: true },
-      accountID: { type: String, label:'存摺編號' ,index: true, required: true, trim: true },
-      farmer: { type: Schema.Types.ObjectId, label:'擁有者', ref: Constants.FarmerListName, required: true },
-      accountUser: { type: String, label:'使用者', trim: true },
-      active: { type: Boolean, label:'未結清', default: true, initial: true },
-      freeze: { type: Boolean, label:'凍結中', default: false, initial: true },
-      createdAt: { type: Types.Datetime, label: '開戶時間', required: true },
-      closedAt: { type: Types.Datetime, label: '結清時間' },
-      balance: { type: Types.Money, label:'餘額', default: 0 }
-    } 
+    type: accBkSchema
   },
 });
 

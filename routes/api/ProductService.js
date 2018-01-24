@@ -417,12 +417,10 @@ exports.transact = function(req, res) {
 
     var accRecBk = {
       _id: newRec_id,
-      opType: 'transact',
       comment: form.comment? form.comment: ''
     };
 
     var postAccBk = {
-      _id: account._id,
       accountID: account.accountID,
       farmer: account.farmer._id,
       accountUser: account.accountUser,
@@ -458,7 +456,7 @@ exports.transact = function(req, res) {
     var newRec = new accountRecList.model({
       _id: newRec_id,
       account: savTrans.postAccBk._id,
-      opType: savTrans.accRecBk.opType,
+      opType: 'transact',
       amount: savTrans.amount,
       date: savTrans.date,
       operator: req.user._id,

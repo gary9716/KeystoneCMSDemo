@@ -28,7 +28,7 @@ exports.create = function(req, res) {
     .exec()
     .then(function(_farmer) {
       if(!_farmer) {
-        return Promise.reject('未找到相對應的農夫帳號');
+        return Promise.reject('未找到相對應的農民帳號');
       }
 
       farmer = _farmer;

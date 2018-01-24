@@ -40,7 +40,7 @@ angular.module('mainApp')
         }
       })
       .catch(function(err) {
-        $rootScope.pubErrorMsg('抓取農夫存摺資訊失敗,' + err.data.toString());
+        $rootScope.pubErrorMsg('抓取農民存摺資訊失敗,' + err.data.toString());
         console.log(err);
       });
 

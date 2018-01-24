@@ -103,7 +103,7 @@ keystone.set('routes', require('./routes'));
 keystone.set('nav', {
 	'使用者': ['users', 'shops'],
 	'權限': ['permissions', 'roles'],
-	'農夫': ['farmers'],
+	'農民': ['farmers'],
 	'存摺': ['accounts','account-records'],
 	'交易': ['products','product-types','periods','transactions'],
 	'地理資訊': ['cities', 'addr-prefixes', 'villages'],

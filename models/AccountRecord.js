@@ -61,19 +61,21 @@ AccountRecord.add({
   },
 });
 
+var accBkSchema = new Schema({
+  accountID: { type: String, label:'存摺編號' ,index: true, required: true, trim: true },
+  farmer: { type: Schema.Types.ObjectId, label:'擁有者', ref: Constants.FarmerListName, required: true },
+  accountUser: { type: String, label:'使用者', trim: true },
+  active: { type: Boolean, label:'未結清', default: true, initial: true },
+  freeze: { type: Boolean, label:'凍結中', default: false, initial: true },
+  createdAt: { type: Date, label: '開戶時間', required: true },
+  closedAt: { type: Date, label: '結清時間' },
+  balance: { type: Number, label:'餘額', default: 0 }
+},{ _id: false }); //disable _id
+
 AccountRecord.schema.add({
   //account status after applying this record
   postAccBk: {
-    type: {
-      accountID: { type: String, label:'存摺編號' ,index: true, required: true, trim: true },
-      farmer: { type: Schema.Types.ObjectId, label:'擁有者', ref: Constants.FarmerListName, required: true },
-      accountUser: { type: String, label:'使用者', trim: true },
-      active: { type: Boolean, label:'未結清', default: true, initial: true },
-      freeze: { type: Boolean, label:'凍結中', default: false, initial: true },
-      createdAt: { type: Types.Datetime, label: '開戶時間', required: true },
-      closedAt: { type: Types.Datetime, label: '結清時間' },
-      balance: { type: Types.Money, label:'餘額', default: 0 }
-    }
+    type: accBkSchema
   }
 });
 

@@ -58,7 +58,7 @@ exports.upsert = function(req, res) {
             return farmer.save();
           }
           else {
-            return Promise.reject('找不到該農夫,無法更新');
+            return Promise.reject('找不到該農民,無法更新');
           }
         });
     }

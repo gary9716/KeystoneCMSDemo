@@ -36,10 +36,6 @@ angular.module('mainApp')
       controller: 'HomeCtrler as ctrler',
       url: '/',
     })
-    .state({
-      name: 'home.addrList',
-      templateUrl: appRootPath + 'home/addrList.html',
-    })
 
     .state({
       name: 'farmer',
@@ -103,8 +99,14 @@ angular.module('mainApp')
 
               {
                 listName: 'Account',
-                opName: 'read'
-              }
+                opName: ['read','create','update']
+              },
+
+              {
+                listName: 'AccountRecord',
+                opName: ['read','create']
+              },
+              
             ]); 
         }]
       }
@@ -130,6 +132,16 @@ angular.module('mainApp')
                 listName: 'Product',
                 opName: 'read'
               },
+              
+              {
+                listName: 'Farmer',
+                opName: 'read'
+              },
+
+              {
+                listName: 'Account',
+                opName: ['read','update']
+              }
             ]); 
         }]
       }
@@ -146,7 +158,11 @@ angular.module('mainApp')
           return myValidation.checkPermission([
               {
                 listName: 'Product',
-                opName: ['create', 'update', 'delete']
+                opName: ['read','create', 'update', 'delete']
+              },
+              {
+                listName: 'ProductType',
+                opName: ['read','create', 'update']
               },
             ]); 
         }]
@@ -154,21 +170,9 @@ angular.module('mainApp')
     })
 
     .state({
-      name: 'productType',
-      templateUrl: appRootPath + 'product/product-type.html',
-      url: '/product/product-type',
-      controller: 'ProductTypePageCtrler as ctrler',
-      resolve: {
-        condition1 : ['myValidation', function(myValidation) {
-          //if this promise is rejected, then the transition will fail
-          return myValidation.checkPermission([
-              {
-                listName: 'ProductType',
-                opName: ['create', 'read']
-              },
-            ]); 
-        }]
-      }
+      name: 'statistics',
+      templateUrl: appRootPath + 'statistics/index.html',
+      url: '/statistics/'
     })
 
     .state({

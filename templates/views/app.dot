@@ -41,7 +41,7 @@
                   [[~]]
               </ul>
               <ul class="nav navbar-nav navbar-right">        
-                <li class="clickable" ng-hide="!isLogin() || isPage('productManage')"><a ng-click="openCachedFarmerList()"><i class="fa fa-archive"></i> 暫存農夫列表</a></li>
+                <li class="clickable" ng-hide="!isLogin() || isPage('productManage')"><a ng-click="openCachedFarmerList()"><i class="fa fa-archive"></i> 暫存農民列表</a></li>
                 
                 <li class="clickable" ng-show="isLogin() && isPage('productSell')"><a ng-click="openShopCart()"><i class="fa fa-shopping-cart" aria-hidden="true"></i> 購物車</a></li>
                 
