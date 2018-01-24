@@ -455,7 +455,7 @@ exports.transact = function(req, res) {
 
     var newRec = new accountRecList.model({
       _id: newRec_id,
-      account: savTrans.postAccBk._id,
+      account: savTrans.account,
       opType: 'transact',
       amount: savTrans.amount,
       date: savTrans.date,

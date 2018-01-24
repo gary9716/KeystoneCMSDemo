@@ -272,12 +272,13 @@ angular.module('mainApp')
             }
 
             var startSaleDate = new Date(product.startSaleDate);
+            var nowTime = Date.now();
             
-            if(startSaleDate.getTime() < Date.now()) {
-                return '等待上架';
+            if(startSaleDate < nowTime) {
+                return '販售中';
             }
             else {
-                return '販售中';
+                return '等待上架';
             }
         }
 

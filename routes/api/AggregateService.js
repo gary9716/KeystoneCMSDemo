@@ -53,8 +53,8 @@ exports.aggregateInInterval = function(req, res) {
                 _id: 0, //not include _id
                 //date: 1,
                 //account: 1,
-                //amount: 1,
-                //shop: 1,
+                amount: 1,
+                shop: 1,
                 //trader: 1,
                 products: 1
             }
