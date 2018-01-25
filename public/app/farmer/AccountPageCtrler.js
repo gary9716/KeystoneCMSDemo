@@ -194,12 +194,20 @@ angular.module('mainApp')
   function($uibModalInstance, account, $http, _ , $q, Upload) {
     var vm = this;
     vm.account = account;
+    
+    //default values
     vm.closeAcc = {};
     vm.deposit = {};
     vm.withdraw = {};
     vm.setFreeze = {};
     vm.isProcessing = false;
 
+    vm.withdraw.comment = vm.account.farmer.name + " 白米存摺轉出";
+    vm.withdraw.ioAccount = vm.account.farmer.ioAccount;
+    
+    vm.deposit.comment = vm.account.farmer.name + " 白米存摺轉入";
+    vm.deposit.ioAccount = vm.account.farmer.ioAccount;
+    
     vm.alerts = [];
     vm.pubSuccessMsg = function(msg) {
       vm.alerts.push({ type:'success', msg: msg });
@@ -440,6 +448,7 @@ angular.module('mainApp')
     vm.perPage = 7;
 
     var opTranslate = {
+      'any': '任何',
       'transact': '兌換',
       'deposit': '入款',
       'withdraw': '提款',
@@ -450,12 +459,18 @@ angular.module('mainApp')
       'accUserChange': '過戶'
     };
 
-    vm.getAccountRecords = function() {
+    vm.opTypes = [];
+    for(let prop in opTranslate) {
+      vm.opTypes.push({
+        name: opTranslate[prop],
+        value: prop 
+      });
+    }
+
+    vm.getAccountRecords = function() {  
       $http.post('/api/read', {
         listName: 'AccountRecord',
-        filters: {
-          account: vm.account._id
-        },
+        filters: vm.filters,
         sort: 'date',
         populate: 'operator period',
         select: 'opType amount date operator comment period ioAccount transaction',
@@ -478,6 +493,30 @@ angular.module('mainApp')
       .catch(function(err) {
         vm.pubErrorMsg('讀取操作記錄失敗,' + err.data.toString());
       });
+    }
+
+    vm.filters = {
+      account: vm.account._id
+    };
+    vm.filterChange = function() {
+      var filters = {
+        account: vm.account._id
+      };
+
+      if(vm.applyOpTypeFilter && vm.opTypeFilter && vm.opTypeFilter !== 'any') {
+        filters.opType = vm.opTypeFilter;
+      }
+
+      if(vm.applyDateFilter && _.isDate(vm.dateFilter)) {
+        var todayStart = new Date(vm.dateFilter);
+        todayStart.setHours(0,0,0,0);
+        var todayEnd = new Date(vm.dateFilter);
+        todayEnd.setHours(24,0,0,0);
+        filters.date = { $gte: todayStart, $lte: todayEnd };
+      }
+
+      vm.filters = filters;
+      vm.getAccountRecords(); 
     }
 
     vm.cancel = function () {

@@ -192,11 +192,12 @@ exports.doPDFGenViaPDFMake = function(req, res) {
 
   //if we forget to add .js ,it would be treated as object and cannot be used
   //as function
-  var docPath = __base + 'pdfmake-docs/' + (req.query.doc? req.query.doc : this.defaultDoc) + '.js';
+  var docPath = __base + 'pdfmake-docs/' + this.doc + '.js';
 
   var docDefinition = require(docPath)(req,res);
 
   //filename should be customized for each req
+  //(for example: use accountID as part of filename)
   if(!res.locals.filename) 
     res.locals.filename = 'temp.pdf';
 

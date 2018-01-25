@@ -24,7 +24,7 @@ $nin	Matches none of the values specified in an array.
 
 */
 
-exports.aggregateInInterval = function(req, res) {
+exports.aggregateInInterval = function(req, res, next) {
     var form = req.body;
 
     var startDate = form.startDate;
@@ -44,8 +44,9 @@ exports.aggregateInInterval = function(req, res) {
     var groupStage;
     var unwindStage;
     var projectStage;
+    var facetStage;
 
-    if(form.target === 'transactionProducts') {
+    if(form.target === 'transactedProducts') {
         projectStage = {
             //only include these fields(1 means including)
             //can only use either including or excluding, not both(except for _id)
@@ -53,7 +54,7 @@ exports.aggregateInInterval = function(req, res) {
                 _id: 0, //not include _id
                 //date: 1,
                 //account: 1,
-                amount: 1,
+                //amount: 1,
                 shop: 1,
                 //trader: 1,
                 products: 1
@@ -62,32 +63,56 @@ exports.aggregateInInterval = function(req, res) {
         unwindStage = {
             $unwind: "$products"
         };
-        groupStage = {
-            $group: {
-                _id: { //group by pid
-                    pid: '$products.pid'
-                },
-                name: { $first: '$products.name' },
-                pType: { $first: '$products.pType' },
-                weight: { $first: '$products.weight' },
-                price: { $first: '$products.price' },
-                qty: { $sum: '$products.qty' }
+
+        facetStage = {
+            $facet: {
+                "productBasicInfo": [
+                    { 
+                        $group: {
+                            _id: { pid: '$products.pid' },
+                            // these values should be the same, so just arbitraily get one.
+                            name: { $first: '$products.name' }, 
+                            pType: { $first: '$products.pType' },
+                            weight: { $first: '$products.weight' },
+                        }  
+                    }               
+                ],
+                "productPriceQty": [
+                    { 
+                        $group: {
+                            _id: { 
+                                shop: '$shop',
+                                pid: '$products.pid',
+                                price: '$products.price'
+                            },
+                            qty: { $sum: '$products.qty' },
+                        }  
+                    }
+                ]
             }
         };
 
-        pipeline.push(projectStage, unwindStage, groupStage);
+        pipeline.push(projectStage, unwindStage, facetStage);
     }
 
     transactionList.aggregate(pipeline)
         .exec()
         .then(function(result) {
-            res.json({
-                success: true,
-                result: result
-            });
+            if(res) {
+                res.json({
+                    success: true,
+                    result: result
+                });
+            }
+            else {
+                next(null,result);
+            }
         })
         .catch(function(err) {
-            res.ktSendRes(400, err.toString());
+            if(res)
+                res.ktSendRes(400, err.toString());
+            else 
+                next(err);
         });
 
 }

@@ -106,8 +106,6 @@ exports = module.exports = function (app) {
     routes.ctrler.signinOrRegister, 
     middleware.doViewRender);
 
-
-
   //Gen PDF route
   /*
   //performance is not good, so it's deprecated
@@ -126,12 +124,16 @@ exports = module.exports = function (app) {
     middleware.doPDFGenViaHTMLToPDF);
   */
 
-  app.get('/pdf', 
+  app.get('/report/transacted-products',
     compression(),
+    middleware.permissionCheck.bind({
+      opName: 'read',
+      listName: Constants.TransactionListName
+    }),
     middleware.doPDFGenViaPDFMake.bind({
-      defaultDoc: 'test-doc'
-    }));
-
+      doc: 'transacted-products'
+    })
+  );
 
 
 

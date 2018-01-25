@@ -39,7 +39,8 @@ exports.upsert = function(req, res) {
     dist: form.dist ? form.dist:'',
     village: form.village ? form.village:'',
     addr: form.addr ? form.addr:'',
-    addrRest: form.addrRest ? form.addrRest: ''
+    addrRest: form.addrRest ? form.addrRest: '',
+    ioAccount: form.ioAccount? form.ioAccount: ''
   };
 
   Promise.resolve()
@@ -231,11 +232,19 @@ exports.getAndPopulate = function(req, res) {
 
       farmer = _farmer;
       
+      var accQuery = {
+        farmer: _farmer._id
+      };
+
+      if(form.hasOwnProperty('active'))
+        accQuery.active = form.active;
+      
+      if(form.hasOwnProperty('freeze'))
+        accQuery.freeze = form.freeze;
+
       return accountList.model
-        .find({
-          farmer: _farmer._id
-        })
-        .populate('lastRecord')
+        .find(accQuery)
+        //.populate('lastRecord')
         .lean()
         .exec();
     })

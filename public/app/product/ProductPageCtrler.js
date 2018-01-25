@@ -50,6 +50,24 @@ angular.module('mainApp')
             //future feature(?): show product detail in modal view
         };
 
+        var openCheckoutResult = function(result) {
+            var modalInstance = $uibModal.open({
+                templateUrl: 'checkout-result.html',
+                controller: 'CheckoutResultPageCtrler as ctrler',
+                size: 'lg', //'md','lg','sm'
+                resolve: {
+                    checkoutResult: function() {
+                        return result;
+                    }
+                }
+              });
+
+              modalInstance.result
+              .catch(function (reason) { //dismissed by user
+                modalInstance.close(); 
+              });
+        }
+
         var doCheckOut = function(data) {
 
             var clearAllFarmerAccountCached = function() {
@@ -86,7 +104,8 @@ angular.module('mainApp')
             .then(function(res) {
                 var data = res.data;
                 if(data.success) {
-                    $rootScope.pubSuccessMsg('兌換成功');
+                    //$rootScope.pubSuccessMsg('兌換成功');
+                    openCheckoutResult(data.result);
                     clearAllFarmerAccountCached();
                     vm.clearCart();
                 }
@@ -274,7 +293,7 @@ angular.module('mainApp')
             var startSaleDate = new Date(product.startSaleDate);
             var nowTime = Date.now();
             
-            if(startSaleDate < nowTime) {
+            if(startSaleDate <= nowTime) {
                 return '販售中';
             }
             else {
@@ -348,15 +367,34 @@ angular.module('mainApp')
   function($q, $http, $uibModalInstance, curShopCart, localStorageService, cachedFarmersKey, _, $scope) {
     var vm = this;
 
+    vm.alerts = [];
+    vm.pubSuccessMsg = function(msg) {
+      vm.alerts.push({ type:'success', msg: msg });
+    }
+
+    vm.pubWarningMsg = function(msg) {
+      vm.alerts.push({ type:'warning', msg: msg }); 
+    }
+
+    vm.pubInfoMsg = function(msg) {
+      vm.alerts.push({ type:'info', msg: msg }); 
+    }
+
+    vm.pubErrorMsg = function(msg) {
+      vm.alerts.push({ type:'danger', msg: msg }); 
+    }
+
     var getAccountsWithFarmerPID = function(farmerPID) {
       return $http.post('/api/farmer/get-and-populate',
       {
-        farmerPID: farmerPID
+        farmerPID: farmerPID,
+        active: true,
+        freeze: false
       })
       .then(function(res) {
         var data = res.data;
         if(data.success) {
-          //vm.farmer = data.result.farmer;
+          //vm.selectedFarmer = data.result.farmer;
           vm.accounts = data.result.accounts;
           if(vm.accounts && vm.accounts.length > 0)
             localStorageService.set(farmerPID + ',accounts:', vm.accounts);
@@ -365,16 +403,21 @@ angular.module('mainApp')
           return vm.accounts;
         }
         else {
-          console.log(data.message);
           return $q.reject();
         }
       })
+      .catch(function(err) {
+        vm.pubErrorMsg(err.toString());
+      });
     }
 
     vm.farmerSelected = function(fetchAcc) {
         if(vm.selectedFarmer) {
             var farmerPID = vm.selectedFarmer.pid;
             localStorageService.set('ProductPage:selectedFarmer', farmerPID);
+            
+            /*
+            //disable accounts caching
             if(fetchAcc) {
                 getAccountsWithFarmerPID(farmerPID);
             }
@@ -383,16 +426,20 @@ angular.module('mainApp')
                 if(!vm.accounts)
                     getAccountsWithFarmerPID(farmerPID);
             }
+            */
             
-            var selAcc_id = localStorageService.get(farmerPID + ',ProductPage:selectedAccount:');
-            if(selAcc_id)
-                vm.selectedAccount = _.find(vm.accounts, function(account) {
-                    return (account._id === selAcc_id);
-                });
-            else
-                vm.selectedAccount = _.find(vm.accounts, function(account) {
-                    return (account.active);
-                });
+            getAccountsWithFarmerPID(farmerPID)
+            .then(function() {        
+                var selAcc_id = localStorageService.get(farmerPID + ',ProductPage:selectedAccount:');
+                if(selAcc_id)
+                    vm.selectedAccount = _.find(vm.accounts, function(account) {
+                        return (account._id === selAcc_id);
+                    });
+                else
+                    vm.selectedAccount = _.find(vm.accounts, function(account) {
+                        return (account.active);
+                    });
+            });
         }
     }
 
@@ -477,23 +524,6 @@ angular.module('mainApp')
         return vm.accountSrcOpt === 'viaAccountID';
     }
 
-    vm.alerts = [];
-    vm.pubSuccessMsg = function(msg) {
-      vm.alerts.push({ type:'success', msg: msg });
-    }
-
-    vm.pubWarningMsg = function(msg) {
-      vm.alerts.push({ type:'warning', msg: msg }); 
-    }
-
-    vm.pubInfoMsg = function(msg) {
-      vm.alerts.push({ type:'info', msg: msg }); 
-    }
-
-    vm.pubErrorMsg = function(msg) {
-      vm.alerts.push({ type:'danger', msg: msg }); 
-    }
-
     vm.setSelectedAccount = function() {
         if(vm.inputAccID && vm.inputAccID.length > 0) {
             vm.isUpdatingAccount = true;
@@ -570,4 +600,17 @@ angular.module('mainApp')
     })
 
   }]
-);
+)
+.controller('CheckoutResultPageCtrler',
+    ['$uibModalInstance','checkoutResult',
+    function($uibModalInstance, checkoutResult) {
+
+        var vm = this;
+        vm.total = checkoutResult.transaction.amount;
+        vm.account = checkoutResult.account;
+        vm.transactedItems = checkoutResult.transaction.products;
+        vm.cancel = function() {
+            $uibModalInstance.dismiss();
+        }
+    }
+]);

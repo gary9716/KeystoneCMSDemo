@@ -131,20 +131,19 @@
             </thead>
             <tbody>
                 <tr ng-repeat="item in ctrler.cartItems track by item._id">
-                    <td class="col-sm-4 col-md-4">
+                    <td style="width: 30%;">
                       <div class="media">
                           <!--
                           <img class="img-responsive" ng-src="{{::item.image}}" alt="" style="float:left; max-width: 100px; max-height: 100px;">
                           -->
-                          
                           <div class="media-body">
                               <h4 class="media-heading">{{::item.name}}</h4>
-                              <span>每包重: {{::item.weight}} kg</span>
+                              <!--<span>每包重: {{::item.weight}} kg</span>-->
                           </div>
                       </div>
                     </td>
                     
-                    <td class="col-sm-3 col-md-3 text-center">
+                    <td style="width: 22%;" class="text-center">
                     <div class="input-group">
                       <span class="input-group-btn">
                         <button class="btn btn-default btn-info" ng-click="ctrler.changeQty(item,-1);"><span class="fa fa-minus"></span></button>
@@ -156,15 +155,15 @@
                     </div>
                     </td>
                     
-                    <td class="col-sm-2 col-md-2 text-center">
+                    <td style="width: 18%;" class="text-center">
                     <strong>{{::item.price}}</strong>
                     </td>
                     
-                    <td class="col-sm-2 col-md-2 text-center">
+                    <td style="width: 20%;" class="text-center">
                     <strong>{{item.getTotal()}}</strong>
                     </td>
 
-                    <td class="col-sm-1 col-md-1 text-center">
+                    <td style="width: 10%;" class="text-center">
                     <button ng-click="ctrler.rmItemFromCart(item)" class="btn btn-danger"><i class="fa fa-times"></i> 移除</button>
                     </td>
 
@@ -204,7 +203,7 @@
               <div class="row">
                 <label>存摺：</label>
                 <select style="min-width:9em;" ng-model="ctrler.selectedAccount" ng-change="ctrler.accountSelected()">
-                  <option ng-repeat="account in ctrler.accounts | filter:{active: true}:strict track by account._id" ng-value="account">{{::account.accountID}}</option>
+                  <option ng-repeat="account in ctrler.accounts track by account._id" ng-value="account">{{::account.accountID}}</option>
                 </select>
                 <button type="button" style="margin-left:5px;" class="btn btn-primary" ng-click="ctrler.updateAccountsInfo()" ng-disabled="ctrler.isUpdatingAccount">更新存摺資訊</button>
               </div>
@@ -246,4 +245,70 @@
     
 </form>
 </script>
+
+<script type="text/ng-template" id="checkout-result.html">
+  <div class="modal-header">
+    <h4 class="modal-title">兌換成功,以下為此次明細</h4>
+  </div>
+  <div class="modal-body">
+      <section class="row form-group" style="padding:0px 10px;">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>品號</th>
+                    <th>品名</th>
+                    <th class="text-center">數量</th>
+                    <th class="text-center">單價</th>
+                    <th class="text-center">總價</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="item in ctrler.transactedItems track by item.pid">
+                    <td style="width: 20%;">
+                        <label>{{::item.pid}}</label>    
+                    </td>
+                    <td style="width: 25%;">
+                        <label>{{::item.name}}</label>    
+                    </td>
+                    <td style="width: 17%;" class="text-center">
+                        <label>{{::item.qty}}</label>
+                    </td>
+                    
+                    <td style="width: 17%;" class="text-center">
+                    <strong>{{::item.price}}</strong>
+                    </td>
+                    
+                    <td style="width: 21%;" class="text-center">
+                    <strong>{{::(item.qty * item.price)}}</strong>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+      </section>
+      <section class="row form-group" style="padding:0px 10px;">
+        <table class="table table-bordered pull-right" style="width: 50%;">
+          <tr>
+            <td>農民</td>
+            <td>{{::ctrler.account.farmer.name}}</td>
+          </tr>
+          <tr>
+            <td>存摺</td>
+            <td>{{::ctrler.account.accountID}}</td>
+          </tr>
+          <tr>
+            <td>此次花費</td>
+            <td>{{::ctrler.total}}</td>
+          </tr>
+          <tr>
+            <td>餘額</td>
+            <td>{{::ctrler.account.balance}}</td>
+          </tr>
+        </table>
+      </section>
+      <section class="row form-group text-right" style="margin:0px;">
+          <button type="button" class="btn btn-primary" ng-click="ctrler.cancel()">關閉</button>
+      </section>
+  </div>
+</script>
+
 <!-- templates end -->

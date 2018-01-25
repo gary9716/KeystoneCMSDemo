@@ -6,9 +6,11 @@ var Farmer = new keystone.List(Constants.FarmerListName, {
   label: '農民',
   nodelete: true,
 });
+
 Farmer.add({
   name: { type:String, label:'姓名', index: true, required: true, initial: true, trim: true },
   pid: { type:String, label:'身分證字號', index: true, unique: true, required: true, initial: true, trim: true },
+  ioAccount: { type: String, label: '預設帳戶', index: true, trim: true },
   birth: { type:Types.Date, label:'生日', format:'YYYY-MM-DD', initial: true },
   teleNum1: { type:String, label:'住家電話', index: true, initial: true, trim: true },
   teleNum2: { type:String, label:'行動電話', index: true, initial: true, trim: true },

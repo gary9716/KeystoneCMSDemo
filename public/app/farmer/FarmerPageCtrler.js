@@ -76,7 +76,8 @@ angular.module('mainApp')
         dist: vm.distSelect._id,
         village: vm.villageSelect._id,
         addrRest: vm.addrRest,
-        addr: vm.fullAddr
+        addr: vm.fullAddr,
+        ioAccount: vm.ioAccount
       };
 
       vm.isRegistering = true;
