@@ -2,7 +2,7 @@ module.exports = function(req, res) {
   var moment = require('moment');
 
   var data = res.locals;
-  res.locals.filename = 'unfreeze-sheet_' + moment().format('YYYY-MM-DD HH-mm-ss') + '.pdf';
+  res.locals.filename = 'unfreeze-sheet_' + req.body.accountID + '.pdf';
 
   return {
     info: {

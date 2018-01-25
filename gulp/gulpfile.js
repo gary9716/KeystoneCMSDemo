@@ -69,10 +69,7 @@ gulp.task('concatLib', function(cb){
     //'angular/angular-filter.min.js',
     //'angular/xeditable.min.js',
   
-    //these two files are large, so just include in detail.html
-    //'html2canvas.min.js', 
-    //'jspdf.min.js',
-    
+    'FileSaver.min.js'
     ]).map(function(path) {
     return libPrefx + path;
   });

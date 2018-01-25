@@ -19,7 +19,7 @@ exports = module.exports = (function() {
     Constants.ProductTypeListName,
     Constants.ProductListName,
     Constants.PeriodListName,
-    Constants.SystemListName
+    Constants.SystemListName,
   ]).map(function(listName) {
     return {
       name: listName

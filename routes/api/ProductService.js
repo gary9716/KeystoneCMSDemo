@@ -285,6 +285,115 @@ exports.delete = function(req, res) {
   */
 
 
+var getTotalAndProductList = function(req, res) {
+  return new Promise(function(resolve, reject) {
+    var form = req.body;
+
+    //collect product info
+    var productIDs = form.products.map(function(product) {
+      return product._id;
+    });
+
+    var products;
+    var total = 0;
+    var productDataList = []; //for saving in DB
+ 
+    productList.model.find({ _id : { $in: productIDs } }) //get products info from db
+    .lean()
+    .exec()
+    .then(function(_products) {
+      products = _products;
+
+      products.forEach(function(p) {
+        p._id = p._id.toString();
+      });
+
+      if(products.length !== form.products.length) {
+        return Promise.reject('查詢到的商品數量不合,請重新選購');
+      }
+
+      //check product state
+      if(products.every(function(product) {
+          return product.canSale && Date.parse(product.startSaleDate) <= nowDate
+        })) {
+        //check pass
+        return;
+      }
+      else {
+        return Promise.reject('有目前無法出售的商品');
+      }
+
+    })
+    .then(function() {
+      
+      var numProducts = products.length;
+
+      for (let i = 0; i < numProducts; i++) {
+        let formProduct = form.products[i];
+        let product = _.find(products, function(p) {
+          return p._id === formProduct._id; 
+        });
+
+        if(!product)
+          return Promise.reject('購物車商品資訊錯誤,請重新選購');
+
+        var price = 0;
+        if(formProduct.price === 'exchange') {
+          price = product.exchangePrice;
+        }      
+        else if(formProduct.price === 'market') {
+          price = product.marketPrice;
+        }
+        else { //self defined price
+          if(_.isString(formProduct.price)) {
+            price = parseInt(formProduct.price);
+          }
+          else if(_.isNumber(formProduct.price)) {
+            price = Math.floor(formProduct.price);
+          }
+          else {
+            return Promise.reject('價格資訊無效');
+          }
+        }
+
+        price = Math.abs(price); //每包價格
+
+        if(isNaN(price)) {
+          return Promise.reject('價格資訊錯誤');
+        }
+
+        let qty = Math.abs(Math.floor(formProduct.qty));
+
+        if(qty === 0) {
+          return Promise.reject('商品數量不得為0');
+        }
+
+        //總價 += 每包價格*幾包
+        total += (price * qty);
+
+        productDataList.push({
+          pid: product.pid,
+          name: product.name,
+          pType: product.pType,
+          weight: product.weight,
+          price: price,
+          qty: qty
+        });
+      }
+
+      return resolve({
+        total: total,
+        productDataList: productDataList 
+      });
+
+    })
+    .catch(function(err) {
+      reject(err);
+    });
+
+  });
+}
+
 exports.transact = function(req, res) {
   
   var form = req.body;
@@ -300,48 +409,12 @@ exports.transact = function(req, res) {
     return res.ktSendRes(400, '沒有存取存摺的關鍵資訊'); 
   }
 
-  //collect product info
-  var productIDs = form.products.map(function(product) {
-    return product._id;
-  });
-
-  var products;
   var nowDate = Date.now();
   var newRec_id = mongoose.Types.ObjectId();
-  //var newTransact_id = mongoose.Types.ObjectId();
   var savAccount, savTransaction;
   var total = 0;
-  var productDataList = []; //for saving in DB
-
-  productList.model.find({ _id : { $in: productIDs } }) //get products info from db
-  .lean()
-  .exec()
-  .then(function(_products) {
-    products = _products;
-
-    products.forEach(function(p) {
-      p._id = p._id.toString();
-    });
-
-    if(products.length !== form.products.length) {
-      return Promise.reject('查詢到的商品數量不合,請重新選購');
-    }
-
-    //check product state
-    if(products.every(function(product) {
-        return product.canSale && Date.parse(product.startSaleDate) < nowDate
-      })) {
-
-      //check pass
-      return accountList.model.findOne(filters)
-            .populate('farmer')
-            .exec();
-    }
-    else {
-      return Promise.reject('有目前無法出售的商品');
-    }
-
-  })
+  
+  accountList.model.findOne(filters).populate('farmer').exec()
   .then(function(account) {
     if(!account)
       return Promise.reject('存摺不存在');
@@ -354,90 +427,23 @@ exports.transact = function(req, res) {
 
     savAccount = account;
 
-    var numProducts = products.length;
+    return getTotalAndProductList(req, res);
+  })
+  .then(function(result){
+    total = result.total;
 
-    for (let i = 0; i < numProducts; i++) {
-      let formProduct = form.products[i];
-      let product = _.find(products, function(p) {
-        return p._id === formProduct._id; 
-      });
-
-      if(!product)
-        return Promise.reject('購物車商品資訊錯誤,請重新選購');
-
-      var price = 0;
-      if(formProduct.price === 'exchange') {
-        price = product.exchangePrice;
-      }      
-      else if(formProduct.price === 'market') {
-        price = product.marketPrice;
-      }
-      else { //self defined price
-        if(_.isString(formProduct.price)) {
-          price = parseInt(formProduct.price);
-        }
-        else if(_.isNumber(formProduct.price)) {
-          price = Math.floor(formProduct.price);
-        }
-        else {
-          return Promise.reject('價格資訊無效');
-        }
-      }
-
-      price = Math.abs(price); //每包價格
-
-      if(isNaN(price)) {
-        return Promise.reject('價格資訊錯誤');
-      }
-
-      let qty = Math.abs(Math.floor(formProduct.qty));
-
-      if(qty === 0) {
-        return Promise.reject('商品數量不得為0');
-      }
-
-      //總價 += 每包價格*幾包
-      total += (price * qty);
-
-      productDataList.push({
-        pid: product.pid,
-        name: product.name,
-        pType: product.pType,
-        weight: product.weight,
-        price: price,
-        qty: qty
-      });
-    }
-
-    if(account.balance < total) {
+    if(savAccount.balance < total) {
       return Promise.reject('餘額不足');
     }
 
-    var newBalance = account.balance - total;
-
-    var accRecBk = {
-      _id: newRec_id,
-      comment: form.comment? form.comment: ''
-    };
-
-    var postAccBk = {
-      accountID: account.accountID,
-      farmer: account.farmer._id,
-      accountUser: account.accountUser,
-      active: account.active,
-      freeze: account.freeze,
-      createdAt: account.createdAt,
-      balance: newBalance,
-    };
+    newBalance = savAccount.balance - total;
 
     var newTransaction = new transactionList.model({
       date: nowDate,
-      account: account._id,
+      account: savAccount._id,
       amount: total,
       trader: req.user._id,
-      products: productDataList,
-      accRecBk: accRecBk,
-      postAccBk: postAccBk
+      products: result.productDataList,
     });
 
     if(req.user.shop) {
@@ -447,7 +453,6 @@ exports.transact = function(req, res) {
     newTransaction._req_user = req.user;
 
     return newTransaction.save();
-
   })
   .then(function(savTrans) {
 
@@ -460,17 +465,16 @@ exports.transact = function(req, res) {
       amount: savTrans.amount,
       date: savTrans.date,
       operator: req.user._id,
-      comment: savTrans.accRecBk.comment,
+      comment: form.comment? form.comment: '',
       transaction: savTrans._id,
-      postAccBk: savTrans.postAccBk
     });
     newRec._req_user = req.user;
 
     return newRec.save();
   })
   .then(function(savRec) {
-    savAccount.balance = savRec.postAccBk.balance;
-    savAccount.lastRecord = savRec._id;
+    savAccount.balance = newBalance;
+    savAccount.lastRecord = savRec;
     savAccount._req_user = req.user;
 
     return savAccount.save();
@@ -486,6 +490,163 @@ exports.transact = function(req, res) {
   })
   .catch(function(err) {
     return res.ktSendRes(400, err.toString());
+  });
+
+}
+
+exports.updateTrans = function(req, res) {
+  var form = req.body;
+  var diff = 0;
+  var finalRec;
+  var savAccount;
+  var finalTrans;
+
+  transactionList.model.findOne({
+    _id: form._id
+  })
+  .exec()
+  .then(function(trans) {
+    if(!trans)
+      return Promise.reject('沒有該兌領紀錄');
+
+    finalTrans = trans;
+
+    return accountList.model.findOne({
+      _id: trans.account
+    }).exec();
+  })
+  .then(function(account) {
+    if(!account)
+      return Promise.reject('未找到存摺');
+
+    savAccount = account;
+
+    return accountRecList.model.findOne({
+      transaction: finalTrans._id
+    }).exec();
+
+  })
+  .then(function(accRec) {
+    if(!accRec)
+      return Promise.reject('沒有相對應的存摺紀錄');
+
+    finalRec = accRec;
+
+    var trans = finalTrans;
+    if(!trans.versions)
+      trans.versions = [];
+    var transVer = trans.toObject();
+    transVer._verDate = Date.now();
+    trans.versions.push(transVer);
+
+    return trans.save();
+  })
+  .then(function(savTrans) {
+    console.log(savTrans.versions);
+    var newTotal = 0;
+    form.products.forEach(function(product) {
+      newTotal += (product.qty * product.price);
+    });
+
+    diff = savTrans.amount - newTotal;
+    
+    savTrans.amount = newTotal;
+    savTrans.products = form.products;
+
+    return savTrans.save();
+  })
+  .then(function(savTrans) {
+    finalTrans = savTrans;
+    finalRec.amount = savTrans.amount;
+    return finalRec.save();
+  })
+  .then(function(savRec) {
+    finalRec = savRec;
+    savAccount.balance += diff;
+    return savAccount.save();
+  })
+  .then(function(_savAccount) {
+    res.json({
+      success: true,
+      result: finalTrans.toObject()
+    });
+  })
+  .catch(function(err) {
+    res.ktSendRes(400, err.toString());
+  });
+
+}
+
+exports.deleteTrans = function(req, res) {
+  var form = req.body;
+  var finalTrans,savAccount,finalRec;
+
+  transactionList.model.findOne({
+    _id: form._id
+  })
+  .exec()
+  .then(function(trans) {
+    if(!trans)
+      return Promise.reject('沒有該兌領紀錄');
+
+    finalTrans = trans;
+
+    return accountList.model.findOne({
+      _id: trans.account
+    }).exec();
+  })
+  .then(function(account) {
+    if(!account)
+      return Promise.reject('未找到存摺');
+
+    savAccount = account;
+
+    return accountRecList.model.findOne({
+      transaction: finalTrans._id
+    }).exec();
+
+  })
+  .then(function(accRec) {
+    if(!accRec)
+      return Promise.reject('沒有相對應的存摺紀錄');
+
+    finalRec = accRec;
+    return accountRecList.model.remove(finalRec).exec();
+  })
+  .then(function(delRec) {
+    if(delRec._id === savAccount.lastRecord) {
+      return accountRecList.model.find().sort('-date').limit(1).exec();
+    }
+    else {
+      return 'pass';
+    }
+  })
+  .then(function(latestRecord){
+    if(latestRecord !== 'pass') {
+      savAccount.lastRecord = latestRecord;
+      return savAccount.save();
+    }
+    else {
+      return 'pass';
+    }
+  })
+  .then(function(_savAccount) {
+    if(_savAccount !== 'pass')
+      savAccount = _savAccount;
+    
+    savAccount.balance += finalTrans.amount;
+    return savAccount.save();
+  })
+  .then(function(_savAccount) {
+    return transactionList.model.remove(finalTrans).exec();
+  })
+  .then(function(delTrans) {
+    return res.json({
+      success: true
+    });
+  })
+  .catch(function(err) {
+    res.ktSendRes(400, err.toString());
   });
 
 }

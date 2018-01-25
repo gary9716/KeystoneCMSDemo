@@ -190,24 +190,27 @@ angular.module('mainApp')
   }]
 )
 .controller('AccountDetailModalCtrler', 
-  ['$uibModalInstance', 'account', '$http', 'lodash', '$q', 'Upload',
-  function($uibModalInstance, account, $http, _ , $q, Upload) {
+  ['$uibModalInstance', 'account', '$http', 'lodash', '$q', 'Upload', '$window',
+  function($uibModalInstance, account, $http, _ , $q, Upload, $window) {
     var vm = this;
     vm.account = account;
     
-    //default values
-    vm.closeAcc = {};
-    vm.deposit = {};
-    vm.withdraw = {};
-    vm.setFreeze = {};
-    vm.isProcessing = false;
+    vm.resetOpView = function() {
+      //default values
+      vm.closeAcc = {};
+      vm.deposit = {};
+      vm.withdraw = {};
+      vm.setFreeze = {};
+      vm.isProcessing = false;
 
-    vm.withdraw.comment = vm.account.farmer.name + " 白米存摺轉出";
-    vm.withdraw.ioAccount = vm.account.farmer.ioAccount;
-    
-    vm.deposit.comment = vm.account.farmer.name + " 白米存摺轉入";
-    vm.deposit.ioAccount = vm.account.farmer.ioAccount;
-    
+      vm.withdraw.comment = vm.account.farmer.name + " 白米存摺轉出";
+      vm.withdraw.ioAccount = vm.account.farmer.ioAccount;
+      
+      vm.deposit.comment = vm.account.farmer.name + " 白米存摺轉入";
+      vm.deposit.ioAccount = vm.account.farmer.ioAccount;
+    }
+    vm.resetOpView();
+
     vm.alerts = [];
     vm.pubSuccessMsg = function(msg) {
       vm.alerts.push({ type:'success', msg: msg });
@@ -252,6 +255,46 @@ angular.module('mainApp')
       });
     }
 
+    vm.downloadDWSheetOp = function(accRec, op, msg) {
+      return $http.post('/pdf/deposit-withdraw-sheet',
+      {
+        op: op,
+        _id: accRec._id
+      },
+      {
+        responseType: 'arraybuffer'
+      })
+      .then(function(res) {
+        var filenameInfo = res.headers('Content-disposition').split('filename=');
+        //console.log(filenameInfo);
+        var file = new Blob([res.data],{type: 'application/pdf'});
+        
+        saveAs(file, filenameInfo[1]);
+
+        if(msg)
+          vm.pubSuccessMsg(msg + ',轉帳單已下載');
+        else
+          vm.pubSuccessMsg('下載轉帳單成功');
+      })
+      .catch(function(err) {
+        vm.pubErrorMsg('下載轉帳單失敗,' + err.data.toString());
+      });
+    }
+
+    vm.downloadRecPDF = function(accRec) {
+      if(accRec.opType.value === 'withdraw' || accRec.opType.value === 'deposit') {
+        vm.downloadDWSheetOp(accRec, accRec.opType.value);
+      }
+    }
+
+    vm.deleteRec = function(accRec) {
+      console.log('delete rec');
+    }
+
+    vm.updateRec = function(accRec) {
+      console.log('update rec');
+    }
+
     vm.depositOp = function() {
       vm.isProcessing = true;
 
@@ -269,7 +312,10 @@ angular.module('mainApp')
         var resData = res.data;
         if(resData.success) {
           _.assign(vm.account, resData.result);
-          $uibModalInstance.close('入款成功,頁面資料已更新');
+          vm.resetOpView();
+          vm.getAccountRecords();
+          var accRec = vm.account.lastRecord;
+          return vm.downloadDWSheetOp(accRec, 'deposit','入款成功,頁面資料已更新');
         }
         else {
           vm.pubErrorMsg('入款失敗,' + resData.message);
@@ -280,7 +326,7 @@ angular.module('mainApp')
       })
       .finally(function() {
         vm.isProcessing = false;
-      })
+      });
 
     }
 
@@ -299,7 +345,10 @@ angular.module('mainApp')
         var resData = res.data;
         if(resData.success) {
           _.assign(vm.account, resData.result);
-          $uibModalInstance.close('提款成功,頁面資料已更新');
+          vm.resetOpView();
+          vm.getAccountRecords();
+          var accRec = vm.account.lastRecord;
+          return vm.downloadDWSheetOp(accRec, 'withdraw','提款成功,頁面資料已更新');
         }
         else {
           vm.pubErrorMsg('提款失敗,' + resData.message);
@@ -323,6 +372,22 @@ angular.module('mainApp')
       else {
         vm.errFile.errorChMsg = vm.errFile.$error;
       }
+    }
+
+    vm.downloadUnfreezeSheetOp = function() {
+      $http.post('/pdf/unfreeze-sheet')
+      .then(function(res) {
+        if(res.data.success) {
+          $uibModalInstance.close('下載解凍單成功');
+        }
+        else {
+          vm.pubErrorMsg('下載解凍單失敗');
+        }
+      })
+      .catch(function(err) {
+        vm.pubErrorMsg('下載解凍單失敗,' + err.data.toString());
+      });
+      
     }
 
     vm.setFreezeOp = function() {
@@ -354,7 +419,9 @@ angular.module('mainApp')
         var resData = res.data;
         if(resData.success) {
           _.assign(vm.account, resData.result);
-          $uibModalInstance.close((vm.account.freeze? '凍結成功':'解凍成功') + ',頁面資料已更新');
+          vm.resetOpView();
+          vm.getAccountRecords();
+          vm.pubSuccessMsg((vm.account.freeze? '凍結成功':'解凍成功') + ',頁面資料已更新');
         }
         else {
           vm.pubErrorMsg('失敗,' + resData.message);
@@ -386,7 +453,9 @@ angular.module('mainApp')
         var resData = res.data;
         if(resData.success) {
           _.assign(vm.account, resData.result);
-          $uibModalInstance.close('結清成功,已呈現最新資料');
+          vm.resetOpView();
+          vm.getAccountRecords();
+          vm.pubSuccessMsg('結清成功,已呈現最新資料');
         }
         else {
           vm.pubErrorMsg('結清失敗,' + resData.message);
@@ -415,7 +484,9 @@ angular.module('mainApp')
         var resData = res.data;
         if(resData.success) {
           _.assign(vm.account, resData.result);
-          $uibModalInstance.close('過戶成功,已呈現最新資料');
+          vm.resetOpView();
+          vm.getAccountRecords();
+          vm.pubSuccessMsg('過戶成功,已呈現最新資料');
         }
         else {
           vm.pubErrorMsg('過戶失敗,' + resData.message);
@@ -429,19 +500,40 @@ angular.module('mainApp')
       });
     }
 
-    vm.printUnfreezeSheetOp = function() {
-      //TODO: gen PDF on client side
-      //(it seems that there is no need to validate through server?)
-      $uibModalInstance.close('列印解凍單成功');
+    vm.isActCountZero = function(accRec) {
+      var opType = accRec.opType.value;
+      if(opType === 'freeze' || 
+        opType === 'unfreeze' ||
+        opType === 'create' || 
+        opType === 'accUserChange') {
+          return true;
+        }
+      else 
+        return false;
     }
 
-    vm.printWithdrawSheetOp = function() {
-      //TODO: gen PDF on client side
-      $uibModalInstance.close('列印提款傳票成功');
-    }
-
-    vm.unfreezeSheetChange = function() {
-      console.log(vm.setFreeze.unfreezeSheet);
+    vm.hasAct = function(accRec, act) {
+      var opType = accRec.opType.value;
+      if(opType === 'freeze' || 
+        opType === 'unfreeze' ||
+        opType === 'create' || 
+        opType === 'accUserChange') {
+          return false;
+        }
+      else if(opType === 'transact' || 
+              opType === 'close') {
+          if(act === 'delete' || act === 'update')
+            return true;
+          else
+            return false;
+      }
+      else if(opType === 'deposit' ||
+              opType === 'withdraw') {
+          if(act === 'delete' || act === 'download' || act === 'update')
+            return true;
+          else
+            return false;
+      }
     }
 
     vm.accRecCurPage = 1;
@@ -481,7 +573,10 @@ angular.module('mainApp')
         var data = res.data;
         if(data.success) {
           data.result.forEach(function(rec) {
-            rec.opType = opTranslate[rec.opType];
+            rec.opType = {
+              name: opTranslate[rec.opType],
+              value: rec.opType
+            };
           });
           vm.accountRecs = data.result;
           vm.totalAccRecs = data.total;
@@ -498,6 +593,12 @@ angular.module('mainApp')
     vm.filters = {
       account: vm.account._id
     };
+
+    vm.opTypeFilterSelected = function() {
+      if(vm.opTypeFilter && vm.opTypeFilter !== 'any')
+        vm.applyOpTypeFilter = true;
+    }
+
     vm.filterChange = function() {
       var filters = {
         account: vm.account._id
@@ -507,12 +608,16 @@ angular.module('mainApp')
         filters.opType = vm.opTypeFilter;
       }
 
-      if(vm.applyDateFilter && _.isDate(vm.dateFilter)) {
-        var todayStart = new Date(vm.dateFilter);
-        todayStart.setHours(0,0,0,0);
-        var todayEnd = new Date(vm.dateFilter);
-        todayEnd.setHours(24,0,0,0);
-        filters.date = { $gte: todayStart, $lte: todayEnd };
+      if(!_.isDate(vm.endDateFilter) || vm.endDateFilter < vm.startDateFilter) {
+        vm.endDateFilter = vm.startDateFilter;
+      }
+
+      if(vm.applyDateFilter && _.isDate(vm.startDateFilter)) {
+        var start = new Date(vm.startDateFilter);
+        start.setHours(0,0,0,0);
+        var end = new Date(vm.endDateFilter);
+        end.setHours(24,0,0,0);
+        filters.date = { $gte: start, $lt: end };
       }
 
       vm.filters = filters;

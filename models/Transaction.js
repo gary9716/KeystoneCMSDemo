@@ -8,7 +8,6 @@ var Schema = mongoose.Schema;
 //console.log(Constants.TransactionListName);
 var Transaction = new keystone.List(Constants.TransactionListName, {
   label: '兌換紀錄',
-  noedit: true,
   nodelete: true,
   nocreate: true,
 });
@@ -22,37 +21,31 @@ var productRec = new Schema({
   qty : { type: Number, label: '包數' },
 },{ _id: false }); //disable _id
 
-var accBkSchema = new Schema({
-  accountID: { type: String, label:'存摺編號' ,index: true, required: true, trim: true },
-  farmer: { type: Schema.Types.ObjectId, label:'擁有者', ref: Constants.FarmerListName, required: true },
-  accountUser: { type: String, label:'使用者', trim: true },
-  active: { type: Boolean, label:'未結清', default: true, initial: true },
-  freeze: { type: Boolean, label:'凍結中', default: false, initial: true },
-  createdAt: { type: Date, label: '開戶時間', required: true },
-  closedAt: { type: Date, label: '結清時間' },
-  balance: { type: Number, label:'餘額', default: 0 }
-},{ _id: false }); //disable _id
-
 Transaction.add({
-  date: { type: Types.Datetime, format: 'YYYY-MM-DD kk:mm:ss', label: '交易時間' },
-  account: { type: Types.Relationship, ref: Constants.AccountListName, label: '存摺' },
-  amount: { type: Types.Money, label: '交易金額' },
+  date: { type: Types.Datetime, format: 'YYYY-MM-DD kk:mm:ss', label: '交易時間', noedit: true },
+  account: { type: Types.Relationship, ref: Constants.AccountListName, label: '存摺', noedit: true },
+  amount: { type: Types.Money, label: '交易金額' ,noedit: true },
   shop: { type: Types.Relationship, ref: Constants.ShopListName, label: '兌領處' },
-  trader: { type: Types.Relationship, ref: Constants.UserListName, label: '業務員' },
+  trader: { type: Types.Relationship, ref: Constants.UserListName, label: '業務員', noedit: true },
 });
+
+var TransVer = new Schema({
+  date: { type: Date },
+  account: { type: Schema.Types.ObjectId, ref: Constants.AccountListName },
+  amount: { type: Number },
+  shop: { type: Schema.Types.ObjectId, ref: Constants.ShopListName },
+  trader: { type: Schema.Types.ObjectId, ref: Constants.UserListName },
+  
+  _verDate: { type: Date },
+}, { _id: false });
 
 Transaction.schema.add({
   products: {
     type: [productRec]
   },
-  accRecBk: {
-    type: {
-      comment: { type: String },
-    }
-  },
-  postAccBk: {
-    type: accBkSchema
-  },
+  versions: {
+    type: [TransVer]
+  }
 });
 
 Transaction.defaultColumns = 'date, account, amount, shop, trader';

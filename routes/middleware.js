@@ -188,28 +188,48 @@ exports.doPDFGenViaHTMLToPDF = function(req, res) {
 
 }
 
+function isPromise(obj) {
+  return !!obj && (typeof obj === 'object' || typeof obj === 'function') && typeof obj.then === 'function';
+}
+
 exports.doPDFGenViaPDFMake = function(req, res) {
 
   //if we forget to add .js ,it would be treated as object and cannot be used
   //as function
   var docPath = __base + 'pdfmake-docs/' + this.doc + '.js';
-
-  var docDefinition = require(docPath)(req,res);
-
-  //filename should be customized for each req
-  //(for example: use accountID as part of filename)
-  if(!res.locals.filename) 
-    res.locals.filename = 'temp.pdf';
-
-  var pdfDoc = printer.createPdfKitDocument(docDefinition);
   
-  //give browser some hint
-  res.set('Content-Type', 'application/pdf');
-  //set browser default download filename
-  res.set('Content-disposition', 'attachment; filename=' + res.locals.filename);
+  function restOfJob(docDefinition) {
+    //filename should be customized for each req
+    //(for example: use accountID as part of filename)
+    if(!res.locals.filename) 
+      res.locals.filename = 'temp.pdf';
+
+    var pdfDoc = printer.createPdfKitDocument(docDefinition);
+
+    //give browser some hint
+    res.set('Content-Type', 'application/pdf');
+    //set browser default download filename
+    res.set('Content-disposition', 'attachment; filename=' + res.locals.filename);
+
+    pdfDoc.pipe(res);
+    pdfDoc.end();
+  }
   
-  pdfDoc.pipe(res);
-  pdfDoc.end();
+  var obj = require(docPath)(req,res);
+  if(isPromise(obj)) {
+    obj
+    .then(function(docDefinition){
+      restOfJob(docDefinition);
+    })
+    .catch(function(err) {
+      res.ktSendRes(400, err.toString());
+    }); 
+  }
+  else {
+    restOfJob(obj);
+  }
+
+  
 
 }
 

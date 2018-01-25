@@ -122,9 +122,16 @@ exports = module.exports = function (app) {
       viewPath: 'pdfs/unfreezeSheet'
     }), 
     middleware.doPDFGenViaHTMLToPDF);
+  
+  app.get('/pdf/',
+    compression(),
+    middleware.doPDFGenViaPDFMake.bind({
+      doc: 'test-doc'
+    })
+  );
   */
 
-  app.get('/report/transacted-products',
+  app.get('/pdf/transacted-products',
     compression(),
     middleware.permissionCheck.bind({
       opName: 'read',
@@ -135,7 +142,23 @@ exports = module.exports = function (app) {
     })
   );
 
+  app.post('/pdf/deposit-withdraw-sheet',
+    compression(),
+    middleware.permissionCheck.bind({
+      listName: Constants.AccountRecordListName,
+      opName: 'read'
+    }),
+    middleware.doPDFGenViaPDFMake.bind({
+      doc: 'deposit-withdraw-sheet'
+    })
+  );
 
+  app.post('/pdf/unfreeze-sheet',
+    compression(),
+    middleware.doPDFGenViaHTMLToPDF.bind({
+      doc: 'unfreeze-sheet'
+    })
+  );
 
   //APIs
   app.post('/api/read',

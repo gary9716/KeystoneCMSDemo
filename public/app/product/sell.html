@@ -11,8 +11,8 @@
     <thead>
         <th class="text-center" style="width: 10%">類型</th>
         <th class="text-center" style="width: 15%">編號</th>
-        <th class="text-center" style="width: 18%">名稱</th>
-        <th class="text-center" style="width: 17%">價格</th>
+        <th class="text-center" style="width: 15%">名稱</th>
+        <th class="text-center" style="width: 20%">價格</th>
         <th class="text-center" style="width: 14%">包數</th>
         <th class="text-center" style="width: 12%">操作</th>
     </thead>
@@ -22,14 +22,14 @@
         <td>{{product.pid}}</td>
         <td>{{product.name}}</td>
         <td>
-          <table class="product-price-table table-responsive" style="text-align: left;">
+          <table class="product-price-table table-responsive" style="margin-left:2%; text-align: left;">
               <tr ng-hide="product.isInCart && product.price===product.exchangePrice">
-                <td class="txt-col"><label class="price-selector"><input type="radio" class="price-radio" ng-value="product.marketPrice" ng-model="product.price" ng-hide="product.isInCart">定價</label></td> 
-                <td class="price-col">{{::product.marketPrice}} 元</td>
+                <td><label class="price-selector"><input type="radio" style="margin-left:3px;" class="price-radio" ng-value="product.marketPrice" ng-model="product.price" ng-hide="product.isInCart">定價</label></td> 
+                <td>{{::product.marketPrice}} 元</td>
               </tr>
               <tr ng-hide="product.isInCart && product.price===product.marketPrice">
-                <td class="txt-col"><label class="price-selector"><input type="radio" class="price-radio" ng-value="product.exchangePrice" ng-model="product.price" ng-hide="product.isInCart">兌換價</label></td> 
-                <td class="price-col">{{::product.exchangePrice}} 元</td>
+                <td><label class="price-selector"><input type="radio" style="margin-left:3px;" class="price-radio" ng-value="product.exchangePrice" ng-model="product.price" ng-hide="product.isInCart">兌換價</label></td> 
+                <td>{{::product.exchangePrice}} 元</td>
               </tr>
           </table>
         </td>

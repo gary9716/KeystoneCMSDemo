@@ -147,7 +147,6 @@
     div.flex-row .radio-item {
       margin-right: 5px;
     }
-
     </style>
     <table id="account-details-table" class="table table-responsive table-bordered" style="width: 100%; margin: 0px auto 0px;">
       <tbody>
@@ -162,7 +161,6 @@
             <td class="account-col6" ng-class="{'text-warning':ctrler.account.freeze,'text-primary':!ctrler.account.freeze}">{{ctrler.account.freeze? '是':'否'}}</td>
 
         </tr>
-        
         <tr>
             <td class="">開戶時間</td>
             <td class="text-primary">{{ctrler.account.createdAt | date : 'yyyy/MM/dd'}}</td>
@@ -176,7 +174,6 @@
             <td ng-class="{'text-warning':!ctrler.account.active,'text-primary':ctrler.account.active}">{{ctrler.account.active? '否':'是'}}</td>
 
         </tr>
-
         <tr>        
             <td class="">結清時間</td>
             <td class="text-primary">{{ctrler.account.closedAt | date : 'yyyy/MM/dd'}}</td>
@@ -200,19 +197,27 @@
       <div class="flex-row" style="margin-top:3px; margin-bottom:3px;">
         <label>過濾條件</label>
         <input style="margin: 10px;" type="checkbox" ng-change="ctrler.filterChange()" ng-model="ctrler.applyOpTypeFilter" ng-model-options= "{ debounce: 200 }">
-        <select style="width: 10%;" ng-change="ctrler.filterChange()" ng-model="ctrler.opTypeFilter" ng-model-options= "{ debounce: 200 }" ng-options="option.value as option.name for option in ctrler.opTypes track by option.value">
+        <span style="margin-right:5px;">類別</span><select style="width: 10%;" ng-change="ctrler.opTypeFilterSelected();ctrler.filterChange();" ng-model="ctrler.opTypeFilter" ng-model-options= "{ debounce: 200 }" ng-options="option.value as option.name for option in ctrler.opTypes track by option.value">
         </select>
         
         <input style="margin: 10px;" type="checkbox" ng-change="ctrler.filterChange()" ng-model="ctrler.applyDateFilter" ng-model-options= "{ debounce: 200 }">
+        <span style="margin-right:5px;">起</span>
         <div class="input-group" style="width: 20%;">
-          <input type="text" class="form-control input-md" uib-datepicker-popup="yyyy/MM/dd" ng-change="ctrler.filterChange()" ng-model="ctrler.dateFilter" ng-model-options= "{ debounce: 200 }" is-open="ctrler.dateSelOpened" close-text="關閉" clear-text="清除" current-text="今天"/>
+          <input type="text" class="form-control input-md" uib-datepicker-popup="yyyy/MM/dd" ng-change="ctrler.filterChange()" ng-model="ctrler.startDateFilter" ng-model-options= "{ debounce: 200 }" is-open="ctrler.startDateSelOpened" close-text="關閉" clear-text="清除" current-text="今天"/>
           <span class="input-group-btn">
-            <button type="button" class="btn btn-default" ng-click="ctrler.dateSelOpened=true;"><i class="fa fa-calendar"></i></button>
+            <button type="button" class="btn btn-default" ng-click="ctrler.startDateSelOpened=true;"><i class="fa fa-calendar"></i></button>
+          </span>
+        </div>
+        <span style="margin-left:5px; margin-right:5px;">迄</span>
+        <div class="input-group" style="width: 20%;">
+          <input type="text" class="form-control input-md" uib-datepicker-popup="yyyy/MM/dd" ng-change="ctrler.filterChange()" ng-model="ctrler.endDateFilter" ng-model-options= "{ debounce: 200 }" is-open="ctrler.endDateSelOpened" close-text="關閉" clear-text="清除" current-text="今天"/>
+          <span class="input-group-btn">
+            <button type="button" class="btn btn-default" ng-click="ctrler.endDateSelOpened=true;"><i class="fa fa-calendar"></i></button>
           </span>
         </div>
       </div>
   
-      <table class="table table-bordered table-responsive" style="margin-bottom:0px;">
+      <table class="table table-bordered table-responsive" style="margin-bottom:0px;" id="account-rec-table">
         <thead>
           <tr>
             <th style="width:10%">類別</th>
@@ -226,7 +231,17 @@
         </thead>
         <tbody>
           <tr ng-repeat="accountRec in ctrler.accountRecs">
-            <td>{{accountRec.opType}}</td>
+            <td> <!-- Single button -->
+              <div ng-show="ctrler.isActCountZero(accountRec)">{{accountRec.opType.name}}</div>
+              <div uib-dropdown uib-dropdown-toggle ng-hide="ctrler.isActCountZero(accountRec)">
+                <div class="clickable">{{accountRec.opType.name}} <span class="caret"></span></div>
+                <ul class="dropdown-menu" uib-dropdown-menu role="menu">
+                  <li ng-show="ctrler.hasAct(accountRec, 'delete')" role="menuitem"><a ng-click="ctrler.deleteRec(accountRec)">刪除</a></li>
+                  <li ng-show="ctrler.hasAct(accountRec, 'update')" role="menuitem"><a ng-click="ctrler.updateRec(accountRec)">修改</a></li>
+                  <li ng-show="ctrler.hasAct(accountRec, 'download')" role="menuitem"><a ng-click="ctrler.downloadRecPDF(accountRec)">下載</a></li>
+                </ul>
+              </div>
+            </td>
             <td>{{accountRec.amount}}</td>
             <td>{{accountRec.date | date:'yyyy/MM/dd'}}</td>
             <td>{{accountRec.operator.name}}</td>
@@ -238,20 +253,20 @@
       </table>
     </div>
     
+   
     <!-- alert messages -->
-    <div uib-alert ng-repeat="alert in ctrler.alerts track by $index" ng-class="'alert-' + (alert.type || 'warning')" dismiss-on-timeout="3000" close="ctrler.alerts.splice(ctrler.alerts.indexOf(alert),1);">{{::alert.msg}}</div>
+    <div style="margin-top:10px;" uib-alert ng-repeat="alert in ctrler.alerts track by $index" ng-class="'alert-' + (alert.type || 'warning')" dismiss-on-timeout="3000" close="ctrler.alerts.splice(ctrler.alerts.indexOf(alert),1);">{{::alert.msg}}</div>
     
-      <h4 class="flex-row">相關操作</h4>
-      <div class="flex-row">
-        <label class="radio-item"><input type="radio" class="opt-radio" value="deposit" ng-model="ctrler.accountOp">入款</label>
-        <label class="radio-item"><input type="radio" class="opt-radio" value="withdraw" ng-model="ctrler.accountOp">提款</label>
-        <label class="radio-item"><input type="radio" class="opt-radio" value="setFreeze" ng-model="ctrler.accountOp">{{ctrler.account.freeze? '解凍':'凍結'}}</label>
-        <label class="radio-item"><input type="radio" class="opt-radio" value="close" ng-model="ctrler.accountOp">結清</label>
-        <label class="radio-item"><input type="radio" class="opt-radio" value="accUserChange" ng-model="ctrler.accountOp">過戶</label>
-        <label class="radio-item"><input type="radio" class="opt-radio" value="printUnfreezeSheet" ng-model="ctrler.accountOp">列印解凍單</label>
-        <label class="radio-item"><input type="radio" class="opt-radio" value="printWithdrawSheet" ng-model="ctrler.accountOp">列印提款傳票</label>
-      </div>
-    
+    <h4 class="flex-row">相關操作</h4>
+    <div class="flex-row">
+      <label class="radio-item"><input type="radio" class="opt-radio" value="deposit" ng-model="ctrler.accountOp">入款</label>
+      <label class="radio-item"><input type="radio" class="opt-radio" value="withdraw" ng-model="ctrler.accountOp">提款</label>
+      <label class="radio-item"><input type="radio" class="opt-radio" value="setFreeze" ng-model="ctrler.accountOp">{{ctrler.account.freeze? '解凍':'凍結'}}</label>
+      <label class="radio-item"><input type="radio" class="opt-radio" value="close" ng-model="ctrler.accountOp">結清</label>
+      <label class="radio-item"><input type="radio" class="opt-radio" value="accUserChange" ng-model="ctrler.accountOp">過戶</label>
+      <label class="radio-item"><input type="radio" class="opt-radio" value="downloadUnfreezeSheet" ng-model="ctrler.accountOp">下載解凍單</label>
+    </div>
+  
 
     <form name="accountOpForm" id="account-op-form" style="padding-top: 10px;">
       <section ng-show="ctrler.accountOp==='deposit'">
@@ -345,25 +360,6 @@
           </div>
         </div>
       </section>
-
-      <section ng-show="ctrler.accountOp==='printUnfreezeSheet'" class="form-group">
-        <div class="flex-row">
-          <label class="col-md-2">備註</label>
-          <div>
-            <textarea rows="5" ng-model="ctrler.printUnfreezeSheet.comment" ng-model-options="{ updateOn: 'blur' }" style="resize: none;" ng-trim="true"></textarea>
-          </div>
-        </div>
-      </section>
-
-      <section ng-show="ctrler.accountOp==='printWithdrawSheet'" class="form-group">
-        <div class="flex-row">
-          <label class="col-md-2">備註</label>
-          <div>
-            <textarea rows="5" ng-model="ctrler.printWithdrawSheet.comment" ng-model-options="{ updateOn: 'blur' }" style="resize: none;" ng-trim="true"></textarea>
-          </div>
-        </div>
-      </section>
-
     </form>
 
 </div>
@@ -374,10 +370,8 @@
       <button ng-click="ctrler.setFreezeOp()" class="btn btn-success col-md-offset-4" ng-disabled="ctrler.isProcessing" ng-show="ctrler.accountOp==='setFreeze'">{{ctrler.account.freeze? '解凍':'凍結'}}</button>
       <button ng-click="ctrler.closeAccOp()" class="btn btn-success col-md-offset-4" ng-disabled="ctrler.isProcessing" ng-show="ctrler.accountOp==='close'">結清</button>
       <button ng-click="ctrler.accUserChangeOp()" class="btn btn-success col-md-offset-4" ng-disabled="ctrler.isProcessing" ng-show="ctrler.accountOp==='accUserChange'">過戶</button>
-      <button ng-click="ctrler.printUnfreezeSheetOp()" class="btn btn-success col-md-offset-4" ng-disabled="ctrler.isProcessing" ng-show="ctrler.accountOp==='printUnfreezeSheet'">列印</button>
-      <button ng-click="ctrler.printWithdrawSheetOp()" class="btn btn-success col-md-offset-4" ng-disabled="ctrler.isProcessing" ng-show="ctrler.accountOp==='printWithdrawSheet'">列印</button>
+      <button ng-click="ctrler.downloadUnfreezeSheetOp()" class="btn btn-success col-md-offset-4" ng-disabled="ctrler.isProcessing" ng-show="ctrler.accountOp==='downloadUnfreezeSheet'">下載</button>
       
-
       <button class="btn" ng-class="{ 'btn-warning': (ctrler.accountOp && ctrler.accountOp.length > 0), 'btn-primary': (!ctrler.accountOp || ctrler.accountOp.length === 0) }" type="button" ng-click="ctrler.cancel()">{{(ctrler.accountOp && ctrler.accountOp.length > 0)? '取消' : '關閉'}}</button>
     </div>
 </div>
