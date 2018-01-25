@@ -129,10 +129,12 @@
 
     form#account-op-form input[type=number]::-webkit-inner-spin-button, 
     form#account-op-form input[type=number]::-webkit-outer-spin-button { 
-        -webkit-appearance: none;
-        -moz-appearance: none;
-        appearance: none;
-        margin: 0; 
+      -webkit-appearance: none;
+      margin: 0; 
+    }
+
+    form#account-op-form input[type=number] {
+      -moz-appearance:textfield;
     }
 
     div#account-details div.flex-row {
