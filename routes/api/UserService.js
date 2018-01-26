@@ -11,12 +11,15 @@ var signInWithId = function(req, res, user, successMsg) {
           }
           else {
             //console.log("use default redirect");
+            /*
             if(user.isAdmin) {
               return '/' + keystone.get('admin path');
             }
             else {
               return keystone.get('signin redirect');
             }
+            */
+            return keystone.get('signin redirect');
           }
     }
 

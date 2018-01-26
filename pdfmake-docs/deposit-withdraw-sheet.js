@@ -45,46 +45,64 @@ module.exports = function(req, res) {
                 dateTxt = {
                     year:{
                         text: (date.getFullYear() - 1911).toString(),
-                        x: 1100 * factor,
-                        y: 165  * factor
+                        absolutePosition: {
+                            x: 1100 * factor,
+                            y: 165  * factor,
+                        },
+                        fontSize: 12
                     },
                     month: {
                         text: (date.getMonth() + 1).toString(),
-                        x: 1310 * factor,
-                        y: 165  * factor
+                        absolutePosition: {
+                            x: 1310 * factor,
+                            y: 165  * factor,
+                        },
+                        fontSize: 12
                     },
                     date: {
                         text: date.getDate().toString(),
-                        x: 1464 * factor,
-                        y: 165  * factor
+                        absolutePosition: {
+                            x: 1464 * factor,
+                            y: 165  * factor,
+                        },
+                        fontSize: 12
                     },
-                    fontSize: 12
+                    
                 };
 
                 ioAccount = {
                     text: accRec.ioAccount,
-                    x: 217 * factor,
-                    y: 297 * factor
+                    absolutePosition: {
+                        x: 217 * factor,
+                        y: 297 * factor
+                    },
+                    fontSize: 11
                 };
                 
                 money = {
                     text: ('$' + accRec.amount),
-                    x: (1272 + (11 - getNumDigits(accRec.amount)) * 48) * factor,
-                    y: 297 * factor,
+                    absolutePosition: {
+                        x: (1272 + (11 - getNumDigits(accRec.amount)) * 48) * factor,
+                        y: 297 * factor,
+                    },
+                    characterSpacing: 6
+                };
+
+                totalMoney = {
+                    text: ('$' + accRec.amount),
+                    absolutePosition: {
+                        x: (1272 + (11 - getNumDigits(accRec.amount)) * 48) * factor,
+                        y: 531 * factor,
+                    },
                     characterSpacing: 6
                 };
 
                 itemComment = {
                     text: accRec.comment? accRec.comment : (farmer.name + ' 白米存摺轉入'),
-                    x: 590 * factor,
-                    y: 297 * factor
-                };
-
-                entireComment = {
-                    text: '入款用',
-                    fontSize: 20,
-                    x: 344 * factor,
-                    y: 778 * factor
+                    absolutePosition: {
+                        x: 590 * factor,
+                        y: 297 * factor
+                    }
                 };
                 
             }
@@ -94,48 +112,65 @@ module.exports = function(req, res) {
                 dateTxt = {
                     year:{
                         text: (date.getFullYear() - 1911).toString(),
-                        x: 1100 * factor,
-                        y: 156  * factor
+                        absolutePosition: {
+                            x: 1100 * factor,
+                            y: 156  * factor
+                        },
+                        fontSize: 12
                     },
                     month: {
                         text: (date.getMonth() + 1).toString(),
-                        x: 1310 * factor,
-                        y: 156  * factor
+                        absolutePosition: {
+                            x: 1310 * factor,
+                            y: 156  * factor
+                        },
+                        fontSize: 12
                     },
                     date: {
                         text: date.getDate().toString(),
-                        x: 1464 * factor,
-                        y: 156  * factor
+                        absolutePosition: {
+                            x: 1464 * factor,
+                            y: 156  * factor
+                        },
+                        fontSize: 12
                     },
-                    fontSize: 12
                 };
 
                 ioAccount = {
                     text: accRec.ioAccount,
-                    x: 217 * factor,
-                    y: 288 * factor
+                    absolutePosition: {
+                        x: 217 * factor,
+                        y: 288 * factor
+                    },
+                    fontSize: 11
                 };
                 
                 money = {
                     text: ('$' + accRec.amount),
-                    x: (1272 + (11 - getNumDigits(accRec.amount)) * 48) * factor,
-                    y: 288 * factor,
+                    absolutePosition: {
+                        x: (1272 + (11 - getNumDigits(accRec.amount)) * 48) * factor,
+                        y: 288 * factor,
+                    },
                     characterSpacing: 6
                 };
 
+                totalMoney = {
+                    text: ('$' + accRec.amount),
+                    absolutePosition: {
+                        x: (1272 + (11 - getNumDigits(accRec.amount)) * 48) * factor,
+                        y: 520 * factor,
+                    },
+                    characterSpacing: 6
+                };
+               
                 itemComment = {
                     text: accRec.comment? accRec.comment : (farmer.name + ' 白米存摺轉出'),
-                    x: 590 * factor,
-                    y: 288 * factor
+                    absolutePosition: {
+                        x: 590 * factor,
+                        y: 288 * factor
+                    }
                 };
 
-                entireComment = {
-                    text: '提款用',
-                    fontSize: 20,
-                    x: 344 * factor,
-                    y: 778 * factor
-                };
-                
             }
             
 
@@ -158,42 +193,13 @@ module.exports = function(req, res) {
                     width: '595' //A4 width in pixels with 72DPI
                 },
                 content: [
-                    { 
-                        text: ioAccount.text, 
-                        fontSize: 11,
-                        absolutePosition: { x: ioAccount.x, y: ioAccount.y } 
-                    },
-                    { 
-                        text: money.text,
-                        characterSpacing: money.characterSpacing,
-                        absolutePosition: { x: money.x, y: money.y },
-                    },
-                    {
-                        text: itemComment.text,
-                        absolutePosition: {x : itemComment.x, y: itemComment.y},
-                    },
-                    {
-                        text: entireComment.text,
-                        absolutePosition: {x : entireComment.x, y: entireComment.y},
-                        fontSize: entireComment.fontSize
-                    },
-                    
-                    {
-                        text: dateTxt.year.text,
-                        absolutePosition: dateTxt.year,
-                        fontSize: dateTxt.fontSize
-                    },
-                    {
-                        text: dateTxt.month.text,
-                        absolutePosition: dateTxt.month,
-                        fontSize: dateTxt.fontSize
-                    },
-                    {
-                        text: dateTxt.date.text,
-                        absolutePosition: dateTxt.date,
-                        fontSize: dateTxt.fontSize
-                    }
-
+                    ioAccount,
+                    money,
+                    itemComment,
+                    totalMoney,
+                    dateTxt.year,
+                    dateTxt.month,
+                    dateTxt.date
                 ],
 
             };

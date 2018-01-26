@@ -294,6 +294,7 @@ var getTotalAndProductList = function(req, res) {
       return product._id;
     });
 
+    var nowDate = Date.now();
     var products;
     var total = 0;
     var productDataList = []; //for saving in DB
