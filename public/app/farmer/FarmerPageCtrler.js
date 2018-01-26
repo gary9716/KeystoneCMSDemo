@@ -51,7 +51,17 @@ angular.module('mainApp')
     }
 
     var getPureNumStr = function(str) {
-      return str.replace( /\D+/g, '');
+      if(str)
+        return str.replace( /\D+/g, '');
+      else
+        return '';
+    }
+
+    var removeSpaces = function(str) {
+      if(str)
+        return str.replace(/[^A-Z0-9]/ig, "");
+      else
+        return '';
     }
 
     var setTeleNum = function() {
@@ -63,6 +73,7 @@ angular.module('mainApp')
       setPID();
       setAddr();
       setTeleNum();
+      vm.ioAccount = removeSpaces(vm.ioAccount);
     }
 
     vm.registerFarmer = function() {
@@ -104,7 +115,7 @@ angular.module('mainApp')
       });
     }
 
-    var setRestOfDefaultValues = function() {
+    var setRestOfDefaultValues = function(level) {
 
       if($rootScope.locals) {
         var sysParams = $rootScope.locals.sys;
@@ -114,9 +125,14 @@ angular.module('mainApp')
 
         vm.selectOnChange('dists',vm.citySelect._id)
           .then(function(dists) {
+            
+          if(level === 'city')
+            return;
+            
             vm.distSelect = _.find(vm.dists, function(dist) {
               return dist._id === sysParams.cityDist._id;
             });
+            
             vm.selectOnChange('villages',vm.distSelect._id);
           }); 
       }
@@ -127,8 +143,13 @@ angular.module('mainApp')
     vm.getCities = function() {
       vm.selectOnChange('cities', null)
       .then(function(data) {
+        /*
         if($state.current.name === 'farmerRegister')
           setRestOfDefaultValues();
+        else
+          setRestOfDefaultValues('city');
+        */
+        setRestOfDefaultValues();
       });
     }
 
