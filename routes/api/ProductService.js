@@ -494,3 +494,105 @@ exports.transact = function(req, res) {
   });
 
 }
+
+/*
+var Fawn = require('fawn');
+exports.transactFawn = function(req, res) {
+
+  var form = req.body;
+
+  var filters = {};
+  if(form.hasOwnProperty("_id")) {
+    filters._id = form._id;
+  }
+  else if(form.hasOwnProperty("accountID")) {
+    filters.accountID = form.accountID;
+  }
+  else {
+    return res.ktSendRes(400, '沒有存取存摺的關鍵資訊'); 
+  }
+
+  var nowDate = Date.now();
+  var newRec_id = mongoose.Types.ObjectId();
+  var newTrans_id = mongoose.Types.ObjectId();
+  var savAccount, savTransaction;
+  var total = 0;
+  
+  accountList.model.findOne(filters).populate('farmer').exec()
+  .then(function(account) {
+    if(!account)
+      return Promise.reject('存摺不存在');
+
+    if(!account.active)
+      return Promise.reject('存摺已結清');
+
+    if(account.freeze) 
+      return Promise.reject('此存摺被凍結中,無法進行此操作');
+
+    savAccount = account;
+
+    return getTotalAndProductList(req, res);
+  })
+  .then(function(result){
+    total = result.total;
+
+    if(savAccount.balance < total) {
+      return Promise.reject('餘額不足');
+    }
+
+    newBalance = savAccount.balance - total;
+
+    var newTransaction = new transactionList.model({
+      _id: newTrans_id,
+      date: nowDate,
+      account: savAccount._id,
+      amount: total,
+      trader: req.user._id,
+      products: result.productDataList,
+    });
+
+    if(req.user.shop) {
+      newTransaction.shop = req.user.shop;
+    }
+
+    newTransaction._req_user = req.user;
+
+    var newRec = new accountRecList.model({
+      _id: newRec_id,
+      account: savAccount._id,
+      opType: 'transact',
+      amount: total,
+      date: nowDate,
+      operator: req.user._id,
+      comment: form.comment? form.comment: '',
+      transaction: newTrans_id,
+    });
+    newRec._req_user = req.user;
+
+    savAccount._req_user = req.user;
+
+    var task = Fawn.Task();
+    return task.save(newRec)
+        .save(newTransaction)
+        .update(savAccount, { balance: newBalance, lastRecord: newRec_id })//.options({viaSave: true})
+        .run({useMongoose: true});
+
+  })
+  .then(function(results) {
+    var _savAccount = results[2];
+    var savTransaction = results[1];
+
+    return res.json({
+      success: true,
+      result: {
+        account: _savAccount.toObject(),
+        transaction: savTransaction.toObject()
+      }
+    });
+  })
+  .catch(function(err) {
+    return res.ktSendRes(400, err.toString());
+  });
+
+}
+*/

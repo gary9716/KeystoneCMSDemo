@@ -375,7 +375,9 @@ exports = module.exports = function (app) {
         listName: Constants.AccountRecordListName
       }
     ]),
+    
     routes.api.ProductService.transact
+    //routes.api.ProductService.transactFawn
   );
   
   app.post('/api/product/upsert',

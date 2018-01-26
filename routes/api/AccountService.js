@@ -679,6 +679,7 @@ exports.updateRec = function(req, res) {
         accRec.period = period_id;
     }
 
+    accRec._req_user = req.user;
     return accRec.save();
   })
   .then(function(savRec) {
@@ -686,6 +687,7 @@ exports.updateRec = function(req, res) {
     if(finalTrans) {
       finalTrans.amount = savRec.amount;
       finalTrans.products = form.products;
+      finalTrans._req_user = req.user;
       return finalTrans.save();
     }
     else {
@@ -700,6 +702,7 @@ exports.updateRec = function(req, res) {
 
     if(diff !== 0) {
       savAccount.balance += diff;
+      savAccount._req_user = req.user;
       return savAccount.save();
     }
     else {
@@ -751,6 +754,7 @@ exports.deleteRec = function(req, res) {
       return Promise.reject('未找到存摺');
 
     var accRec = finalRec;
+    account._req_user = req.user;
 
     if(accRec.opType === 'withdraw') {
       account.balance += accRec.amount;
@@ -766,7 +770,7 @@ exports.deleteRec = function(req, res) {
     }
     else if(accRec.opType === 'close') {
       account.active = true;
-      account.closedAt = undefined;
+      account.closedAt = null;
       return account.save();
     }
     else {
@@ -783,19 +787,14 @@ exports.deleteRec = function(req, res) {
     }
   })
   .then(function(result) {
-    return accountRecList.model.remove(finalRec).exec();
+    return accountRecList.model.remove({ _id: finalRec._id }).exec();
   })
   .then(function(delRec) {
-    if(delRec._id === savAccount.lastRecord) {
-      return accountRecList.model.find().sort('-date').limit(1).exec();
-    }
-    else {
-      return 'pass';
-    }
+    return accountRecList.model.find().lean().sort('-date').limit(1).exec();
   })
   .then(function(latestRecord){
-    if(latestRecord !== 'pass') {
-      savAccount.lastRecord = latestRecord;
+    if(latestRecord) {
+      savAccount.lastRecord = latestRecord[0]._id;
       return savAccount.save();
     }
     else {

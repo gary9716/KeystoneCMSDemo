@@ -298,7 +298,6 @@ angular.module('mainApp')
 
     vm.deleteRec = function(accRec) {
       if($window.confirm('即將刪除此記錄, 確定嗎')) {
-        console.log('delete rec');
         $http.post('/api/account-rec/delete', accRec)
         .then(function(res) {
           var data = res.data;
@@ -651,12 +650,19 @@ angular.module('mainApp')
         opType === 'accUserChange') {
           return false;
         }
-      else if(opType === 'transact' || 
-              opType === 'close') {
+      else if(opType === 'transact') {
           if(act === 'delete' || act === 'update')
             return true;
           else
             return false;
+      }
+      else if(opType === 'close') {
+          if(act === 'delete') {
+            return true;
+          }
+          else {
+            return false;
+          }
       }
       else if(opType === 'deposit' ||
               opType === 'withdraw') {

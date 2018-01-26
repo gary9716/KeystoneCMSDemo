@@ -10,6 +10,8 @@ var Transaction = new keystone.List(Constants.TransactionListName, {
   label: '兌換紀錄',
   nodelete: true,
   nocreate: true,
+  track: true,
+  defaultSort: '-date'
 });
 
 var productRec = new Schema({
