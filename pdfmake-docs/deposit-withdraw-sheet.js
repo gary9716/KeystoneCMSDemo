@@ -1,4 +1,3 @@
-
 var keystone = require('keystone');
 var Constants = require(__base + 'Constants');
 module.exports = function(req, res) {

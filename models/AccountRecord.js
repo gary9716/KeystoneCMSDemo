@@ -45,7 +45,7 @@ AccountRecord.add({
   ], index: true, required: true, trim: true, initial: true, noedit: true },
   amount: { type: Types.Money, label: '金額', default: 0, initial: true, noedit: true },
   date: { type: Types.Datetime, format: 'YYYY-MM-DD kk:mm:ss', label: '記錄時間', default: Date.now, initial: true, noedit: true },
-  operator: { type: Types.Relationship, ref: Constants.UserListName, label: '操作者', initial: true, noedit: true },
+  operator: { type: Types.Relationship, ref: Constants.UserListName, label: '操作者', initial: true },
   comment: { type: Types.Textarea, label: '備註', trim: true, initial: true },
 
   //conditional fields
@@ -58,36 +58,6 @@ AccountRecord.add({
     storage: myStorage,
     initial: true
   },
-});
-
-var AccVer = new Schema({
-  account: { type: Schema.Types.ObjectId, ref: Constants.AccountListName },
-  opType: { type: String },
-  amount: { type: Number },
-  date: { type: Date },
-  operator: { type: Schema.Types.ObjectId, ref: Constants.UserListName },
-  comment: { type: String },
-  ioAccount: { type: String },
-  period: { type: Schema.Types.ObjectId, ref: Constants.PeriodListName },
-  transaction: { type: Schema.Types.ObjectId, ref: Constants.TransactionListName },
-  relatedFile: { 
-    type: {
-      filename: String,       // always on; the filename of the file, including the extension
-      size: Number,           // on by default; the size of the file
-      mimetype: String,       // on by default; the mime type of the file
-      path: String,           // the path (i.e directory) the file is stored in; not the full path to the file
-      originalname: String,   // the original (uploaded) name of the file; useful when filename is generated
-      url: String,            // publicly accessible URL of the stored file
-    } 
-  },
-  
-  _verDate: { type: Date },
-}, { _id: false });
-
-AccountRecord.schema.add({
-  versions: {
-    type: [AccVer]
-  }
 });
 
 AccountRecord.defaultColumns = 'opType, account, date, operator, amount'; //name property(opType) should be placed at first

@@ -7,7 +7,7 @@ var farmerList = keystone.list(Constants.FarmerListName);
 var accountList = keystone.list(Constants.AccountListName);
 var accountRecList = keystone.list(Constants.AccountRecordListName);
 var periodList = keystone.list(Constants.PeriodListName);
-//var accRecRelatedFileList = keystone.list(Constants.AccRecRelatedFileListName);
+var transactionList = keystone.list(Constants.TransactionListName);
 var mime = require('mime-to-extensions');
 var moment = require('moment');
 var mongoose = keystone.get('mongoose');
@@ -554,6 +554,7 @@ exports.updateRec = function(req, res) {
   var diff = 0;
   var period_id;
   var finalRec;
+  var finalTrans;
   var savAccount;
 
   Promise.resolve()
@@ -605,68 +606,119 @@ exports.updateRec = function(req, res) {
 
     finalRec = accRec;
 
-    return accountList.model.findOne({
-      _id: accRec.account
-    }).exec();
+    if(accRec.transaction) {
+      return transactionList.model.findOne({
+        _id: accRec.transaction
+      }).exec();
+    }
+    else {
+      return 'pass';
+    }
 
+  })
+  .then(function(transaction) {
+    if(transaction !== 'pass') {
+      if(!transaction) 
+        return Promise.reject('沒有相對應的兌領紀錄');
+      
+      finalTrans = transaction;
+    }
+    
+    return accountList.model.findOne({
+      _id: finalRec.account
+    }).populate('farmer').exec();
+  
   })
   .then(function(account) {
     if(!account)
       return Promise.reject('未找到存摺');
     
     savAccount = account;
-
     var accRec = finalRec;
-    if(!accRec.versions)
-      accRec.versions = [];
-    var accRecVer = accRec.toObject();
-    accRecVer._verDate = Date.now();
-    accRec.versions.push(accRecVer);
+
+    if(form.products) { //update transaction
+      
+      var newTotal = 0;
+      form.products.forEach(function(product) {
+        newTotal += (product.qty * product.price);
+      });
+      newTotal = Math.abs(newTotal);
+
+      if(isNaN(newTotal))
+        return Promise.reject('商品總價非數字');
+
+      diff = accRec.amount - newTotal;
+      accRec.amount = newTotal;
+
+    }
+    else {
+
+      if(form.amount) {
+        var amount = Math.abs(form.amount);
+
+        if(isNaN(amount))
+          return Promise.reject('金額非數字');
+        
+        if(accRec.opType === 'withdraw') {
+          diff = accRec.amount - amount;
+          accRec.amount = amount;
+        } 
+        else if(accRec.opType === 'deposit') {
+          diff = amount - accRec.amount;
+          accRec.amount = amount;
+        }
+      }
+  
+      if(form.comment)
+        accRec.comment = form.comment;
+      
+      if(form.ioAccount) 
+        accRec.ioAccount = form.ioAccount;
+  
+      if(period_id)
+        accRec.period = period_id;
+    }
 
     return accRec.save();
   })
   .then(function(savRec) {
-    console.log(savRec.versions);
 
-    if(form.amount) {
-      var amount = Math.abs(form.amount);
-      if(savRec.opType === 'withdraw') {
-        diff = savRec.amount - amount;
-        savRec.amount = amount;
-      } 
-      else if(savRec.opType === 'deposit') {
-        diff = amount - savRec.amount;
-        savRec.amount = amount;
-      }
-      //left transact for product service to deal with
+    if(finalTrans) {
+      finalTrans.amount = savRec.amount;
+      finalTrans.products = form.products;
+      return finalTrans.save();
+    }
+    else {
+      return;
+    }
+    
+  })
+  .then(function(trans){
+    if(trans) {
+      finalTrans = trans;
     }
 
-    if(form.comment)
-      savRec.comment = form.comment;
-    
-    if(form.ioAccount) 
-      savRec.ioAccount = form.ioAccount;
-
-    if(period_id)
-      savRec.period = period_id;
-
-    return savRec.save();
-  })
-  .then(function(savRec) {
-    finalRec = savRec;
-    
     if(diff !== 0) {
       savAccount.balance += diff;
       return savAccount.save();
     }
     else {
-      return 'pass';
+      return savAccount;
     }
   })
   .then(function(_savAccount) {
+    var result = {
+      accRec: finalRec.toObject(),
+      account: _savAccount.toObject(),
+    };
+
+    if(finalTrans) {
+      result.transaction = finalTrans.toObject();
+    }
+
     res.json({
       success: true,
-      result: finalRec.toObject()
+      result: result 
     });
   })
   .catch(function(err) {
@@ -691,12 +743,14 @@ exports.deleteRec = function(req, res) {
 
     return accountList.model.findOne({
       _id: accRec.account
-    }).exec();
+    }).populate('farmer').exec();
 
   })
   .then(function(account) {
     if(!account)
       return Promise.reject('未找到存摺');
+
+    var accRec = finalRec;
 
     if(accRec.opType === 'withdraw') {
       account.balance += accRec.amount;
@@ -704,6 +758,10 @@ exports.deleteRec = function(req, res) {
     }
     else if(accRec.opType === 'deposit') {
       account.balance -= accRec.amount;
+      return account.save();
+    }
+    else if(accRec.opType === 'transact') {
+      account.balance += accRec.amount;
       return account.save();
     }
     else if(accRec.opType === 'close') {
@@ -715,8 +773,16 @@ exports.deleteRec = function(req, res) {
       return Promise.reject('該紀錄無法刪除');
     }
   })
-  .then(function(_savAccount) {
+  .then(function(_savAccount) { 
     savAccount = _savAccount;
+    if(finalRec.opType === 'transact') {
+      return transactionList.model.remove({ _id: finalRec.transaction }).exec();
+    }
+    else {
+      return 'pass';
+    }
+  })
+  .then(function(result) {
     return accountRecList.model.remove(finalRec).exec();
   })
   .then(function(delRec) {
@@ -733,12 +799,13 @@ exports.deleteRec = function(req, res) {
       return savAccount.save();
     }
     else {
-      return 'pass';
+      return savAccount;
     }
   })
-  .then(function(result) {
+  .then(function(_savAccount) {
     return res.json({
-      success: true
+      success: true,
+      result: _savAccount.toObject()
     });
   })
   .catch(function(err) {

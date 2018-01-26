@@ -26,25 +26,12 @@ Transaction.add({
   account: { type: Types.Relationship, ref: Constants.AccountListName, label: '存摺', noedit: true },
   amount: { type: Types.Money, label: '交易金額' ,noedit: true },
   shop: { type: Types.Relationship, ref: Constants.ShopListName, label: '兌領處' },
-  trader: { type: Types.Relationship, ref: Constants.UserListName, label: '業務員', noedit: true },
+  trader: { type: Types.Relationship, ref: Constants.UserListName, label: '業務員' },
 });
-
-var TransVer = new Schema({
-  date: { type: Date },
-  account: { type: Schema.Types.ObjectId, ref: Constants.AccountListName },
-  amount: { type: Number },
-  shop: { type: Schema.Types.ObjectId, ref: Constants.ShopListName },
-  trader: { type: Schema.Types.ObjectId, ref: Constants.UserListName },
-  
-  _verDate: { type: Date },
-}, { _id: false });
 
 Transaction.schema.add({
   products: {
     type: [productRec]
-  },
-  versions: {
-    type: [TransVer]
   }
 });
 

@@ -219,7 +219,33 @@ exports = module.exports = function (app) {
     routes.api.FarmerService.getAndPopulate
   );
 
+  app.post('/api/account-rec/delete',
+    middleware.permissionCheck.bind([
+      {
+        opName: 'delete',
+        listName: Constants.AccountRecordListName
+      },
+      {
+        opName: 'delete',
+        listName: Constants.TransactionListName
+      }
+    ]),
+    routes.api.AccountService.deleteRec
+  );
 
+  app.post('/api/account-rec/update',
+    middleware.permissionCheck.bind([
+      {
+        opName: 'update',
+        listName: Constants.AccountRecordListName
+      },
+      {
+        opName: 'update',
+        listName: Constants.TransactionListName
+      }
+    ]),
+    routes.api.AccountService.updateRec
+  );
 
   app.post('/api/account/create',
     middleware.permissionCheck.bind([

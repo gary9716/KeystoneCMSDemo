@@ -146,6 +146,10 @@
       margin-bottom: 10px;
     }
 
+    table#account-rec-table tr.editting {
+      background-color: #9ce1f4;
+    }
+
     div.flex-row .radio-item {
       margin-right: 5px;
     }
@@ -232,14 +236,14 @@
           </tr>
         </thead>
         <tbody>
-          <tr ng-repeat="accountRec in ctrler.accountRecs">
+          <tr ng-repeat="accountRec in ctrler.accountRecs track by accountRec._id" ng-class="{ 'editting': ctrler.edittingRec._id === accountRec._id }">
             <td> <!-- Single button -->
               <div ng-show="ctrler.isActCountZero(accountRec)">{{accountRec.opType.name}}</div>
               <div uib-dropdown uib-dropdown-toggle ng-hide="ctrler.isActCountZero(accountRec)">
                 <div class="clickable">{{accountRec.opType.name}} <span class="caret"></span></div>
                 <ul class="dropdown-menu" uib-dropdown-menu role="menu">
                   <li ng-show="ctrler.hasAct(accountRec, 'delete')" role="menuitem"><a ng-click="ctrler.deleteRec(accountRec)">刪除</a></li>
-                  <li ng-show="ctrler.hasAct(accountRec, 'update')" role="menuitem"><a ng-click="ctrler.updateRec(accountRec)">修改</a></li>
+                  <li ng-show="ctrler.hasAct(accountRec, 'update')" role="menuitem"><a ng-click="ctrler.selectEdittingRec(accountRec)">修改</a></li>
                   <li ng-show="ctrler.hasAct(accountRec, 'download')" role="menuitem"><a ng-click="ctrler.downloadRecPDF(accountRec)">下載</a></li>
                 </ul>
               </div>
@@ -267,10 +271,11 @@
       <label class="radio-item"><input type="radio" class="opt-radio" value="close" ng-model="ctrler.accountOp">結清</label>
       <label class="radio-item"><input type="radio" class="opt-radio" value="accUserChange" ng-model="ctrler.accountOp">過戶</label>
       <label class="radio-item"><input type="radio" class="opt-radio" value="downloadUnfreezeSheet" ng-model="ctrler.accountOp">下載解凍單</label>
+      <label class="radio-item"><input type="radio" class="opt-radio" value="update-rec" ng-model="ctrler.accountOp">修改記錄</label>
     </div>
   
 
-    <form name="accountOpForm" id="account-op-form" style="padding-top: 10px;">
+    <form name="accountOpForm" id="account-op-form" style="padding-top: 10px;" novalidate>
       <section ng-show="ctrler.accountOp==='deposit'">
         <div class="flex-row">
           <label class="col-md-2">入款金額</label>
@@ -362,6 +367,97 @@
           </div>
         </div>
       </section>
+
+      <section ng-show="ctrler.accountOp==='update-rec'" class="form-group">
+        <div ng-hide="ctrler.edittingRec">
+          請點選一個存摺記錄的類別項目以進行修改
+        </div>
+        <div ng-show="ctrler.edittingRec">
+          <div ng-hide="ctrler.edittingRec.opType.value==='transact'">
+            <div class="flex-row"  ng-show="ctrler.edittingRec.opType.value==='withdraw' || ctrler.edittingRec.opType.value==='deposit'">
+              <label class="col-md-2">金額</label>
+              <input type="number" name="editRecAmount" ng-model="ctrler.edittingRec.amount" ng-trim="true" required>
+            </div>
+            <div class="flex-row" ng-show="ctrler.edittingRec.opType.value==='withdraw' || ctrler.edittingRec.opType.value==='deposit'">
+              <label class="col-md-2">對口帳戶</label>
+              <input type="text" ng-model="ctrler.edittingRec.ioAccount" ng-trim="true">
+            </div>
+            <div class="flex-row" ng-show="ctrler.edittingRec.opType.value==='deposit'">
+              <label class="col-md-2">期別</label>
+              <input type="text" name="editRecPeriod" ng-model="ctrler.edittingRec.period" ng-trim="true" typeahead-no-results="ctrler.noPeriodFound" typeahead-loading="ctrler.loadingPeriod" uib-typeahead="period.name for period in ctrler.getPeriods($viewValue)" ng-model-options= "{ debounce: { default: 700 } }">
+              <i ng-show="ctrler.loadingPeriod" class="glyphicon glyphicon-refresh">搜尋中</i>
+              <div ng-show="ctrler.noPeriodFound">
+                <i class="glyphicon glyphicon-remove"></i> 沒找到相關期別
+              </div>
+            </div>
+            <div class="flex-row">
+              <label class="col-md-2">備註</label>
+              <div>
+                <textarea rows="5" ng-model="ctrler.edittingRec.comment" ng-model-options="{ updateOn: 'blur' }" style="resize: none;" ng-trim="true"></textarea>
+              </div>
+            </div>
+          </div>
+          <div ng-show="ctrler.edittingRec.products">
+              <table class="table table-bordered">
+                  <thead>
+                      <tr>
+                          <th>商品</th>
+                          <th class="text-center">數量</th>
+                          <th class="text-center">單價</th>
+                          <th class="text-center">總價</th>
+                          <th></th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                      <tr ng-repeat="item in ctrler.edittingRec.products track by item.pid">
+                          <td style="width: 30%;">
+                            <label>{{::item.name}}</label>
+                            <!--
+                            <div class="media">
+                                <div class="media-body">
+                                    <h4 class="media-heading">{{::item.name}}</h4>
+                                </div>
+                            </div>
+                            -->
+                          </td>
+                          
+                          <td style="width: 22%;" class="text-center">
+                            <div class="input-group">
+                              <span class="input-group-btn">
+                                <button class="btn btn-default btn-info" ng-click="ctrler.changeQty(item,-1);"><span class="fa fa-minus"></span></button>
+                              </span>
+                              <input type="number" name="editRecItemQty" ng-model="item.qty" ng-model-options="{ debounce: 200 }" class="form-control text-center" min="1" required>
+                              <span class="input-group-btn">
+                                <button class="btn btn-default btn-info" ng-click="ctrler.changeQty(item,1);"><span class="fa fa-plus"></span></button>
+                              </span>
+                            </div>
+                          </td>
+                          
+                          <td style="width: 18%;" class="text-center">
+                            <strong>{{::item.price}}</strong>
+                          </td>
+                          
+                          <td style="width: 20%;" class="text-center">
+                            <strong>{{item.price * item.qty}}</strong>
+                          </td>
+      
+                          <td style="width: 10%;" class="text-center">
+                            <button ng-click="ctrler.rmItem(item)" class="btn btn-danger"><i class="fa fa-times"></i> 移除</button>
+                          </td>
+      
+                        </tr>
+                  </tbody>
+              </table>
+              <div class="text-right">
+                <h4>合計:{{ctrler.getTotal()}}</h4>
+              </div>
+
+          </div>
+
+        </div>
+        
+      </section>
+
     </form>
 
 </div>
@@ -373,6 +469,7 @@
       <button ng-click="ctrler.closeAccOp()" class="btn btn-success col-md-offset-4" ng-disabled="ctrler.isProcessing" ng-show="ctrler.accountOp==='close'">結清</button>
       <button ng-click="ctrler.accUserChangeOp()" class="btn btn-success col-md-offset-4" ng-disabled="ctrler.isProcessing" ng-show="ctrler.accountOp==='accUserChange'">過戶</button>
       <button ng-click="ctrler.downloadUnfreezeSheetOp()" class="btn btn-success col-md-offset-4" ng-disabled="ctrler.isProcessing" ng-show="ctrler.accountOp==='downloadUnfreezeSheet'">下載</button>
+      <button ng-click="ctrler.updateRecOp()" class="btn btn-success col-md-offset-4" ng-disabled="ctrler.isUpdateRecButtonDisabled()" ng-show="ctrler.accountOp==='update-rec'">修改</button>
       
       <button class="btn" ng-class="{ 'btn-warning': (ctrler.accountOp && ctrler.accountOp.length > 0), 'btn-primary': (!ctrler.accountOp || ctrler.accountOp.length === 0) }" type="button" ng-click="ctrler.cancel()">{{(ctrler.accountOp && ctrler.accountOp.length > 0)? '取消' : '關閉'}}</button>
     </div>

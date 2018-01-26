@@ -190,8 +190,8 @@ angular.module('mainApp')
   }]
 )
 .controller('AccountDetailModalCtrler', 
-  ['$uibModalInstance', 'account', '$http', 'lodash', '$q', 'Upload', '$window',
-  function($uibModalInstance, account, $http, _ , $q, Upload, $window) {
+  ['$uibModalInstance', 'account', '$http', 'lodash', '$q', 'Upload', '$window', '$scope',
+  function($uibModalInstance, account, $http, _ , $q, Upload, $window, $scope) {
     var vm = this;
     vm.account = account;
     
@@ -256,6 +256,7 @@ angular.module('mainApp')
     }
 
     vm.downloadDWSheetOp = function(accRec, op, msg) {
+      vm.isProcessing = true;
       return $http.post('/pdf/deposit-withdraw-sheet',
       {
         op: op,
@@ -265,6 +266,11 @@ angular.module('mainApp')
         responseType: 'arraybuffer'
       })
       .then(function(res) {
+        if(res.status !== 200) {
+          console.log('code not 200');
+          console.log(res);
+        }
+
         var filenameInfo = res.headers('Content-disposition').split('filename=');
         //console.log(filenameInfo);
         var file = new Blob([res.data],{type: 'application/pdf'});
@@ -278,6 +284,9 @@ angular.module('mainApp')
       })
       .catch(function(err) {
         vm.pubErrorMsg('下載轉帳單失敗,' + err.data.toString());
+      })
+      .finally(function(){
+        vm.isProcessing = false;
       });
     }
 
@@ -288,11 +297,129 @@ angular.module('mainApp')
     }
 
     vm.deleteRec = function(accRec) {
-      console.log('delete rec');
+      if($window.confirm('即將刪除此記錄, 確定嗎')) {
+        console.log('delete rec');
+        $http.post('/api/account-rec/delete', accRec)
+        .then(function(res) {
+          var data = res.data;
+          if(data.success) {
+            vm.pubSuccessMsg('刪除紀錄成功,已更新畫面');
+            if(vm.edittingRec && accRec._id === vm.edittingRec._id) {
+              vm.edittingRec = undefined;
+            }
+            _.assign(vm.account, data.result);
+            vm.getAccountRecords();
+          }
+        })
+        .catch(function(err) {
+          vm.pubErrorMsg('刪除紀錄失敗,' + err.data.toString());
+        });
+        
+      }
     }
 
-    vm.updateRec = function(accRec) {
-      console.log('update rec');
+    vm.selectEdittingRec = function(accRec) {
+      vm.edittingRec = _.clone(accRec);
+      if(vm.edittingRec.opType.value === 'transact') {
+        //fetch transaction data
+        $http.post('/api/read/',{
+          listName: 'Transaction',
+          filters: {
+            _id: accRec.transaction
+          }
+        })
+        .then(function(res) {
+          var data = res.data;
+          if(data.success) {
+            vm.edittingRec.products = data.result[0].products;
+          }
+        })
+        .catch(function(err) {
+          vm.pubErrorMsg('抓取兌領紀錄失敗,' + err.data.toString());
+        });
+      }
+      else {
+        vm.edittingRec.period = vm.edittingRec.period ? vm.edittingRec.period.name : vm.edittingRec.period;
+      }
+      vm.accountOp = 'update-rec';
+    }
+
+    vm.updateRecOp = function(accRec) {
+      var accRec = vm.edittingRec;
+      if(accRec.opType.value === 'transact') {
+        if(!accRec.products || accRec.products.length === 0) {
+          return vm.pubErrorMsg('產品列表不能為空的,不然就請刪除此紀錄');
+        }
+      }
+
+      vm.isProcessing = true;
+
+      $http.post('/api/account-rec/update', accRec)
+        .then(function(res) {
+          var data = res.data;
+          if(data.success) {
+            _.assign(vm.account, data.result.account);
+            vm.getAccountRecords();
+            vm.edittingRec = undefined;
+            vm.pubSuccessMsg('更新存摺紀錄成功,已更新畫面');
+          }
+        })
+        .catch(function(err) {
+          vm.pubErrorMsg('更新存摺紀錄失敗,' + err.data.toString());
+        })
+        .finally(function(){
+          vm.isProcessing = false;
+        });
+    }
+
+    /*
+    $scope.$watch('ctrler.accountOp', function(value) {
+      if(value !== 'update-rec') {
+        vm.edittingRec = undefined;
+      }
+    });
+    */
+
+    vm.changeQty = function(item, val) {
+      item.qty += val;
+    }
+
+    vm.rmItem = function(item) {
+      if(vm.edittingRec.products) {
+        var index = _.findIndex(vm.edittingRec.products, function(product) {
+          return product.pid === item.pid;
+        });
+        if(index !== -1)
+          vm.edittingRec.products.splice(index, 1);
+      }
+    }
+
+    vm.getTotal = function() {
+      if(vm.edittingRec && vm.edittingRec.products) {
+        var total = 0;
+        vm.edittingRec.products.forEach(function(product) {
+          total += (product.price * product.qty);
+        });
+
+        return total;
+      }
+      else {
+        return 0;
+      }
+    }
+
+    vm.isUpdateRecButtonDisabled = function() {
+      if(vm.edittingRec) {
+        if(vm.edittingRec.opType.value === 'transact') {
+          return (vm.isProcessing || ($scope.accountOpForm.editRecItemQty && $scope.accountOpForm.editRecItemQty.$invalid));
+        }
+        else if(vm.edittingRec.opType.value === 'withdraw' || vm.edittingRec.opType.value === 'deposit') {
+          return (vm.isProcessing || $scope.accountOpForm.editRecAmount.$invalid);
+        }
+      }
+      else {
+        return false;
+      }
     }
 
     vm.depositOp = function() {
@@ -375,6 +502,7 @@ angular.module('mainApp')
     }
 
     vm.downloadUnfreezeSheetOp = function() {
+      vm.isProcessing = true;
       $http.post('/pdf/unfreeze-sheet')
       .then(function(res) {
         if(res.data.success) {
@@ -386,6 +514,9 @@ angular.module('mainApp')
       })
       .catch(function(err) {
         vm.pubErrorMsg('下載解凍單失敗,' + err.data.toString());
+      })
+      .finally(function() {
+        vm.isProcessing = false;
       });
       
     }
