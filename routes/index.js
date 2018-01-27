@@ -377,7 +377,6 @@ exports = module.exports = function (app) {
     ]),
     
     routes.api.ProductService.transact
-    //routes.api.ProductService.transactFawn
   );
   
   app.post('/api/product/upsert',

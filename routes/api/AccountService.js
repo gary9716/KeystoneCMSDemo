@@ -8,11 +8,13 @@ var accountList = keystone.list(Constants.AccountListName);
 var accountRecList = keystone.list(Constants.AccountRecordListName);
 var periodList = keystone.list(Constants.PeriodListName);
 var transactionList = keystone.list(Constants.TransactionListName);
+
 var mime = require('mime-to-extensions');
 var moment = require('moment');
 var mongoose = keystone.get('mongoose');
 var path = require('path');
 var fs = require('fs');
+var DBRecTask = require('../DBRecTask');
 
 exports.create = function(req, res) {
   var form = req.body;
@@ -46,12 +48,8 @@ exports.create = function(req, res) {
         date: createDate,
         comment: form.comment? form.comment: ''
       });
-
       newRec._req_user = req.user;
-      
-      return newRec.save();
-    })
-    .then(function(savRec) {
+
       var newAccount = new accountList.model({
         _id: newAccount_id,
         accountID: newAccountID,
@@ -60,18 +58,21 @@ exports.create = function(req, res) {
         createdAt: createDate,
         active: true,
         freeze: false,
-        lastRecord: savRec,
+        lastRecord: newRec._id,
         balance: 0
       });
-
       newAccount._req_user = req.user;
 
-      return newAccount.save();
+      var dbRecTask = new DBRecTask();
+      
+      return dbRecTask.addPending(newRec.save, accountRecList, null, newRec)
+               .addPending(newAccount.save, accountList, null, newAccount)
+               .exec();
     })
-    .then(function(savAccount) {
+    .then(function(results) {
       return res.json({
         success: true,
-        result: savAccount.toObject() //account
+        result: results[1].toObject() //account
       });
     })
     .catch(function(err) {
@@ -96,7 +97,7 @@ exports.close = function(req, res) {
 
   var closeDate = Date.now();
   var newRec_id = mongoose.Types.ObjectId();
-  var savAccount;
+  
   accountList.model.findOne(filters)
   .populate('farmer')
   .exec()
@@ -110,7 +111,7 @@ exports.close = function(req, res) {
     if(!account.active) 
       return Promise.reject('此存摺已被結清');
 
-    savAccount = account;
+    var oldAcc = account.toObject();
 
     var newRec = new accountRecList.model({
       _id: newRec_id,
@@ -120,26 +121,25 @@ exports.close = function(req, res) {
       operator: req.user._id,
       comment: form.comment? form.comment: '',
     });
-
     newRec._req_user = req.user;
 
-    return newRec.save();
+    account.active = false;
+    account.closedAt = newRec.date;
+    account.lastRecord = newRec_id;
+    account._req_user = req.user;
+
+    var dbRecTask = new DBRecTask();
+      
+    return dbRecTask.addPending(account.save, accountList, oldAcc, account) //update
+             .addPending(newRec.save, accountRecList, null, newRec)
+             .exec();
+
   })
-  .then(function(savRec) {
-
-    savAccount.active = false;
-    savAccount.closedAt = savRec.date;
-    savAccount.lastRecord = savRec;
-    savAccount._req_user = req.user;
-
-    return savAccount.save();
-
-  })
-  .then(function(_savAccount) {
+  .then(function(results) {
 
     return res.json({
       success: true,
-      result: _savAccount.toObject()
+      result: results[0].toObject()
     });
 
   })
@@ -173,7 +173,6 @@ exports.setFreeze = function(req, res) {
   }
 
   var newRec_id = mongoose.Types.ObjectId();
-  var savAccount;
   accountList.model.findOne(filters)
   .populate('farmer')
   .exec()
@@ -184,9 +183,8 @@ exports.setFreeze = function(req, res) {
     if(!account.active) 
       return Promise.reject('此存摺已被結清');
 
+    var oldAcc = account.toObject();
     var nowDate = Date.now();
-
-    savAccount = account;
 
     var newRec = new accountRecList.model({
       _id: newRec_id,
@@ -197,46 +195,56 @@ exports.setFreeze = function(req, res) {
       comment: form.comment? form.comment: '',
     });
     newRec._req_user = req.user;
+
+    account.freeze = !account.freeze;
+    account.lastRecord = newRec_id;
+    account._req_user = req.user;
     
-    var relatedFile = req.files.relatedFile;
-    if(relatedFile) {
-      return new Promise(function(resolve, reject) {
-        fs.access(relatedFile.path, fs.constants.F_OK, (err) => {
-          if(err) reject(err.toString());
+    var recPromiseFunc = function() {
 
-          var boundGetFilename = getUnfreezeFilename.bind({
-            account: account,
+      var relatedFile = req.files.relatedFile;
+      if(relatedFile) {
+        return new Promise(function(resolve, reject) {
+          fs.access(relatedFile.path, fs.constants.F_OK, (err) => {
+            if(err) reject(err.toString());
+
+            console.log('here4');
+
+            var boundGetFilename = getUnfreezeFilename.bind({
+              account: account,
+            });
+
+            accRecFileStorageAdapter.getFilename = boundGetFilename;
+            accRecFileStorageAdapter.retryFilename = boundGetFilename;
+
+            newRec._.relatedFile.upload(relatedFile, (err2) => {
+                if (err2) return reject(err2.toString());
+
+                console.log('here3.5');
+                resolve(newRec.save());
+            });
+
           });
-
-          accRecFileStorageAdapter.getFilename = boundGetFilename;
-          accRecFileStorageAdapter.retryFilename = boundGetFilename;
-
-          newRec._.relatedFile.upload(relatedFile, (err2) => {
-              if (err2) return reject(err2.toString());
-
-              resolve(newRec.save());
-          });
-
+          
         });
-        
-      });
-    }
-    else {
-      return newRec.save();
-    }
+      }
+      else {
+        return newRec.save();
+      }
+
+    };
+    
+    var dbRecTask = new DBRecTask();
+      
+    return dbRecTask.addPending(account.save, accountList, oldAcc, account) //update
+                    .addPending(recPromiseFunc, accountRecList, null, newRec)
+                    .exec();
     
   })
-  .then(function(savRec) {
-    savAccount.freeze = !savAccount.freeze;
-    savAccount.lastRecord = savRec;
-    savAccount._req_user = req.user;
-
-    return savAccount.save();
-  })
-  .then(function(_savAccount) {
+  .then(function(results) {
     return res.json({
       success: true,
-      result: _savAccount.toObject(),
+      result: results[0].toObject(),
     });
   })
   .catch(function(err) {
@@ -265,7 +273,6 @@ exports.changeAccUser = function(req, res) {
   }
 
   var newRec_id = mongoose.Types.ObjectId();
-  var savAccount;
 
   accountList.model.findOne(filters)
   .populate('farmer')
@@ -280,8 +287,8 @@ exports.changeAccUser = function(req, res) {
     if(account.freeze) 
       return Promise.reject('此存摺被凍結中');
     
-    savAccount = account;
-
+    var oldAcc = account.toObject();
+    
     var newRec = new accountRecList.model({
       _id: newRec_id,
       account: account._id,
@@ -290,23 +297,22 @@ exports.changeAccUser = function(req, res) {
       operator: req.user._id,
       comment: form.comment? form.comment: '',
     });
-
     newRec._req_user = req.user;
-    return newRec.save();
-    
-  })
-  .then(function(savRec) {
-    
-    savAccount.accountUser = form.newUser;
-    savAccount.lastRecord = savRec;
-    savAccount._req_user = req.user;
+        
+    account.accountUser = form.newUser;
+    account.lastRecord = newRec_id;
+    account._req_user = req.user;
 
-    return savAccount.save();
+    var dbRecTask = new DBRecTask();
+    return dbRecTask.addPending(account.save, accountList, oldAcc, account) //update
+             .addPending(newRec.save, accountRecList, null, newRec)
+             .exec();
+
   })
-  .then(function(_savAccount) {
+  .then(function(results) {
     return res.json({
       success: true,
-      result: _savAccount.toObject()
+      result: results[0].toObject()
     });
   })
   .catch(function(err) {
@@ -339,9 +345,10 @@ exports.deposit = function(req, res) {
   var newRec_id = mongoose.Types.ObjectId();
   var amount = 0;
   var newBalance = 0;
+  var oldAcc;
 
   accountList.model.findOne(filters)
-  .populate('farmer')
+  .populate('farmer lastRecord')
   .exec()
   .then(function(_account) {
     if(!_account)
@@ -354,6 +361,7 @@ exports.deposit = function(req, res) {
       return Promise.reject('此存摺被凍結中,無法進行此操作');
 
     account = _account;
+    oldAcc = account.toObject();
 
     return;
   })
@@ -426,26 +434,24 @@ exports.deposit = function(req, res) {
       comment: form.comment? form.comment: '',
       ioAccount: form.ioAccount? form.ioAccount: '',
     });
-
     if(period_id)
       newRec.period = period_id;
-
     newRec._req_user = req.user;
 
-    return newRec.save();
-
-  })
-  .then(function(savRec) {
     account.balance = newBalance;
-    account.lastRecord = savRec;
+    account.lastRecord = newRec_id;
     account._req_user = req.user;
 
-    return account.save();
+    var dbRecTask = new DBRecTask();
+    return dbRecTask.addPending(account.save, accountList, oldAcc, account) //update
+             .addPending(newRec.save, accountRecList, null, newRec)
+             .exec();
+
   })
-  .then(function(_savAccount) {
+  .then(function(results) {
     return res.json({
       success: true,
-      result: _savAccount.toObject(),
+      result: results[0].toObject(),
     });
   })
   .catch(function(err) {
@@ -474,7 +480,7 @@ exports.withdraw = function(req, res) {
 
   var amount = 0;
   var newRec_id = mongoose.Types.ObjectId();
-  var savAccount;
+  var oldAcc;
   var newBalance = 0;
 
   accountList.model.findOne(filters)
@@ -489,6 +495,8 @@ exports.withdraw = function(req, res) {
     
     if(account.freeze) 
       return Promise.reject('此存摺被凍結中,無法進行此操作');
+
+    oldAcc = account.toObject();
 
     //parse amount
     if(_.isString(form.amount))
@@ -520,27 +528,21 @@ exports.withdraw = function(req, res) {
       comment: form.comment? form.comment: '',
       ioAccount: form.ioAccount? form.ioAccount: '',
     });
-
     newRec._req_user = req.user;
 
-    savAccount = account;
+    account.balance = newBalance;
+    account.lastRecord = newRec_id;
+    account._req_user = req.user;
 
-    return newRec.save();
-
+    var dbRecTask = new DBRecTask();
+    return dbRecTask.addPending(account.save, accountList, oldAcc, account) //update
+             .addPending(newRec.save, accountRecList, null, newRec)
+             .exec();
   })
-  .then(function(savRec) {
-    
-    savAccount.balance = newBalance;
-    savAccount.lastRecord = savRec;
-    savAccount._req_user = req.user;
-
-    return savAccount.save();
-
-  })
-  .then(function(_savAccount) {
+  .then(function(results) {
     return res.json({
       success: true,
-      result: _savAccount.toObject()
+      result: results[0].toObject()
     });
   })
   .catch(function(err) {
@@ -555,7 +557,9 @@ exports.updateRec = function(req, res) {
   var period_id;
   var finalRec;
   var finalTrans;
-  var savAccount;
+  var oldAcc;
+  var oldTrans;
+  var oldRec;
 
   Promise.resolve()
   .then(function() {
@@ -605,6 +609,7 @@ exports.updateRec = function(req, res) {
       return Promise.reject('沒有該存摺紀錄');
 
     finalRec = accRec;
+    oldRec = accRec.toObject();
 
     if(accRec.transaction) {
       return transactionList.model.findOne({
@@ -622,6 +627,7 @@ exports.updateRec = function(req, res) {
         return Promise.reject('沒有相對應的兌領紀錄');
       
       finalTrans = transaction;
+      oldTrans = transaction.toObject();
     }
     
     return accountList.model.findOne({
@@ -633,7 +639,8 @@ exports.updateRec = function(req, res) {
     if(!account)
       return Promise.reject('未找到存摺');
     
-    savAccount = account;
+    oldAcc = account.toObject();
+
     var accRec = finalRec;
 
     if(form.products) { //update transaction
@@ -677,52 +684,51 @@ exports.updateRec = function(req, res) {
   
       if(period_id)
         accRec.period = period_id;
+
     }
-
     accRec._req_user = req.user;
-    return accRec.save();
-  })
-  .then(function(savRec) {
-
+    
+    if(diff !== 0) {
+      account.balance += diff;
+      account._req_user = req.user;
+    }
+    
+    var dbRecTask = new DBRecTask();
+    dbRecTask = dbRecTask.addPending(account.save, accountList, oldAcc, account) //update
+                         .addPending(accRec.save, accountRecList, oldRec, accRec); //update
+    
     if(finalTrans) {
-      finalTrans.amount = savRec.amount;
+      finalTrans.amount = accRec.amount;
       finalTrans.products = form.products;
       finalTrans._req_user = req.user;
-      return finalTrans.save();
+      return dbRecTask.addPending(finalTrans.save, transactionList, oldTrans, finalTrans).exec();
     }
     else {
-      return;
+      return dbRecTask.exec();
     }
     
   })
-  .then(function(trans){
-    if(trans) {
-      finalTrans = trans;
-    }
-
-    if(diff !== 0) {
-      savAccount.balance += diff;
-      savAccount._req_user = req.user;
-      return savAccount.save();
+  .then(function(results) {
+    var result;
+    if(results.length == 3) {
+      result = {
+        account: results[0].toObject(),
+        accRec: results[1].toObject(),
+        transaction: results[2].toObject()
+      };
     }
     else {
-      return savAccount;
-    }
-  })
-  .then(function(_savAccount) {
-    var result = {
-      accRec: finalRec.toObject(),
-      account: _savAccount.toObject(),
-    };
-
-    if(finalTrans) {
-      result.transaction = finalTrans.toObject();
+      result = {
+        account: results[0].toObject(),
+        accRec: results[1].toObject(),
+      }
     }
 
     res.json({
       success: true,
       result: result 
     });
+
   })
   .catch(function(err) {
     res.ktSendRes(400, err.toString());
@@ -733,7 +739,10 @@ exports.updateRec = function(req, res) {
 exports.deleteRec = function(req, res) {
   var form = req.body;
   var finalRec;
+  var finalTrans;
   var savAccount;
+  var oldAcc;
+
   accountRecList.model.findOne({
     _id: form._id
   })
@@ -743,68 +752,81 @@ exports.deleteRec = function(req, res) {
       return Promise.reject('沒有該存摺紀錄');
 
     finalRec = accRec;
+    
+    if(accRec.transaction)
+      return transactionList.model.findOne({ _id: accRec.transaction }).exec();
+    else 
+      return 'pass';
 
+  })
+  .then(function(transaction) {
+    if(transaction !== 'pass') {
+      if(!transaction)
+        return Promise.reject('沒有相對應的兌領紀錄');
+
+      finalTrans = transaction;
+    }
+    
     return accountList.model.findOne({
-      _id: accRec.account
+      _id: finalRec.account
     }).populate('farmer').exec();
-
   })
   .then(function(account) {
     if(!account)
       return Promise.reject('未找到存摺');
 
+    savAccount = account;
+    oldAcc = account.toObject();
+
+    if(account.lastRecord === finalRec._id)
+      return accountRecList.model.find().select('_id').lean().sort('-date').limit(2).exec();
+    else 
+      return account.lastRecord;
+
+  })
+  .then(function(latestRecord) {
+    if(latestRecord instanceof Array && latestRecord.length > 1) {
+      savAccount.lastRecord = latestRecord[1];
+    }
+    else {
+      savAccount.lastRecord = latestRecord;
+    }
+
     var accRec = finalRec;
-    account._req_user = req.user;
+    savAccount._req_user = req.user;
 
     if(accRec.opType === 'withdraw') {
-      account.balance += accRec.amount;
-      return account.save(); 
+      savAccount.balance += accRec.amount;
     }
     else if(accRec.opType === 'deposit') {
-      account.balance -= accRec.amount;
-      return account.save();
+      savAccount.balance -= accRec.amount;
     }
     else if(accRec.opType === 'transact') {
-      account.balance += accRec.amount;
-      return account.save();
+      savAccount.balance += accRec.amount;
     }
     else if(accRec.opType === 'close') {
-      account.active = true;
-      account.closedAt = null;
-      return account.save();
+      savAccount.active = true;
+      savAccount.closedAt = null;
     }
     else {
       return Promise.reject('該紀錄無法刪除');
     }
-  })
-  .then(function(_savAccount) { 
-    savAccount = _savAccount;
-    if(finalRec.opType === 'transact') {
-      return transactionList.model.remove({ _id: finalRec.transaction }).exec();
+
+    var dbRecTask = new DBRecTask();
+
+    dbRecTask.addPending(savAccount.save, accountList, oldAcc, savAccount) //update
+             .addPending(accRec.remove, accountRecList, accRec, null); //remove
+                             
+    if(finalTrans) {
+      dbRecTask.addPending(finalTrans.remove, transactionList, finalTrans, null); //remove
     }
-    else {
-      return 'pass';
-    }
+
+    return dbRecTask.exec();
   })
-  .then(function(result) {
-    return accountRecList.model.remove({ _id: finalRec._id }).exec();
-  })
-  .then(function(delRec) {
-    return accountRecList.model.find().lean().sort('-date').limit(1).exec();
-  })
-  .then(function(latestRecord){
-    if(latestRecord) {
-      savAccount.lastRecord = latestRecord[0]._id;
-      return savAccount.save();
-    }
-    else {
-      return savAccount;
-    }
-  })
-  .then(function(_savAccount) {
+  .then(function(results) {
     return res.json({
       success: true,
-      result: _savAccount.toObject()
+      result: results[0].toObject()
     });
   })
   .catch(function(err) {

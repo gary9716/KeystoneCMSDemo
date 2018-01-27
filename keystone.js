@@ -204,4 +204,13 @@ if (!process.env.MAILGUN_API_KEY || !process.env.MAILGUN_DOMAIN) {
 
 //});
 
+/*
+var dbRecList = keystone.list(Constants.DBRecordListName);
+dbRecList.model.find().sort('-createdAt').limit(1).lean()
+.then(function(rec) {
+	if(rec && rec.length > 0)
+		console.log('latest rec,',rec[0]);
+});
+*/
+
 keystone.start();

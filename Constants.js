@@ -11,6 +11,7 @@ exports = module.exports = {
   ShopListName: 'Shop',
   PermissionListName: 'Permission',
   RegulatedListName: 'RegulatedList',
+  DBRecordListName: 'DBRecord',
   SystemListName: 'System',
   CityListName: 'City',
   AddrPrefixListName: 'AddrPrefix',

@@ -260,17 +260,12 @@ angular.module('mainApp')
       return $http.post('/pdf/deposit-withdraw-sheet',
       {
         op: op,
-        _id: accRec._id
+        _id: accRec._id? accRec._id : accRec
       },
       {
         responseType: 'arraybuffer'
       })
       .then(function(res) {
-        if(res.status !== 200) {
-          console.log('code not 200');
-          console.log(res);
-        }
-
         var filenameInfo = res.headers('Content-disposition').split('filename=');
         //console.log(filenameInfo);
         var file = new Blob([res.data],{type: 'application/pdf'});
