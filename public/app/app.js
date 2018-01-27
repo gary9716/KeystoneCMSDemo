@@ -104,7 +104,7 @@ angular.module('mainApp')
 
               {
                 listName: 'AccountRecord',
-                opName: ['read','create']
+                opName: ['read','create','update','delete']
               },
               
             ]); 
@@ -168,11 +168,33 @@ angular.module('mainApp')
         }]
       }
     })
-
+    
     .state({
       name: 'statistics',
       templateUrl: appRootPath + 'statistics/index.html',
       url: '/statistics/'
+    })
+
+    .state({
+      name: 'transactionData',
+      templateUrl: appRootPath + 'statistics/transaction-list.html',
+      url: '/statistics/transaction',
+      controller: 'TransListPageCtrler as ctrler',
+      resolve: {
+        condition1 : ['myValidation', function(myValidation) {
+          //if this promise is rejected, then the transition will fail
+          return myValidation.checkPermission([
+              {
+                listName: 'Transaction',
+                opName: ['read', 'update', 'delete']
+              },
+              {
+                listName: 'AccountRecord',
+                opName: ['read', 'update', 'delete']
+              }
+            ]); 
+        }]
+      }
     })
 
     .state({

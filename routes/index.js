@@ -175,6 +175,8 @@ exports = module.exports = function (app) {
   app.post('/api/user/register',routes.api.UserService.register);
   app.post('/api/user/signin',routes.api.UserService.signin);
   
+
+  
   app.post('/api/farmer/register',
     middleware.permissionCheck.bind({
       opName: 'create',
@@ -219,6 +221,8 @@ exports = module.exports = function (app) {
     routes.api.FarmerService.getAndPopulate
   );
 
+
+
   app.post('/api/account-rec/delete',
     middleware.permissionCheck.bind([
       {
@@ -246,6 +250,39 @@ exports = module.exports = function (app) {
     ]),
     routes.api.AccountService.updateRec
   );
+
+
+  app.post('/api/transaction/update', 
+    middleware.permissionCheck.bind([
+      {
+        opName: 'update',
+        listName: Constants.AccountRecordListName
+      },
+      {
+        opName: 'update',
+        listName: Constants.TransactionListName
+      }
+    ]),
+    routes.api.AccountService.lookupAccIDViaTrans,
+    routes.api.AccountService.updateRec
+  );
+
+  app.post('/api/transaction/delete', 
+    middleware.permissionCheck.bind([
+      {
+        opName: 'delete',
+        listName: Constants.AccountRecordListName
+      },
+      {
+        opName: 'delete',
+        listName: Constants.TransactionListName
+      }
+    ]),
+    routes.api.AccountService.lookupAccIDViaTrans,
+    routes.api.AccountService.deleteRec
+  );
+
+
 
   app.post('/api/account/create',
     middleware.permissionCheck.bind([

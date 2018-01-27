@@ -312,7 +312,7 @@ angular.module('mainApp')
       }
     }
 
-    vm.selectEdittingRec = function(accRec) {
+    vm.selectEdittingRec = function(accRec, readOnly) {
       vm.edittingRec = _.clone(accRec);
       if(vm.edittingRec.opType.value === 'transact') {
         //fetch transaction data
@@ -335,6 +335,7 @@ angular.module('mainApp')
       else {
         vm.edittingRec.period = vm.edittingRec.period ? vm.edittingRec.period.name : vm.edittingRec.period;
       }
+      vm.edittingRec.readOnly = readOnly;
       vm.accountOp = 'update-rec';
     }
 
@@ -646,7 +647,7 @@ angular.module('mainApp')
           return false;
         }
       else if(opType === 'transact') {
-          if(act === 'delete' || act === 'update')
+          if(act === 'delete' || act === 'update' || act === 'detail')
             return true;
           else
             return false;
@@ -695,7 +696,7 @@ angular.module('mainApp')
       $http.post('/api/read', {
         listName: 'AccountRecord',
         filters: vm.filters,
-        sort: 'date',
+        sort: '-date',
         populate: 'operator period',
         select: 'opType amount date operator comment period ioAccount transaction',
         page: vm.accRecCurPage,

@@ -51,11 +51,12 @@ var recEntry = new Schema({
 }, { _id: false } );
 
 DBRecord.add({
+    tag: { type: String, index: true, trim: true },
     status: { type: Types.Select, label: '紀錄狀態', options: [ 
         { value: 'processing', label: '處理中' },
         { value: 'done', label: '完成' },
         { value: 'rollback', label: '退回' },
-      ], index: true, required: true, trim: true, initial: true }
+      ], index: true, required: true, trim: true }
 });
 
 DBRecord.schema.add({

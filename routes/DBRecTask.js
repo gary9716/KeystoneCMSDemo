@@ -4,7 +4,7 @@ var _ = require('lodash');
 var mongoose = keystone.get('mongoose');
 var dbRecList = keystone.list(Constants.DBRecordListName);
 
-module.exports = function() {
+module.exports = function(tag) {
     var obj = this;
     
     var pendingPromises = [];
@@ -16,6 +16,9 @@ module.exports = function() {
     var stepModels = [];
     var dbRec = obj.dbRec;
     
+    if(tag)
+        dbRec.tag = tag;
+
     obj.results = [];
 
     obj.addPending = function(promiseFunc, model, oldData, newData) {

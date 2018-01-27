@@ -110,99 +110,17 @@ keystone.set('nav', {
 	'系統': ['systems'],
 });
 
-/*
-var allListNames = Object.keys(keystone.lists);
-var regulatedList = keystone.list('RegulatedList');
+//do db updates here
+//manually do db update after some incomplete transaction rollback completed
+require('./DBUpdate')(function() {
+	//set system parameters after DB update
+	middleware.refreshSysInfo(null, null, function(err) {
+		if(err) throw err;
+		console.log('sys parameters set');
 
-async.waterfall([
-	function(next) {
-		regulatedList.model
-		.find()
-		.select('name')
-		.lean()
-		.exec(function (err1, rlNames) {
-			next(err1, rlNames);
-		});
-	},
-
-	function(rlNames, next) {
-		var rlEntriesForCreation = [];
-		allListNames.forEach(function(listItem) {
-			if(!rlNames.some(function(rlItem) {
-				if(rlItem.name === listItem)
-					return true;
-				else
-					return false;
-			})) {
-				//didn't find the object in regulated list
-				rlEntriesForCreation.push({ 
-					name: listItem,
-				});
-			}
-		});
-		
-		if(rlEntriesForCreation.length > 0) {
-			var dataCollection = {};
-			dataCollection[Constants.RegulatedListName] = rlEntriesForCreation;
-
-			keystone.createItems(
-				dataCollection,
-				function(err, stats) {
-					stats && console.log(stats.message);
-					next(err, rlNames);
-			});
-		}
-		
-	},
-	
-	function(rlNames, next) {
-		var itemsToRemove = _.differenceWith(rlNames, allListNames, function(rlItem, allListItem) {
-			return (rlItem.name === allListItem);
-		});
-		
-		if(itemsToRemove)
-			console.log('[keystone.js] should remove:['+itemsToRemove.toString()+']');
-		
-		next();
-	},
-	
-	],
-	function(errs) {
-    if(errs) throw errs;    // errs = [err1, err2, err3]
-});
-*/
-
-
-// Start Keystone to connect to your database and initialise the web server
-if (!process.env.MAILGUN_API_KEY || !process.env.MAILGUN_DOMAIN) {
-	console.log('----------------------------------------'
-	+ '\nWARNING: MISSING MAILGUN CREDENTIALS'
-	+ '\n----------------------------------------'
-	+ '\nYou have opted into email sending but have not provided'
-	+ '\nmailgun credentials. Attempts to send will fail.'
-	+ '\n\nCreate a mailgun account and add the credentials to the .env file to'
-	+ '\nset up your mailgun integration');
-}
-
-
-//Fawn.init(mongoose);
-//var roller = Fawn.Roller();
-//roller.roll()
-//.then(function() {
-//	console.log('rollback process complete');	
-
-	//do db updates here
-	//manually do db update after some incomplete transaction rollback completed
-	require('./DBUpdate')(function() {
-		//set system parameters after DB update
-		middleware.refreshSysInfo(null, null, function(err) {
-			if(err) throw err;
-			console.log('sys parameters set');
-
-		});
 	});
+});
 
-//});
 
 /*
 var dbRecList = keystone.list(Constants.DBRecordListName);

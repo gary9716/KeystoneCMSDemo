@@ -83,10 +83,7 @@ exports.read = function(req, res) {
   }
   
   if(form.hasOwnProperty("sort")) {
-    if(form.sortAscend)
-      query = query.sort('+'+form.sort);
-    else
-      query = query.sort('-'+form.sort);
+    query = query.sort(form.sort);
   }
 
   if(form.hasOwnProperty("select")) {

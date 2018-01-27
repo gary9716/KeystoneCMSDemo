@@ -472,7 +472,7 @@ exports.transact = function(req, res) {
     savAccount.lastRecord = newRec_id;
     savAccount._req_user = req.user;
 
-    var dbRecTask = new DBRecTask();
+    var dbRecTask = new DBRecTask('transactProduct');
     return dbRecTask.addPending(savAccount.save, accountList, oldAcc, savAccount)
                   .addPending(newTransaction.save, transactionList, null, newTransaction)
                   .addPending(newRec.save, accountRecList, null, newRec)

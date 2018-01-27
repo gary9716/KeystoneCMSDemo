@@ -63,7 +63,7 @@ exports.create = function(req, res) {
       });
       newAccount._req_user = req.user;
 
-      var dbRecTask = new DBRecTask();
+      var dbRecTask = new DBRecTask('createAccount');
       
       return dbRecTask.addPending(newRec.save, accountRecList, null, newRec)
                .addPending(newAccount.save, accountList, null, newAccount)
@@ -128,7 +128,7 @@ exports.close = function(req, res) {
     account.lastRecord = newRec_id;
     account._req_user = req.user;
 
-    var dbRecTask = new DBRecTask();
+    var dbRecTask = new DBRecTask('closeAccount');
       
     return dbRecTask.addPending(account.save, accountList, oldAcc, account) //update
              .addPending(newRec.save, accountRecList, null, newRec)
@@ -234,7 +234,7 @@ exports.setFreeze = function(req, res) {
 
     };
     
-    var dbRecTask = new DBRecTask();
+    var dbRecTask = new DBRecTask('freezeAccount');
       
     return dbRecTask.addPending(account.save, accountList, oldAcc, account) //update
                     .addPending(recPromiseFunc, accountRecList, null, newRec)
@@ -303,7 +303,7 @@ exports.changeAccUser = function(req, res) {
     account.lastRecord = newRec_id;
     account._req_user = req.user;
 
-    var dbRecTask = new DBRecTask();
+    var dbRecTask = new DBRecTask('changeAccUser');
     return dbRecTask.addPending(account.save, accountList, oldAcc, account) //update
              .addPending(newRec.save, accountRecList, null, newRec)
              .exec();
@@ -442,7 +442,7 @@ exports.deposit = function(req, res) {
     account.lastRecord = newRec_id;
     account._req_user = req.user;
 
-    var dbRecTask = new DBRecTask();
+    var dbRecTask = new DBRecTask('deposit');
     return dbRecTask.addPending(account.save, accountList, oldAcc, account) //update
              .addPending(newRec.save, accountRecList, null, newRec)
              .exec();
@@ -484,7 +484,7 @@ exports.withdraw = function(req, res) {
   var newBalance = 0;
 
   accountList.model.findOne(filters)
-  .populate('farmer')
+  .populate('farmer lastRecord')
   .exec()
   .then(function(account) {
     if(!account)
@@ -534,7 +534,7 @@ exports.withdraw = function(req, res) {
     account.lastRecord = newRec_id;
     account._req_user = req.user;
 
-    var dbRecTask = new DBRecTask();
+    var dbRecTask = new DBRecTask('withdraw');
     return dbRecTask.addPending(account.save, accountList, oldAcc, account) //update
              .addPending(newRec.save, accountRecList, null, newRec)
              .exec();
@@ -548,6 +548,24 @@ exports.withdraw = function(req, res) {
   .catch(function(err) {
     res.ktSendRes(400, err.toString());
   });
+
+}
+
+exports.lookupAccIDViaTrans = function(req, res, next) {
+  var form = req.body;
+  accountRecList.model.findOne({ transaction: form._id })
+    .lean().select('_id').exec().then(function(accRec) {
+      if(accRec) {
+        form._id = accRec._id;
+        next();
+      }
+      else {
+        return Promise.reject('沒有該存摺紀錄');
+      }
+    })
+    .catch(function(err) {
+      res.ktSendRes(400, err.toString());
+    });
 
 }
 
@@ -693,7 +711,7 @@ exports.updateRec = function(req, res) {
       account._req_user = req.user;
     }
     
-    var dbRecTask = new DBRecTask();
+    var dbRecTask = new DBRecTask('updateRec');
     dbRecTask = dbRecTask.addPending(account.save, accountList, oldAcc, account) //update
                          .addPending(accRec.save, accountRecList, oldRec, accRec); //update
     
@@ -812,7 +830,7 @@ exports.deleteRec = function(req, res) {
       return Promise.reject('該紀錄無法刪除');
     }
 
-    var dbRecTask = new DBRecTask();
+    var dbRecTask = new DBRecTask('deleteRec');
 
     dbRecTask.addPending(savAccount.save, accountList, oldAcc, savAccount) //update
              .addPending(accRec.remove, accountRecList, accRec, null); //remove
