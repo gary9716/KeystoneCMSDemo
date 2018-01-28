@@ -209,7 +209,7 @@ exports.doPDFGenViaPDFMake = function(req, res) {
     //give browser some hint
     res.set('Content-Type', 'application/pdf');
     //set browser default download filename
-    res.set('Content-disposition', 'attachment; filename=' + res.locals.filename);
+    res.set('Content-disposition', "attachment; filename=" + res.locals.filename);
 
     pdfDoc.pipe(res);
     pdfDoc.end();

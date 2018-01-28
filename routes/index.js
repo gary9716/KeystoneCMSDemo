@@ -122,6 +122,7 @@ exports = module.exports = function (app) {
       viewPath: 'pdfs/unfreezeSheet'
     }), 
     middleware.doPDFGenViaHTMLToPDF);
+    
   
   app.get('/pdf/',
     compression(),
@@ -129,16 +130,22 @@ exports = module.exports = function (app) {
       doc: 'test-doc'
     })
   );
+  
   */
 
-  app.get('/pdf/transacted-products',
+
+  //pdf that everyone can print
+  app.post('/pdf/transacted-products',
     compression(),
-    middleware.permissionCheck.bind({
-      opName: 'read',
-      listName: Constants.TransactionListName
-    }),
     middleware.doPDFGenViaPDFMake.bind({
       doc: 'transacted-products'
+    })
+  );
+
+  app.post('/pdf/unfreeze-sheet',
+    compression(),
+    middleware.doPDFGenViaHTMLToPDF.bind({
+      doc: 'unfreeze-sheet'
     })
   );
 
@@ -150,13 +157,6 @@ exports = module.exports = function (app) {
     }),
     middleware.doPDFGenViaPDFMake.bind({
       doc: 'deposit-withdraw-sheet'
-    })
-  );
-
-  app.post('/pdf/unfreeze-sheet',
-    compression(),
-    middleware.doPDFGenViaHTMLToPDF.bind({
-      doc: 'unfreeze-sheet'
     })
   );
 
@@ -176,7 +176,6 @@ exports = module.exports = function (app) {
   app.post('/api/user/signin',routes.api.UserService.signin);
   
 
-  
   app.post('/api/farmer/register',
     middleware.permissionCheck.bind({
       opName: 'create',
@@ -280,6 +279,24 @@ exports = module.exports = function (app) {
     ]),
     routes.api.AccountService.lookupAccIDViaTrans,
     routes.api.AccountService.deleteRec
+  );
+
+  app.post('/api/transaction/aggregate-product',
+    middleware.permissionCheck.bind([
+      {
+        opName: 'read',
+        listName: Constants.TransactionListName
+      },
+      {
+        opName: 'read',
+        listName: Constants.AccountListName
+      },
+      {
+        opName: 'read',
+        listName: Constants.FarmerListName
+      }
+    ]),
+    routes.api.AggregateService.aggregateProducts
   );
 
 

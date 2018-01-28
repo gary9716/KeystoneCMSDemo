@@ -267,7 +267,6 @@ angular.module('mainApp')
       })
       .then(function(res) {
         var filenameInfo = res.headers('Content-disposition').split('filename=');
-        //console.log(filenameInfo);
         var file = new Blob([res.data],{type: 'application/pdf'});
         
         saveAs(file, filenameInfo[1]);

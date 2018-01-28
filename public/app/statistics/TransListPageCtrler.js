@@ -52,9 +52,11 @@ angular.module('mainApp')
         }
 
         vm.filters = filters;
+        vm.aggregateData = {};
         vm.getTransactionData();
     }
 
+    var shopInfoMap = {};
     vm.getShops = function() {
         $http.post('/api/read', {
             listName: 'Shop'
@@ -63,6 +65,9 @@ angular.module('mainApp')
             var data = res.data;
             if(data.success) {
                 vm.shops = data.result;
+                vm.shops.forEach(function(shop) {
+                    shopInfoMap[shop._id] = shop;
+                });
             }
         })
         .catch(function(err) {
@@ -162,6 +167,119 @@ angular.module('mainApp')
           .catch(function () { 
             modalInstance.close(); 
           });
+    }
+
+    var productInfoMap = {};
+    var setAggregateResult = function(result) {
+        var productsInfo = result.basicInfo;
+        var productByShop = result.productByShop;
+
+        productsInfo.forEach(function(productInfo) {
+            productInfo._id = productInfo._id.pid;
+            productInfoMap[productInfo._id] = productInfo;
+        });
+
+        vm.aggregateData.products = productByShop.map(function(info) {
+            _.assign(info._id, productInfoMap[info._id.pid]);
+            info.totalMoney = info._id.price * info.qty;
+            info.totalWeight = info._id.weight * info.qty;
+            info._id.shop = shopInfoMap[info._id.shop];
+            return info;
+        });
+        vm.aggregateData.transCount = result.transCount;
+
+        console.log(vm.aggregateData.products);
+    };
+
+    vm.getAggVal = function(name) {
+        if(vm.aggregateData.products) {
+            var total = 0;
+            if(name === 'qty') {
+                vm.aggregateData.products.forEach(function(product) {
+                    total += product.qty;
+                });
+            }
+            else if(name === 'money') {
+                vm.aggregateData.products.forEach(function(product) {
+                    total += product.totalMoney;
+                });
+            }
+            else if(name === 'weight') {
+                vm.aggregateData.products.forEach(function(product) {
+                    total += product.totalWeight;
+                });
+            }
+            return total;
+        }
+        else 
+            return 0;
+    }
+
+
+
+
+    vm.aggregateData = {};
+    vm.aggregateProducts = function() {
+        vm.aggregateData.products = undefined;
+        vm.isAggregating = true;
+
+        vm.aggregateData.startDate = vm.filters.date && _.isDate(vm.filters.date.$gte) ? new Date(vm.filters.date.$gte): undefined;
+        vm.aggregateData.endDate = vm.filters.date && _.isDate(vm.filters.date.$lt) ? new Date(vm.filters.date.$lt): undefined;
+        if(vm.aggregateData.endDate)
+            vm.aggregateData.endDate.setHours(-24,0,0,0); //to make filename normal
+        //it's chinese,so temporarily disable it
+        //vm.aggregateData.shop = vm.filters.shop? shopInfoMap[vm.filters.shop]: undefined; 
+        
+        var reqData = {};
+        if(!_.isEmpty(vm.filters)) {
+            reqData.filters = vm.filters;
+        }
+
+        $http.post("/api/transaction/aggregate-product",reqData)
+        .then(function(res) {
+            var data = res.data;
+            if(data.success) {
+                setAggregateResult(data.result);
+                $rootScope.pubSuccessMsg("統計成功,已更新畫面");
+            }
+        })
+        .catch(function(err) {
+            $rootScope.pubErrorMsg("統計失敗,", err.data.toString());
+        })
+        .finally(function() {
+            vm.isAggregating = false;
+        });
+        
+    }
+
+    vm.downloadProductAggInfoPDF = function() {
+        vm.isDownloading = true;
+        $http.post('/pdf/transacted-products',
+        {
+            shop: vm.aggregateData.shop,
+            startDate: vm.aggregateData.startDate,
+            endDate: vm.aggregateData.endDate,
+            products: vm.aggregateData.products,
+            transCount: vm.aggregateData.transCount
+        },
+        {
+            responseType: 'arraybuffer'
+        })
+        .then(function(res) {
+            var filenameInfo = res.headers('Content-disposition').split('filename=');
+            var file = new Blob([res.data],{type: 'application/pdf'});
+            
+            saveAs(file, filenameInfo[1]);
+
+            $rootScope.pubSuccessMsg('下載兌領統計表成功');
+        })
+        .catch(function(err) {
+            $rootScope.pubErrorMsg('下載兌領統計表失敗,', err.data.toString());
+        })
+        .finally(function(){
+            vm.isDownloading = false;
+        });
+
     }
 
 

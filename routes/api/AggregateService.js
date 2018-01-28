@@ -24,95 +24,96 @@ $nin	Matches none of the values specified in an array.
 
 */
 
-exports.aggregateInInterval = function(req, res, next) {
+exports.aggregateProducts = function(req, res) {
     var form = req.body;
 
-    var startDate = form.startDate;
-    var stopDate = form.stopDate;
-
     var pipeline = [];
-    pipeline.push({ 
-        //find data between these two dates
-        $match: { 
-            $and: [
-                { date: { $gte: startDate } },
-                { date: { $lte: stopDate } },
+
+    if(form.filters) {
+        for(let prop in form.filters.date) {
+            form.filters.date[prop] = new Date(form.filters.date[prop]);
+        }
+
+        pipeline.push({
+            $match: form.filters
+        });
+    }
+        
+    var projectStage = {
+        //only include these fields(1 means including)
+        //can only use either including or excluding, not both(except for _id)
+        $project: {
+            _id: 0, //not include _id
+            
+            //amount: 1,
+            //trader: 1,
+            //date: 1,
+
+            account: 1,
+            shop: 1,
+            products: 1
+        }
+    };
+
+    var unwindStage = {
+        $unwind: "$products"
+    };
+    
+    var facetStage = {
+        $facet: {
+            "basicInfo": [
+                { 
+                    $group: {
+                        _id: { pid: '$products.pid' },
+                        // these values should be the same, so just arbitraily get one.
+                        name: { $first: '$products.name' }, 
+                        //pType: { $first: '$products.pType' },
+                        weight: { $first: '$products.weight' },
+                    }  
+                }               
+            ],
+            "productByShop": [
+                { 
+                    $group: {
+                        _id: { 
+                            shop: '$shop',
+                            pid: '$products.pid',
+                            price: '$products.price'
+                        },
+                        qty: { $sum: '$products.qty' },
+                    }  
+                }
             ]
         }
-    });
+    };
 
-    var groupStage;
-    var unwindStage;
-    var projectStage;
-    var facetStage;
+    pipeline.push(projectStage, unwindStage, facetStage);
 
-    if(form.target === 'transactedProducts') {
-        projectStage = {
-            //only include these fields(1 means including)
-            //can only use either including or excluding, not both(except for _id)
-            $project: {
-                _id: 0, //not include _id
-                //date: 1,
-                //account: 1,
-                //amount: 1,
-                shop: 1,
-                //trader: 1,
-                products: 1
-            }
-        };
-        unwindStage = {
-            $unwind: "$products"
-        };
+    var finalResult;
+    //console.log(pipeline);
+    
+    const cursor = transactionList.model.aggregate(pipeline).allowDiskUse(true).cursor({ batchSize: 1000 }).exec();
+    
+    cursor.next()
+    .then(function(result) {
+        finalResult = result;
+        //console.log(finalResult);
 
-        facetStage = {
-            $facet: {
-                "productBasicInfo": [
-                    { 
-                        $group: {
-                            _id: { pid: '$products.pid' },
-                            // these values should be the same, so just arbitraily get one.
-                            name: { $first: '$products.name' }, 
-                            pType: { $first: '$products.pType' },
-                            weight: { $first: '$products.weight' },
-                        }  
-                    }               
-                ],
-                "productPriceQty": [
-                    { 
-                        $group: {
-                            _id: { 
-                                shop: '$shop',
-                                pid: '$products.pid',
-                                price: '$products.price'
-                            },
-                            qty: { $sum: '$products.qty' },
-                        }  
-                    }
-                ]
-            }
-        };
-
-        pipeline.push(projectStage, unwindStage, facetStage);
-    }
-
-    transactionList.aggregate(pipeline)
-        .exec()
-        .then(function(result) {
-            if(res) {
-                res.json({
-                    success: true,
-                    result: result
-                });
-            }
-            else {
-                next(null,result);
-            }
-        })
-        .catch(function(err) {
-            if(res)
-                res.ktSendRes(400, err.toString());
-            else 
-                next(err);
+        if(form.filters)
+            return transactionList.model.count(form.filters).exec();
+        else
+            return transactionList.model.count().exec();
+    })
+    .then(function(count) {
+        finalResult.transCount = count;
+        res.json({
+            success: true,
+            result: finalResult
         });
+    })
+    .catch(function(err) {
+        var errMsg = err && err.message? err.message: err.toString();
+        res.ktSendRes(400, errMsg);
+    });
 
 }

@@ -1,5 +1,6 @@
 var keystone = require('keystone');
 var Constants = require(__base + 'Constants');
+var moment = require('moment');
 module.exports = function(req, res) {
     
     var form = req.body;
@@ -33,11 +34,17 @@ module.exports = function(req, res) {
         .then(function(farmer){
             var accRec = gAccRec;
 
-            res.locals.filename = accRec.account.accountID + '_' + accRec.opType + '.pdf';
+            var opChName = {
+                'withdraw': '提款單',
+                'deposit': '入款單'
+            }
+
+            var date = new Date(accRec.date);
+            
+            res.locals.filename = accRec.account.accountID + '_' + moment(date).format('YYYY-MM-DD') + '_' + accRec.opType + '.pdf';
             
             var factor,ioAccount,money,itemComment,entireComment,dateTxt;
-            var date = new Date(accRec.date);
-
+            
             if(accRec.opType === 'deposit') {
                 factor = 595/ 2293;
 
