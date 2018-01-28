@@ -186,9 +186,11 @@ angular.module('mainApp')
             info._id.shop = shopInfoMap[info._id.shop];
             return info;
         });
+        _.sortBy(vm.aggregateData.products, [function(o) { return o._id.pid; }]);
+
         vm.aggregateData.transCount = result.transCount;
 
-        console.log(vm.aggregateData.products);
+        //console.log(vm.aggregateData.products);
     };
 
     vm.getAggVal = function(name) {
