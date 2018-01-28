@@ -32,8 +32,7 @@ div#transaction-data .flex-row {
             <button style="margin-left:10px;" class="btn btn-success" type="button" ng-show="ctrler.aggregateData.products && ctrler.aggregateData.products.length" ng-click="ctrler.downloadProductAggInfoPDF()" ng-disabled="ctrler.isDownloading">下載</button>
     </div>
     <label ng-hide="ctrler.aggregateData.products || ctrler.isAggregating">
-        請按統計按鈕進行統計,按了之後將以過濾條件進行統計,
-        如果未指定條件將對資料庫全部資料進行統計,資料量多時將對伺服器造成一定負擔,請慎重
+        請按統計按鈕進行統計,按了之後將以過濾條件進行統計,沒設定過濾條件將以全部資料進行統計
     </label>
     <label ng-show="ctrler.isAggregating">搜尋中</label>
     <div ng-show="ctrler.aggregateData.products">
