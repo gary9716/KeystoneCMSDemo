@@ -732,6 +732,12 @@ angular.module('mainApp')
         vm.applyOpTypeFilter = true;
     }
 
+    vm.datePickerChange = function() {
+      if(_.isDate(vm.endDateFilter) || _.isDate(vm.startDateFilter)) {
+          vm.applyDateFilter = true;
+      }
+    }
+
     vm.filterChange = function() {
       var filters = {
         account: vm.account._id
@@ -741,16 +747,31 @@ angular.module('mainApp')
         filters.opType = vm.opTypeFilter;
       }
 
-      if(!_.isDate(vm.endDateFilter) || vm.endDateFilter < vm.startDateFilter) {
+      if(_.isDate(vm.endDateFilter) && vm.endDateFilter < vm.startDateFilter) {
         vm.endDateFilter = vm.startDateFilter;
       }
 
-      if(vm.applyDateFilter && _.isDate(vm.startDateFilter)) {
-        var start = new Date(vm.startDateFilter);
-        start.setHours(0,0,0,0);
-        var end = new Date(vm.endDateFilter);
-        end.setHours(24,0,0,0);
-        filters.date = { $gte: start, $lt: end };
+      if(vm.applyDateFilter) {
+
+          if(_.isDate(vm.startDateFilter)) {
+              var start = new Date(vm.startDateFilter);
+              start.setHours(0,0,0,0);
+              
+              if(_.isDate(vm.endDateFilter)) {
+                  var end = new Date(vm.endDateFilter);
+                  end.setHours(24,0,0,0);
+                  filters.date = { $gte: start, $lt: end };
+              }
+              else {
+                  filters.date = { $gte: start };
+              }
+          }
+          else if(_.isDate(vm.endDateFilter)) {
+              var end = new Date(vm.endDateFilter);
+              end.setHours(24,0,0,0);
+              filters.date = { $lt: end };
+          }
+          
       }
 
       vm.filters = filters;

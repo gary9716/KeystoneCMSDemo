@@ -13,14 +13,14 @@ div#transaction-data .flex-row {
         <input style="margin: 10px;" type="checkbox" ng-change="ctrler.filterChange()" ng-model="ctrler.applyDateFilter" ng-model-options= "{ debounce: 200 }">
         <span style="margin-right:5px;">起</span>
         <div class="input-group" style="width: 20%;">
-            <input type="text" class="form-control input-md" uib-datepicker-popup="yyyy/MM/dd" ng-change="ctrler.filterChange()" ng-model="ctrler.startDateFilter" ng-model-options= "{ debounce: 200 }" is-open="ctrler.startDateSelOpened" close-text="關閉" clear-text="清除" current-text="今天"/>
+            <input type="text" class="form-control input-md" uib-datepicker-popup="yyyy/MM/dd" ng-change="ctrler.datePickerChange();ctrler.filterChange()" ng-model="ctrler.startDateFilter" ng-model-options= "{ debounce: 200 }" is-open="ctrler.startDateSelOpened" close-text="關閉" clear-text="清除" current-text="今天"/>
             <span class="input-group-btn">
             <button type="button" class="btn btn-default" ng-click="ctrler.startDateSelOpened=true;"><i class="fa fa-calendar"></i></button>
             </span>
         </div>
         <span style="margin-left:5px; margin-right:5px;">迄</span>
         <div class="input-group" style="width: 20%;">
-            <input type="text" class="form-control input-md" uib-datepicker-popup="yyyy/MM/dd" ng-change="ctrler.filterChange()" ng-model="ctrler.endDateFilter" ng-model-options= "{ debounce: 200 }" is-open="ctrler.endDateSelOpened" close-text="關閉" clear-text="清除" current-text="今天"/>
+            <input type="text" class="form-control input-md" uib-datepicker-popup="yyyy/MM/dd" ng-change="ctrler.datePickerChange();ctrler.filterChange()" ng-model="ctrler.endDateFilter" ng-model-options= "{ debounce: 200 }" is-open="ctrler.endDateSelOpened" close-text="關閉" clear-text="清除" current-text="今天"/>
             <span class="input-group-btn">
             <button type="button" class="btn btn-default" ng-click="ctrler.endDateSelOpened=true;"><i class="fa fa-calendar"></i></button>
             </span>
@@ -138,4 +138,6 @@ form#transEditForm input[type=number] {
     <button ng-show="ctrler.isMode('edit')" ng-click="ctrler.updateTrans()" class="btn btn-success col-md-offset-4" ng-disabled="transEditForm.itemQty.$invalid">修改</button>
     <button class="btn btn-primary" type="button" ng-click="ctrler.cancel()">關閉</button>
 </div>
+</script>
+<script type="text/ng-template" id="product-info-aggregate.html">
 </script>
