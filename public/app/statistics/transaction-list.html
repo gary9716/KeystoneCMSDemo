@@ -40,12 +40,13 @@ div#transaction-data .flex-row {
         <table  class="table table-bordered table-responsive" style="margin-bottom:0px;" id="product-aggregate-table">
                 <thead>
                     <tr>
-                        <th style="width:15%">品號</th>
-                        <th style="width:20%">品名</th>
+                        <th style="width:14%">品號</th>
+                        <th style="width:18%">品名</th>
                         <th style="width:12%">包數</th>
-                        <th style="width:15%">總重</th>
-                        <th style="width:20%">總金額</th>
-                        <th style="width:15%">兌領處</th>
+                        <th style="width:14%">總重</th>
+                        <th style="width:10%">單價</th>
+                        <th style="width:18%">總金額</th>
+                        <th style="width:14%">兌領處</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -54,6 +55,7 @@ div#transaction-data .flex-row {
                         <td>{{product._id.name}}</td>
                         <td>{{product.qty}}</td>
                         <td>{{product.totalWeight}}</td>
+                        <td>{{product._id.price}}</td>
                         <td>{{product.totalMoney}}</td>
                         <td>{{product._id.shop.name}}</td>
                     </tr>
