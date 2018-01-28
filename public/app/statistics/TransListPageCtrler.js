@@ -186,7 +186,21 @@ angular.module('mainApp')
             info._id.shop = shopInfoMap[info._id.shop];
             return info;
         });
-        _.sortBy(vm.aggregateData.products, [function(o) { return o._id.pid; }]);
+        if(vm.aggregateData.products) {
+            vm.aggregateData.products.sort(function(p1, p2) {
+                var pid1 = p1._id.pid.toUpperCase();
+                var pid2 = p2._id.pid.toUpperCase();
+                if(pid1 < pid2) {
+                    return -1;
+                }
+                else if(pid1 > pid2) {
+                    return 1;
+                }
+                else 
+                    return 0;
+            });
+        }
+
 
         vm.aggregateData.transCount = result.transCount;
 
