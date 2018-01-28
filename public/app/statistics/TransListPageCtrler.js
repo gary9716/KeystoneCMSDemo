@@ -225,6 +225,11 @@ angular.module('mainApp')
                     total += product.totalWeight;
                 });
             }
+            else if(name === 'price') {
+                vm.aggregateData.products.forEach(function(product) {
+                    total += product._id.price;
+                });
+            }
             return total;
         }
         else 
