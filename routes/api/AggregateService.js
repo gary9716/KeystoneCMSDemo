@@ -34,6 +34,10 @@ exports.aggregateProducts = function(req, res) {
             form.filters.date[prop] = new Date(form.filters.date[prop]);
         }
 
+        if(form.filters.shop) {
+            form.filters.shop = mongoose.Types.ObjectId(form.filters.shop);
+        }
+
         pipeline.push({
             $match: form.filters
         });
@@ -90,7 +94,7 @@ exports.aggregateProducts = function(req, res) {
     pipeline.push(projectStage, unwindStage, facetStage);
 
     var finalResult;
-    //console.log(pipeline);
+    //console.log(pipeline[0]);
     
     const cursor = transactionList.model.aggregate(pipeline).allowDiskUse(true).cursor({ batchSize: 1000 }).exec();
     
