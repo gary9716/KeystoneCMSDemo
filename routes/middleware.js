@@ -222,7 +222,7 @@ exports.doPDFGenViaPDFMake = function(req, res) {
       restOfJob(docDefinition);
     })
     .catch(function(err) {
-      res.ktSendRes(400, err.toString());
+      res.ktSendRes(400, err);
     }); 
   }
   else {
@@ -566,14 +566,19 @@ exports.refreshSysInfo = function(req, res, next) {
   })
   .catch(function(err) {
     if(res)
-      return res.ktSendRes(400, err.toString());
+      return res.ktSendRes(400, err);
     else
-      next(err.toString());
+      next(err);
   });
 }
 
 exports.addCustomResHandler = function(req, res, next) {
-  res.ktSendRes = function(code, msg) {
+  res.ktSendRes = function(code, err) {
+    var msg;
+    if(typeof err === 'string')
+      msg = err;
+    else
+      msg = err && err.message? err.message : err.toString();
     res.myErrInfo = msg;
     res.status(code).send(msg);
   }

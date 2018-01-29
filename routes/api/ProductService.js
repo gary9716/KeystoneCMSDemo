@@ -110,7 +110,7 @@ exports.pTypeUpsert = function(req, res) {
     });
   })
   .catch(function(err) {
-    return res.ktSendRes(400, err.toString());
+    return res.ktSendRes(400, err);
   })
 }
 
@@ -145,7 +145,7 @@ exports.get = function(req, res) {
 
   })
   .catch(function(err) {
-    return res.ktSendRes(400, err.toString());
+    return res.ktSendRes(400, err);
   });
 
 
@@ -246,7 +246,7 @@ exports.upsert = function(req, res) {
     });
   })
   .catch(function(err) {
-    return res.ktSendRes(400, err.toString());
+    return res.ktSendRes(400, err);
   });
 
 }
@@ -266,7 +266,7 @@ exports.delete = function(req, res) {
       });
   })
   .catch(function(err) {
-    return res.ktSendRes(400, err.toString());
+    return res.ktSendRes(400, err);
   });
 
 }
@@ -489,7 +489,7 @@ exports.transact = function(req, res) {
     });
   })
   .catch(function(err) {
-    return res.ktSendRes(400, err.toString());
+    return res.ktSendRes(400, err);
   });
 
 }

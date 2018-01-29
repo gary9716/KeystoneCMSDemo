@@ -116,8 +116,7 @@ exports.aggregateProducts = function(req, res) {
         });
     })
     .catch(function(err) {
-        var errMsg = err && err.message? err.message: err.toString();
-        res.ktSendRes(400, errMsg);
+        res.ktSendRes(400, err);
     });
 
 }

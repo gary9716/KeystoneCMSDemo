@@ -120,7 +120,7 @@ exports.upsert = function(req, res) {
   })
   .catch(function(err) {
     res.myErrInfo = err.toString();
-    return res.ktSendRes(400, err.toString());
+    return res.ktSendRes(400, err);
   });
 
 }
@@ -171,7 +171,7 @@ exports.search = function(req, res) {
       .exec(function(err, data) {
 
         if(err) {
-          return res.ktSendRes(400, err.toString());
+          return res.ktSendRes(400, err);
         }
         else {
           return res.json({
@@ -266,7 +266,7 @@ exports.getAndPopulate = function(req, res) {
       });
     })
     .catch(function(err) {
-      return res.ktSendRes(400, err.toString());
+      return res.ktSendRes(400, err);
     });
 
 }

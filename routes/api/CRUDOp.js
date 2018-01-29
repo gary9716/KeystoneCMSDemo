@@ -103,7 +103,7 @@ exports.read = function(req, res) {
     query.lean()
     .exec(function(err, data) {
       if(err) {
-        return res.ktSendRes(400, err.toString());
+        return res.ktSendRes(400, err);
       }
 
       var resData;

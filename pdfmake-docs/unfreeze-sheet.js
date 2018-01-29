@@ -1,29 +1,162 @@
+var moment = require('moment');
+var keystone = require('keystone');
+var Constants = require(__base + 'Constants');
+var accountList = keystone.list(Constants.AccountListName);
+var accountRecList = keystone.list(Constants.AccountRecordListName);
+
 module.exports = function(req, res) {
-  var moment = require('moment');
+  
+  var form = req.body;
+  var account;
+  return accountList.model.findOne({ _id: form._id })
+          .populate('farmer')
+          .lean()
+          .then(function(_account) {
+            if(!_account) 
+              return Promise.reject('該存摺不存在');
+            account = _account;
 
-  var data = res.locals;
-  res.locals.filename = 'unfreeze-sheet_' + req.body.accountID + '.pdf';
+            res.locals.filename = 'unfreeze-sheet_' + account.accountID + '.pdf';
 
-  return {
-    info: {
-      title: '解凍單',
-      author: 'kt chou',
+            return accountRecList.model
+              .find({ account: account._id, opType: { $in: ['deposit','withdraw'] } })
+              .lean().sort('-date').exec();
+          })
+          .then(function(accRecs) {  
+            var accRec;
+            if(accRecs && accRecs.length > 0) {
+              accRec = accRecs[0];
+            }
+
+            var content = [];
+            var factor = 1;
+
+            content.push({
+              text: account.accountID,
+              absolutePosition: {
+                x: 61  * factor,
+                y: 159 * factor
+              },
+              fontSize: 12
+            });
+
+            if(accRec) {
+                var date = new Date(accRec.date);
+                var lastDepositWithdrawDateTxt = {
+                    year:{
+                        text: (date.getFullYear() - 1911).toString(),
+                        absolutePosition: {
+                            x: 372 * factor,
+                            y: 158 * factor
+                        },
+                        fontSize: 12
+                    },
+                    month: {
+                        text: (date.getMonth() + 1).toString(),
+                        absolutePosition: {
+                            x: 419 * factor,
+                            y: 158 * factor
+                        },
+                        fontSize: 12
+                    },
+                    date: {
+                        text: date.getDate().toString(),
+                        absolutePosition: {
+                            x: 460 * factor,
+                            y: 158 * factor
+                        },
+                        fontSize: 12
+                    },
+                };
+
+                var amountTxt = {
+                  text: (accRec.amount + ' 元'),
+                  absolutePosition: {
+                      x: 243 * factor,
+                      y: 186  * factor
+                  },
+                  fontSize: 12
+                }
+
+                content.push(lastDepositWithdrawDateTxt.year,
+                  lastDepositWithdrawDateTxt.month,
+                  lastDepositWithdrawDateTxt.date,
+                  amountTxt);
+            }
+            
+            var doc = {
+              // a string or { width: number, height: number }
+              pageSize: 'A4',
+
+              // by default we use portrait, you can change it to landscape if you wish
+              pageOrientation: 'portrait',
+
+              defaultStyle: {
+                  font: 'kai'
+              },
+
+              images: {
+                'bgImg': __base + 'public/images/unfreeze-freeze.jpg'
+              },
+
+              background: {
+                  image: 'bgImg',
+                  width: '595' //A4 width in pixels with 72DPI
+              },
+              content: content
+            };
+
+            return doc;
+          });
+
+
+};
+
+/*
+  var doc = {
+    
+    styles: {
+      header: {
+        fontSize: 20,
+        alignment: 'center',
+        margin: [0,10,0,20]
+      },
     },
+
+    // a string or { width: number, height: number }
+    pageSize: 'A4',
+
+    // by default we use portrait, you can change it to landscape if you wish
+    pageOrientation: 'portrait',
 
     defaultStyle: {
-      font: 'msjh'
+        font: 'kai'
     },
 
+    // [left, top, right, bottom] or [horizontal, vertical] or just a number for equal margins
+    pageMargins: [ 46, 41, 46, 57 ],
+
+
     content: [
-      'First paragraph',
-      'Another paragraph, this time a little bit longer to make sure, this line will be divided into at least two lines',
-      '\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n',
-      'Another Page',
-      '\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n',
-      'Another Page'
+        { text: [
+        '臺中市大甲區農會',
+        { text: '白米存摺', decoration: 'underline'},
+        '掛失止付申請書'
+        ], style: 'header' },
+        { text: '(登記掛失止付號碼字第 號)', fontSize: '14' }
     ],
+
+    background: {
+      canvas: [{
+          type: 'rect',
+          x: 46, y: 42, w: 503, h: 461,
+          lineWidth: 1,
+          lineColor: '#000000',
+          color: '#ffffff',
+          fillOpacity: 0
+      }]
+    }
 
     
   };
-
-};
+  */

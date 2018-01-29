@@ -76,7 +76,7 @@ exports.create = function(req, res) {
       });
     })
     .catch(function(err) {
-      res.ktSendRes(400, err.toString());
+      res.ktSendRes(400, err);
     });
   
 }
@@ -144,7 +144,7 @@ exports.close = function(req, res) {
 
   })
   .catch(function(err) {
-    res.ktSendRes(400,err.toString());
+    res.ktSendRes(400,err);
   });
 
 }
@@ -206,7 +206,7 @@ exports.setFreeze = function(req, res) {
       if(relatedFile) {
         return new Promise(function(resolve, reject) {
           fs.access(relatedFile.path, fs.constants.F_OK, (err) => {
-            if(err) reject(err.toString());
+            if(err) reject(err);
 
             console.log('here4');
 
@@ -248,7 +248,7 @@ exports.setFreeze = function(req, res) {
     });
   })
   .catch(function(err) {
-    res.ktSendRes(400,err.toString());
+    res.ktSendRes(400,err);
   });
 
 
@@ -316,7 +316,7 @@ exports.changeAccUser = function(req, res) {
     });
   })
   .catch(function(err) {
-    res.ktSendRes(400, err.toString());
+    res.ktSendRes(400, err);
   });
 
 }
@@ -455,7 +455,7 @@ exports.deposit = function(req, res) {
     });
   })
   .catch(function(err) {
-    res.ktSendRes(400, err.toString());
+    res.ktSendRes(400, err);
   });
 
 }
@@ -546,7 +546,7 @@ exports.withdraw = function(req, res) {
     });
   })
   .catch(function(err) {
-    res.ktSendRes(400, err.toString());
+    res.ktSendRes(400, err);
   });
 
 }
@@ -564,7 +564,7 @@ exports.lookupAccIDViaTrans = function(req, res, next) {
       }
     })
     .catch(function(err) {
-      res.ktSendRes(400, err.toString());
+      res.ktSendRes(400, err);
     });
 
 }
@@ -749,7 +749,7 @@ exports.updateRec = function(req, res) {
 
   })
   .catch(function(err) {
-    res.ktSendRes(400, err.toString());
+    res.ktSendRes(400, err);
   });
 
 }
@@ -848,7 +848,7 @@ exports.deleteRec = function(req, res) {
     });
   })
   .catch(function(err) {
-    res.ktSendRes(400, err.toString());
+    res.ktSendRes(400, err);
   });
 
 }

@@ -108,21 +108,6 @@ exports = module.exports = function (app) {
 
   //Gen PDF route
   /*
-  //performance is not good, so it's deprecated
-  app.get('/test',
-    compression(),
-    routes.ctrler.defaultViewCtrler.bind({
-      viewPath: 'pdfs/unfreezeSheet'
-    }), 
-    middleware.doViewRender);
-  
-  app.get('/test.pdf',
-    compression(),
-    routes.ctrler.defaultViewCtrler.bind({
-      viewPath: 'pdfs/unfreezeSheet'
-    }), 
-    middleware.doPDFGenViaHTMLToPDF);
-    
   
   app.get('/pdf/',
     compression(),
@@ -144,7 +129,7 @@ exports = module.exports = function (app) {
 
   app.post('/pdf/unfreeze-sheet',
     compression(),
-    middleware.doPDFGenViaHTMLToPDF.bind({
+    middleware.doPDFGenViaPDFMake.bind({
       doc: 'unfreeze-sheet'
     })
   );

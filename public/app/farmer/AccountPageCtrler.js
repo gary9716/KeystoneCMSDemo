@@ -497,14 +497,21 @@ angular.module('mainApp')
 
     vm.downloadUnfreezeSheetOp = function() {
       vm.isProcessing = true;
-      $http.post('/pdf/unfreeze-sheet')
+      console.log(vm.account._id);
+      $http.post('/pdf/unfreeze-sheet', 
+      {
+        _id: vm.account._id,
+      },
+      {
+        responseType: 'arraybuffer'
+      })
       .then(function(res) {
-        if(res.data.success) {
-          $uibModalInstance.close('下載解凍單成功');
-        }
-        else {
-          vm.pubErrorMsg('下載解凍單失敗');
-        }
+        var filenameInfo = res.headers('Content-disposition').split('filename=');
+        var file = new Blob([res.data],{type: 'application/pdf'});
+        
+        saveAs(file, filenameInfo[1]);
+
+        vm.pubSuccessMsg('下載解凍單成功');
       })
       .catch(function(err) {
         vm.pubErrorMsg('下載解凍單失敗,' + err.data.toString());
