@@ -41,7 +41,7 @@ module.exports = function(req, res) {
 
             var date = new Date(accRec.date);
             
-            res.locals.filename = accRec.account.accountID + '_' + moment(date).format('YYYY-MM-DD') + '_' + accRec.opType + '.pdf';
+            res.locals.filename = accRec.account.accountID + '在' + moment(date).rocFormat() + '的' + opChName[accRec.opType] + '.pdf';
             
             var factor,ioAccount,money,itemComment,entireComment,dateTxt;
             

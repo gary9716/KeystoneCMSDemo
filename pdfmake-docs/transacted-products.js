@@ -5,19 +5,18 @@ module.exports = function(req, res) {
     var filename = '';
 
     if(form.shop) {
-        filename += (form.shop + "_");
+        filename += (form.shop);
     }
 
     if(form.startDate) {
-        filename += ('from_' + moment(form.startDate).format('YYYY-MM-DD_'));
+        filename += ('從' + moment(form.startDate).rocFormat());
     }
     
     if(form.endDate) {
-        filename += ('to_' + moment(form.endDate).format('YYYY-MM-DD_'));
+        filename += ('到' + moment(form.endDate).rocFormat());
     }
 
-    filename += 'products-statistics.pdf';
-    console.log(filename);
+    filename += '的兌領統計表.pdf';
     res.locals.filename = filename;
 
     var products = form.products;

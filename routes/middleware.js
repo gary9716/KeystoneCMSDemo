@@ -15,7 +15,7 @@ var keystone = require('keystone');
 var UrlPattern = require('url-pattern');
 var htmlmin = require('htmlmin');
 var keystonePathPrefix = '/'+ keystone.get('admin path');
-
+var moment = require('moment');
 var routesToBlock = [keystonePathPrefix + '/signin', keystonePathPrefix + '/api/session/signin'];
 
 //var pdf = require('html-pdf');
@@ -39,6 +39,17 @@ var fonts = {
 
 var printer = new Pdfmake(fonts);
 var fs = require('fs');
+
+
+moment.prototype.rocYear = function() {
+  return this.year() - 1911;
+}
+
+moment.prototype.rocFormat = function(includeTime) {
+  var detailFormat = includeTime? '年MM月DD號HH點mm分ss秒':'年MM月DD號';
+  return this.rocYear() + this.format(detailFormat);
+}
+
 
 exports.blockRoute = function (req, res, next) {
   var urlPattern = new UrlPattern(req.path);
@@ -206,13 +217,20 @@ exports.doPDFGenViaPDFMake = function(req, res) {
 
     var pdfDoc = printer.createPdfKitDocument(docDefinition);
 
-    //give browser some hint
-    res.set('Content-Type', 'application/pdf');
-    //set browser default download filename
-    res.set('Content-disposition', "attachment; filename=" + res.locals.filename);
-
-    pdfDoc.pipe(res);
+    var chunks = [];
+    var result;
+    pdfDoc.on('data', function (chunk) {
+      chunks.push(chunk);
+    });
+    pdfDoc.on('end', function () {
+      result = Buffer.concat(chunks);
+      res.json({
+        filename: res.locals.filename,
+        content: result.toJSON()
+      });
+    });
     pdfDoc.end();
+
   }
   
   var obj = require(docPath)(req,res);

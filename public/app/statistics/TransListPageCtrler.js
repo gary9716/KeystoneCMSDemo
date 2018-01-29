@@ -257,8 +257,8 @@ angular.module('mainApp')
         vm.aggregateData.endDate = vm.filters.date && _.isDate(vm.filters.date.$lt) ? new Date(vm.filters.date.$lt): undefined;
         if(vm.aggregateData.endDate)
             vm.aggregateData.endDate.setHours(-24,0,0,0); //to make filename normal
-        //it's chinese,so temporarily disable it
-        //vm.aggregateData.shop = vm.filters.shop? shopInfoMap[vm.filters.shop]: undefined; 
+        
+        vm.aggregateData.shop = vm.filters.shop? shopInfoMap[vm.filters.shop]: undefined; 
         
         var reqData = {};
         if(!_.isEmpty(vm.filters)) {
@@ -291,15 +291,11 @@ angular.module('mainApp')
             endDate: vm.aggregateData.endDate,
             products: vm.aggregateData.products,
             transCount: vm.aggregateData.transCount
-        },
-        {
-            responseType: 'arraybuffer'
         })
         .then(function(res) {
-            var filenameInfo = res.headers('Content-disposition').split('filename=');
-            var file = new Blob([res.data],{type: 'application/pdf'});
-            
-            saveAs(file, filenameInfo[1]);
+            var filename = res.data.filename;
+            var file = new Blob([new Uint8Array(res.data.content.data)],{type: 'application/pdf'});
+            saveAs(file, filename);
 
             $rootScope.pubSuccessMsg('下載兌領統計表成功');
         })

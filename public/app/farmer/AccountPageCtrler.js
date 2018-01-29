@@ -260,15 +260,11 @@ angular.module('mainApp')
       {
         op: op,
         _id: accRec._id? accRec._id : accRec
-      },
-      {
-        responseType: 'arraybuffer'
       })
       .then(function(res) {
-        var filenameInfo = res.headers('Content-disposition').split('filename=');
-        var file = new Blob([res.data],{type: 'application/pdf'});
-        
-        saveAs(file, filenameInfo[1]);
+        var filename = res.data.filename;
+        var file = new Blob([new Uint8Array(res.data.content.data)],{type: 'application/pdf'});
+        saveAs(file, filename);
 
         if(msg)
           vm.pubSuccessMsg(msg + ',轉帳單已下載');
@@ -496,19 +492,15 @@ angular.module('mainApp')
 
     vm.downloadUnfreezeSheetOp = function() {
       vm.isProcessing = true;
-      console.log(vm.account._id);
+      //console.log(vm.account._id);
       $http.post('/pdf/unfreeze-sheet', 
       {
         _id: vm.account._id,
-      },
-      {
-        responseType: 'arraybuffer'
       })
       .then(function(res) {
-        var filenameInfo = res.headers('Content-disposition').split('filename=');
-        var file = new Blob([res.data],{type: 'application/pdf'});
-        
-        saveAs(file, filenameInfo[1]);
+        var filename = res.data.filename;
+        var file = new Blob([new Uint8Array(res.data.content.data)],{type: 'application/pdf'});
+        saveAs(file, filename);
 
         vm.pubSuccessMsg('下載解凍單成功');
       })

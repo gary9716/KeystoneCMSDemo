@@ -16,7 +16,7 @@ module.exports = function(req, res) {
               return Promise.reject('該存摺不存在');
             account = _account;
 
-            res.locals.filename = 'unfreeze-sheet_' + account.accountID + '.pdf';
+            res.locals.filename =  account.accountID + '的掛失止付書.pdf';
 
             return accountRecList.model
               .find({ account: account._id, opType: { $in: ['deposit','withdraw'] } })
