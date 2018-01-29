@@ -20,7 +20,7 @@ module.exports = function(req, res) {
 
             return accountRecList.model
               .find({ account: account._id, opType: { $in: ['deposit','withdraw'] } })
-              .lean().sort('-date').exec();
+              .lean().sort('-date').limit(1).exec();
           })
           .then(function(accRecs) {  
             var accRec;
@@ -31,6 +31,8 @@ module.exports = function(req, res) {
             var content = [];
             var factor = 1;
 
+            //console.log(account.farmer);
+
             content.push({
               text: account.accountID,
               absolutePosition: {
@@ -39,6 +41,35 @@ module.exports = function(req, res) {
               },
               fontSize: 12
             });
+            
+            if(account.farmer.addr)
+              content.push({
+                text: account.farmer.addr,
+                absolutePosition: {
+                  x: 198 * factor,
+                  y: 395 * factor
+                },
+                fontSize: 12
+              });
+
+            if(account.farmer.teleNum1)
+              content.push({
+                text: account.farmer.teleNum1,
+                absolutePosition: {
+                  x: 438  * factor,
+                  y: 371  * factor
+                },
+                fontSize: 12
+              });
+            else if(account.farmer.teleNum2)
+              content.push({
+                text: account.farmer.teleNum2,
+                absolutePosition: {
+                  x: 438  * factor,
+                  y: 371  * factor
+                },
+                fontSize: 12
+              });
 
             if(accRec) {
                 var date = new Date(accRec.date);
