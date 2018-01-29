@@ -11,6 +11,15 @@ angular.module('mainApp')
             vm.applyShopFilter = true;
     }
 
+    vm.initDateFilter = function() {
+        var todayStart = new Date();
+        todayStart.setHours(0,0,0,0);
+        vm.startDateFilter = todayStart;
+        vm.endDateFilter = todayStart;
+        vm.applyDateFilter = true;
+        vm.filterChange();
+    }
+  
     vm.datePickerChange = function() {
         if(_.isDate(vm.endDateFilter) || _.isDate(vm.startDateFilter)) {
             vm.applyDateFilter = true;

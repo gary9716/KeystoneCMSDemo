@@ -27,7 +27,7 @@ Transaction.add({
   date: { type: Types.Datetime, format: 'YYYY-MM-DD kk:mm:ss', label: '交易時間', noedit: true },
   account: { type: Types.Relationship, ref: Constants.AccountListName, label: '存摺', noedit: true },
   amount: { type: Types.Money, label: '交易金額' ,noedit: true },
-  shop: { type: Types.Relationship, ref: Constants.ShopListName, label: '兌領處' },
+  shop: { type: Types.Relationship, ref: Constants.ShopListName, label: '辦事處' },
   trader: { type: Types.Relationship, ref: Constants.UserListName, label: '業務員' },
 });
 

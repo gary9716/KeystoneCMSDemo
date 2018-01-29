@@ -2,9 +2,8 @@ var keystone = require('keystone');
 var Types = keystone.Field.Types;
 var Constants = require(__base + 'Constants');
 
-//console.log(Constants.ShopListName);
 var Shop = new keystone.List(Constants.ShopListName, {
-  label: '兌領處'
+  label: '辦事處'
 });
 Shop.add({
   name: { type: Types.Text, label: '名稱', required: true, initial: true, trim: true },
@@ -30,7 +29,7 @@ User.add(
     name: { type: String, label: '姓名' , initial: true, trim: true },
   	email: { type: Types.Email, label: '信箱', initial: true, index: true, trim: true },
   	password: { type: Types.Password, label: '密碼', initial: true, required: true, trim: true },
-    shop: {type: Types.Relationship, label: '兌領處', ref: Constants.ShopListName, index: true, initial: true }
+    shop: {type: Types.Relationship, label: '辦事處', ref: Constants.ShopListName, index: true, initial: true }
   }, 
   '權限設定', 
   {

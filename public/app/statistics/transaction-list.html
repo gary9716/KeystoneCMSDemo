@@ -4,10 +4,10 @@ div#transaction-data .flex-row {
 }
 </style>
 <div id="transaction-data" class="container">
-    <div class="flex-row" style="margin-top:3px; margin-bottom:3px;">
+    <div ng-init="ctrler.initDateFilter()" class="flex-row" style="margin-top:3px; margin-bottom:3px;">
         <label>過濾條件</label>
         <input style="margin: 10px;" type="checkbox" ng-change="ctrler.filterChange()" ng-model="ctrler.applyShopFilter" ng-model-options= "{ debounce: 200 }">
-        <span style="margin-right:5px;">兌領處</span><select style="width: 15%;" ng-init="ctrler.getShops();" ng-change="ctrler.shopFilterSelected();ctrler.filterChange();" ng-model="ctrler.shopFilter" ng-model-options= "{ debounce: 200 }" ng-options="shop._id as shop.name for shop in ctrler.shops track by shop._id">
+        <span style="margin-right:5px;">辦事處</span><select style="width: 15%;" ng-init="ctrler.getShops();" ng-change="ctrler.shopFilterSelected();ctrler.filterChange();" ng-model="ctrler.shopFilter" ng-model-options= "{ debounce: 200 }" ng-options="shop._id as shop.name for shop in ctrler.shops track by shop._id">
         </select>
         
         <input style="margin: 10px;" type="checkbox" ng-change="ctrler.filterChange()" ng-model="ctrler.applyDateFilter" ng-model-options= "{ debounce: 200 }">
@@ -42,10 +42,10 @@ div#transaction-data .flex-row {
                         <th style="width:14%">品號</th>
                         <th style="width:18%">品名</th>
                         <th style="width:12%">包數</th>
-                        <th style="width:14%">總重</th>
+                        <th style="width:14%">總重(kg)</th>
                         <th style="width:10%">單價</th>
                         <th style="width:18%">總金額</th>
-                        <th style="width:14%">兌領處</th>
+                        <th style="width:14%">辦事處</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -63,7 +63,7 @@ div#transaction-data .flex-row {
                         <td></td>
                         <td>{{ctrler.getAggVal('qty')}}</td>
                         <td>{{ctrler.getAggVal('weight')}}</td>
-                        <td>{{ctrler.getAggVal('price')}}</td>
+                        <td></td>
                         <td>{{ctrler.getAggVal('money')}}</td>
                         <td></td>
                     </tr>
@@ -81,7 +81,7 @@ div#transaction-data .flex-row {
             <th style="width:18%">存摺</th>
             <th style="width:18%">金額</th>
             <th style="width:12%">交易員</th>
-            <th style="width:15%">兌領處</th>
+            <th style="width:15%">辦事處</th>
             <th style="width:10%" class="text-center">操作</th>
         </tr>
     </thead>

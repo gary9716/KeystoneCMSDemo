@@ -8,10 +8,10 @@ exports = module.exports = (function() {
   
   dataCollection[Constants.ShopListName] = [
     {
-      name: '一號兌領處',
+      name: '一號辦事處',
     },
     {
-      name: '二號兌領處',
+      name: '二號辦事處',
     }
   ];
 

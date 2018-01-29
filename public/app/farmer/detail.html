@@ -200,12 +200,11 @@
     </div>
 
     <div uib-collapse="ctrler.isAccRecTableCollapsed">
-      <div class="flex-row" style="margin-top:3px; margin-bottom:3px;">
+      <div ng-init="ctrler.initDateFilter()" class="flex-row" style="margin-top:3px; margin-bottom:3px;">
         <label>過濾條件</label>
         <input style="margin: 10px;" type="checkbox" ng-change="ctrler.filterChange()" ng-model="ctrler.applyOpTypeFilter" ng-model-options= "{ debounce: 200 }">
         <span style="margin-right:5px;">類別</span><select style="width: 10%;" ng-change="ctrler.opTypeFilterSelected();ctrler.filterChange();" ng-model="ctrler.opTypeFilter" ng-model-options= "{ debounce: 200 }" ng-options="option.value as option.name for option in ctrler.opTypes track by option.value">
         </select>
-        
         <input style="margin: 10px;" type="checkbox" ng-change="ctrler.filterChange()" ng-model="ctrler.applyDateFilter" ng-model-options= "{ debounce: 200 }">
         <span style="margin-right:5px;">起</span>
         <div class="input-group" style="width: 20%;">

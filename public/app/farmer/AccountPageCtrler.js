@@ -36,7 +36,6 @@ angular.module('mainApp')
         }
         else {
           $rootScope.pubWarningMsg(data.message);
-          console.log(data.message);
         }
       })
       .catch(function(err) {
@@ -736,6 +735,15 @@ angular.module('mainApp')
     vm.opTypeFilterSelected = function() {
       if(vm.opTypeFilter && vm.opTypeFilter !== 'any')
         vm.applyOpTypeFilter = true;
+    }
+
+    vm.initDateFilter = function() {
+      var todayStart = new Date();
+      todayStart.setHours(0,0,0,0);
+      vm.startDateFilter = todayStart;
+      vm.endDateFilter = todayStart;
+      vm.applyDateFilter = true;
+      vm.filterChange();
     }
 
     vm.datePickerChange = function() {
