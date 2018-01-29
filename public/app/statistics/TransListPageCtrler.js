@@ -258,7 +258,7 @@ angular.module('mainApp')
         if(vm.aggregateData.endDate)
             vm.aggregateData.endDate.setHours(-24,0,0,0); //to make filename normal
         
-        vm.aggregateData.shop = vm.filters.shop? shopInfoMap[vm.filters.shop]: undefined; 
+        vm.aggregateData.shop = vm.filters.shop? shopInfoMap[vm.filters.shop].name: undefined; 
         
         var reqData = {};
         if(!_.isEmpty(vm.filters)) {

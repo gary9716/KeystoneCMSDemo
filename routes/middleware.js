@@ -46,7 +46,7 @@ moment.prototype.rocYear = function() {
 }
 
 moment.prototype.rocFormat = function(includeTime) {
-  var detailFormat = includeTime? '年MM月DD號HH點mm分ss秒':'年MM月DD號';
+  var detailFormat = includeTime? '年MM月DD日 HH點mm分ss秒':'年MM月DD日';
   return this.rocYear() + this.format(detailFormat);
 }
 
