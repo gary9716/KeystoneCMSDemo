@@ -71,6 +71,17 @@ module.exports = function(req, res) {
                 fontSize: 12
               });
 
+            var balanceTxt = {
+              text: (account.balance + ' 元'),
+              absolutePosition: {
+                  x: 243 * factor,
+                  y: 186  * factor
+              },
+              fontSize: 12
+            }
+
+            content.push(balanceTxt);
+
             if(accRec) {
                 var date = new Date(accRec.date);
                 var lastDepositWithdrawDateTxt = {
@@ -100,19 +111,9 @@ module.exports = function(req, res) {
                     },
                 };
 
-                var amountTxt = {
-                  text: (accRec.amount + ' 元'),
-                  absolutePosition: {
-                      x: 243 * factor,
-                      y: 186  * factor
-                  },
-                  fontSize: 12
-                }
-
                 content.push(lastDepositWithdrawDateTxt.year,
                   lastDepositWithdrawDateTxt.month,
-                  lastDepositWithdrawDateTxt.date,
-                  amountTxt);
+                  lastDepositWithdrawDateTxt.date);
             }
             
             var doc = {
@@ -127,7 +128,7 @@ module.exports = function(req, res) {
               },
 
               images: {
-                'bgImg': __base + 'public/images/unfreeze-freeze.jpg'
+                'bgImg': __base + 'public/images/unfreeze-freeze_v2.jpg'
               },
 
               background: {

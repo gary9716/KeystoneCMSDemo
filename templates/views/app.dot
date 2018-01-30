@@ -107,6 +107,7 @@
     <script src="/app/common/filter/listTo2DMat.js" defer></script>
     <script src="/app/common/service/myValidation.js" defer></script>
     <script src="/app/common/service/geoDataService.js" defer></script>
+    <script src="/app/common/component/AccRecListComponent.js" defer></script>
     <script src="/app/farmer/FarmerPageCtrler.js" defer></script>
     <script src="/app/farmer/AccountPageCtrler.js" defer></script>
     <script src="/app/farmer/CachedFarmerListCtrler.js" defer></script>
@@ -114,6 +115,7 @@
     <script src="/app/product/ProductTypePageCtrler.js" defer></script>
     <script src="/app/product/myNgCart.js" defer></script>
     <script src="/app/statistics/TransListPageCtrler.js" defer></script>
+    <script src="/app/statistics/AccRecAggPageCtrler.js" defer></script>
     [[?]]
 
     <div class="container">

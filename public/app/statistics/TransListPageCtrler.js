@@ -184,7 +184,6 @@ angular.module('mainApp')
         var productByShop = result.productByShop;
 
         productsInfo.forEach(function(productInfo) {
-            productInfo._id = productInfo._id.pid;
             productInfoMap[productInfo._id] = productInfo;
         });
 
@@ -244,9 +243,6 @@ angular.module('mainApp')
         else 
             return 0;
     }
-
-
-
 
     vm.aggregateData = {};
     vm.aggregateProducts = function() {

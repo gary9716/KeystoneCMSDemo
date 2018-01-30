@@ -1,0 +1,72 @@
+<style>
+table#account-rec-table tr.editting {
+    background-color: #9ce1f4;
+}
+</style>
+    <div style="height:2em; margin-top:7px; margin-bottom:0px; " class="flex-row">
+        <h4 ng-click="ctrler.isAccRecTableCollapsed=!ctrler.isAccRecTableCollapsed;">存摺記錄 <i ng-hide="ctrler.isAccRecTableCollapsed" class="fa fa-chevron-down"></i><i ng-show="ctrler.isAccRecTableCollapsed" class="fa fa-chevron-up"></i></h4>
+        <!-- pager -->
+        <ul uib-pagination total-items="ctrler.totalAccRecs" ng-model="ctrler.curPage" max-size="5" items-per-page="ctrler.perPage" class="pagination-sm" boundary-links="true" num-pages="numPages" style="margin: 15px;" next-text="下一頁" previous-text="上一頁" last-text="最終頁" first-text="最初頁" ng-change="ctrler.getAccountRecords();"></ul>
+    </div>
+    <div class="flex-row" style="margin-top:3px; margin-bottom:3px;">
+        <label>過濾條件</label>
+        <input style="margin: 10px;" type="checkbox" ng-change="ctrler.filterChange()" ng-model="ctrler.applyOpTypeFilter" ng-model-options= "{ debounce: 200 }">
+        <span style="margin-right:5px;">類別</span><select style="width: 10%;" ng-change="ctrler.opTypeFilterSelected();ctrler.filterChange();" ng-model="ctrler.opTypeFilter" ng-model-options= "{ debounce: 200 }" ng-options="option.value as option.name for option in ctrler.opTypes track by option.value">
+        </select>
+        <input style="margin: 10px;" type="checkbox" ng-change="ctrler.filterChange()" ng-model="ctrler.applyDateFilter" ng-model-options= "{ debounce: 200 }">
+        <span style="margin-right:5px;">起</span>
+        <div class="input-group" style="width: 20%;">
+            <input type="text" class="form-control input-md" uib-datepicker-popup="yyyy/MM/dd" ng-change="ctrler.datePickerChange();ctrler.filterChange();" ng-model="ctrler.startDateFilter" ng-model-options= "{ debounce: 200 }" is-open="ctrler.startDateSelOpened" close-text="關閉" clear-text="清除" current-text="今天"/>
+            <span class="input-group-btn">
+            <button type="button" class="btn btn-default" ng-click="ctrler.startDateSelOpened=true;"><i class="fa fa-calendar"></i></button>
+            </span>
+        </div>
+        <span style="margin-left:5px; margin-right:5px;">迄</span>
+        <div class="input-group" style="width: 20%;">
+            <input type="text" class="form-control input-md" uib-datepicker-popup="yyyy/MM/dd" ng-change="ctrler.datePickerChange();ctrler.filterChange();" ng-model="ctrler.endDateFilter" ng-model-options= "{ debounce: 200 }" is-open="ctrler.endDateSelOpened" close-text="關閉" clear-text="清除" current-text="今天"/>
+            <span class="input-group-btn">
+            <button type="button" class="btn btn-default" ng-click="ctrler.endDateSelOpened=true;"><i class="fa fa-calendar"></i></button>
+            </span>
+        </div>
+    </div>
+    <div uib-collapse="ctrler.isAccRecTableCollapsed">
+        
+    
+        <table class="table table-bordered table-responsive" style="margin-bottom:0px;" id="account-rec-table">
+            <thead>
+                <tr>
+                <th style="width:9%">日期</th>
+                <th style="width:7%">類別</th>
+                <th ng-show="ctrler.showAccField" style="width:13%">存摺</th>
+                <th style="width:9%">金額</th>
+                <th style="width:15%">對口帳戶</th>
+                <th style="width:9%">期別</th>
+                <th ng-show="ctrler.showOperatorField" style="width:9%">操作員</th>
+                <th style="width:20%">備註</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="accountRec in ctrler.accountRecs track by accountRec._id" ng-class="{ 'editting': ctrler.edittingRec._id === accountRec._id }">
+                <td>{{accountRec.date | date:'yyyy/MM/dd'}}</td>
+                <td> <!-- Single button -->
+                    <div ng-show="ctrler.isActCountZero(accountRec)">{{accountRec.opType.name}}</div>
+                    <div uib-dropdown uib-dropdown-toggle ng-hide="ctrler.isActCountZero(accountRec)">
+                    <div class="clickable">{{accountRec.opType.name}} <span class="caret"></span></div>
+                    <ul class="dropdown-menu" uib-dropdown-menu role="menu">
+                        <li ng-show="ctrler.hasAct(accountRec, 'delete')" role="menuitem"><a ng-click="ctrler.deleteRec(accountRec)">刪除</a></li>
+                        <li ng-show="ctrler.hasAct(accountRec, 'update')" role="menuitem"><a ng-click="ctrler.selectEdittingRec(accountRec)">修改</a></li>
+                        <li ng-show="ctrler.hasAct(accountRec, 'detail')" role="menuitem"><a ng-click="ctrler.selectEdittingRec(accountRec, true)">明細</a></li>
+                        <li ng-show="ctrler.hasAct(accountRec, 'download')" role="menuitem"><a ng-click="ctrler.downloadRecPDF(accountRec)">下載</a></li>
+                    </ul>
+                    </div>
+                </td>
+                <td ng-show="ctrler.showAccField">{{accountRec.account.accountID}}</td>
+                <td>{{accountRec.amount}}</td>
+                <td>{{accountRec.ioAccount}}</td>
+                <td>{{accountRec.period.name}}</td>
+                <td ng-show="ctrler.showOperatorField">{{accountRec.operator.name}}</td>
+                <td>{{accountRec.comment}}</td>
+                </tr>
+            </tbody>
+        </table>
+</div>

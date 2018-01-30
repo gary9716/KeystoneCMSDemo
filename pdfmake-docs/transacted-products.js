@@ -39,7 +39,7 @@ module.exports = function(req, res) {
                 width: '50%'
             },
             {
-                text: '印表日期:' + moment().rocFormat(true),
+                text: '印表日期:' + moment().rocFormat(),
                 width: '50%',
                 alignment: 'right'
             }
@@ -110,7 +110,7 @@ module.exports = function(req, res) {
             {
                 margin: [0, 5, 0, 5],
                 table: {
-                    widths: [80, 100, 40, 60, '*', 80, '*'], //width can be [number, *, auto]
+                    widths: [80, 90, 40, 60, 50, 65, '*'], //width can be [number, *, auto]
                     body: tableBody
                 }
             },

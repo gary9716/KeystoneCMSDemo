@@ -68,7 +68,7 @@ exports.aggregateProducts = function(req, res) {
             "basicInfo": [
                 { 
                     $group: {
-                        _id: { pid: '$products.pid' },
+                        _id: '$products.pid',
                         // these values should be the same, so just arbitraily get one.
                         name: { $first: '$products.name' }, 
                         //pType: { $first: '$products.pType' },
@@ -113,6 +113,88 @@ exports.aggregateProducts = function(req, res) {
         res.json({
             success: true,
             result: finalResult
+        });
+    })
+    .catch(function(err) {
+        res.ktSendRes(400, err);
+    });
+
+}
+
+exports.aggregateAccRecs = function(req, res) {
+    var form = req.body;
+
+    var mainPipeline = [], depositPipeline = [];
+
+    if(form.filters) {
+        for(let prop in form.filters.date) {
+            form.filters.date[prop] = new Date(form.filters.date[prop]);
+        }
+
+        mainPipeline.push({
+            $match: form.filters
+        });
+    }
+
+    if(form.period) {
+        form.period = mongoose.Types.ObjectId(form.period);
+        depositPipeline.push({
+            $match: {
+                opType: 'deposit',
+                period: form.period
+            }
+        },
+        {
+            $project: {
+                _id: 0,
+                amount: 1,
+            }
+        },
+        {
+            $group: {
+                _id: null, //calculate as whole
+                amount: { $sum: '$amount' }
+            }
+        });
+
+    }
+
+    mainPipeline.push({
+        //only include these fields(1 means including)
+        //can only use either including or excluding, not both(except for _id)
+        $project: {
+            _id: 0, //not include _id
+            opType: 1,
+            amount: 1,
+        }
+    },
+    {
+        $group: {
+            _id: '$opType',
+            amount: { $sum: '$amount' },
+            count: { $sum: 1 }
+        }
+    });
+
+    //combine mainPipeline and depositPipeline into one facetStage
+    var facetStage = {
+        $facet: {
+            "countOpTypeAndSumAmount": mainPipeline,
+        }
+    };
+
+    if(depositPipeline.length > 0) {
+        facetStage.$facet["sumDepositAmountByPeriod"] = depositPipeline;
+    }
+
+    const cursor = transactionList.model.aggregate([facetStage]).allowDiskUse(true).cursor({ batchSize: 1000 }).exec();
+    
+    cursor.next()
+    .then(function(result) {
+        console.log(result);
+        res.json({
+            success: true,
+            result: result
         });
     })
     .catch(function(err) {

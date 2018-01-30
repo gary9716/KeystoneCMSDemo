@@ -1,0 +1,164 @@
+<style>
+div#acc-rec-aggregate .flex-row {
+    display: flex; align-items: center;
+}
+</style>
+<div id="acc-rec-aggregate" class="container">
+    <acc-rec-list per-page="7"
+        cur-page="ctrler.accRecCurPage"
+        show-acc-field="true"
+        show-operator-field="true"
+        acc-rec-edit-mode="modal"
+        refresh-acc-recs="ctrler.getAccountRecords" 
+        account="ctrler.account"
+        apply-date-filter="ctrler.applyDateFilter"
+        start-date-filter="ctrler.startDateFilter" 
+        end-date-filter="ctrler.endDateFilter"
+        account-op="ctrler.accountOp"
+        editting-rec="ctrler.edittingRec"
+
+        get-acc-rec-error-c-b="ctrler.pubErrorMsg(msg)"
+        update-acc-rec-error-c-b="ctrler.pubErrorMsg(msg)"
+        update-acc-rec-success-c-b="ctrler.pubSuccessMsg(msg)"
+        delete-acc-rec-error-c-b="ctrler.pubErrorMsg(msg)"
+        delete-acc-rec-success-c-b="ctrler.pubSuccessMsg(msg)"
+        get-trans-error-c-b="ctrler.pubErrorMsg(msg)"
+        download-d-w-sheet-error-c-b="ctrler.pubErrorMsg(msg)"
+        download-d-w-sheet-success-c-b="ctrler.pubSuccessMsg(msg)"></acc-rec-list>
+    
+    <div class="flex-row">
+            <h4>統計結果</h4>
+            <button style="margin-left:10px;" class="btn btn-primary" type="button" ng-click="ctrler.aggregateAccRecs()" ng-disabled="ctrler.isAggregating">統計</button>
+            <button style="margin-left:10px;" class="btn btn-success" type="button" ng-show="ctrler.aggregateData.accRecsAgg" ng-click="ctrler.downloadAccRecsAggInfoPDF()" ng-disabled="ctrler.isDownloading">下載</button>
+    </div>
+    <div class="flex-row">
+        <table class="table table-bordered table-responsive" style="margin-bottom:0px;">
+            <tbody>
+                <tr>
+                    <td>新開戶數</td>
+                    <td>結清戶數</td>
+                    <td>入款總金額</td>
+                    <td>提款總金額</td>
+                    <td>兌換總金額</td>
+                    <td>凍結次數</td>
+                    <td>解凍次數</td>
+                </tr>        
+            </tbody>
+        </table>
+    </div>
+    
+</div>
+
+<script type="text/ng-template" id="acc-rec-edit.html">
+<style>
+div#acc-rec-edit-modal .flex-row {
+    display: flex; align-items: center;
+    margin-bottom:10px;
+}
+
+div#acc-rec-edit-modal input[type=number]::-webkit-inner-spin-button, 
+div#acc-rec-edit-modal input[type=number]::-webkit-outer-spin-button { 
+    -webkit-appearance: none;
+    margin: 0; 
+}
+
+div#acc-rec-edit-modal input[type=number] {
+    -moz-appearance:textfield;
+}
+</style>
+<form name="accountOpForm">
+    <div class="modal-body container" id="acc-rec-edit-modal">
+        <div ng-hide="ctrler.edittingRec">
+            請點選一個存摺記錄的類別項目以進行修改
+        </div>
+
+        <div ng-show="ctrler.edittingRec">
+
+            <div ng-hide="ctrler.edittingRec.opType.value==='transact'">
+                <div class="flex-row"  ng-show="ctrler.edittingRec.opType.value==='withdraw' || ctrler.edittingRec.opType.value==='deposit'">
+                    <label class="col-md-2">金額</label>
+                    <input type="number" name="editRecAmount" ng-model="ctrler.edittingRec.amount" ng-trim="true" required>
+                </div>
+                <div class="flex-row" ng-show="ctrler.edittingRec.opType.value==='withdraw' || ctrler.edittingRec.opType.value==='deposit'">
+                    <label class="col-md-2">對口帳戶</label>
+                    <input type="text" ng-model="ctrler.edittingRec.ioAccount" ng-trim="true">
+                </div>
+                <div class="flex-row" ng-show="ctrler.edittingRec.opType.value==='deposit'">
+                    <label class="col-md-2">期別</label>
+                    <input type="text" name="editRecPeriod" ng-model="ctrler.edittingRec.period" ng-trim="true" typeahead-no-results="ctrler.noPeriodFound" typeahead-loading="ctrler.loadingPeriod" uib-typeahead="period.name for period in ctrler.getPeriods($viewValue)" ng-model-options= "{ debounce: { default: 700 } }">
+                    <i ng-show="ctrler.loadingPeriod" class="glyphicon glyphicon-refresh">搜尋中</i>
+                    <div ng-show="ctrler.noPeriodFound">
+                    <i class="glyphicon glyphicon-remove"></i> 沒找到相關期別
+                    </div>
+                </div>
+                <div class="flex-row">
+                    <label class="col-md-2">備註</label>
+                    <div>
+                    <textarea rows="5" ng-model="ctrler.edittingRec.comment" ng-model-options="{ updateOn: 'blur' }" style="resize: none;" ng-trim="true"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div ng-show="ctrler.edittingRec.products">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>商品</th>
+                            <th class="text-center">數量</th>
+                            <th class="text-center">單價</th>
+                            <th class="text-center">總價</th>
+                            <th ng-hide="ctrler.edittingRec.readOnly" class="text-center">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="item in ctrler.edittingRec.products track by item.pid">
+                            <td style="width: 30%;">
+                            <label>{{::item.name}}</label>
+                            </td>
+                            
+                            <td style="width: 22%;" class="text-center">
+                            <div class="input-group" ng-hide="ctrler.edittingRec.readOnly">
+                                <span class="input-group-btn">
+                                <button class="btn btn-default btn-info" ng-click="ctrler.changeQty(item,-1);"><span class="fa fa-minus"></span></button>
+                                </span>
+                                <input type="number" name="editRecItemQty" ng-model="item.qty" ng-model-options="{ debounce: 200 }" class="form-control text-center" min="1" required>
+                                <span class="input-group-btn">
+                                <button class="btn btn-default btn-info" ng-click="ctrler.changeQty(item,1);"><span class="fa fa-plus"></span></button>
+                                </span>
+                            </div>
+                            <div ng-show="ctrler.edittingRec.readOnly">
+                                <strong>{{item.qty}}</strong>
+                            </div>
+                            </td>
+                            
+                            <td style="width: 18%;" class="text-center">
+                            <strong>{{::item.price}}</strong>
+                            </td>
+                            
+                            <td style="width: 20%;" class="text-center">
+                            <strong>{{item.price * item.qty}}</strong>
+                            </td>
+        
+                            <td style="width: 10%;" class="text-center" ng-hide="ctrler.edittingRec.readOnly">
+                            <button ng-click="ctrler.rmItem(item)" class="btn btn-danger"><i class="fa fa-times"></i> 移除</button>
+                            </td>
+        
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="text-right">
+                <h4>合計:{{ctrler.getTotal()}}</h4>
+                </div>
+            </div>
+        
+        </div>
+
+    </div>
+
+    <div class="modal-footer text-center">
+        <button ng-click="ctrler.updateRec()" class="btn btn-success" ng-disabled="ctrler.isUpdateRecButtonDisabled()">修改</button>
+        <button class="btn btn-warning" type="button" ng-click="ctrler.cancel()">取消</button>
+    </div>
+
+</form>
+</script>

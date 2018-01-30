@@ -12,17 +12,14 @@ angular.module('mainApp', [
   'ngFileUpload'
 ])
 .constant('appRootPath',(function() {
-  if(locals && locals.env) {
-    if(locals.env === 'production') {
-      return '/app-min/';
-    }
-    else {
-      return '/app/';
-    }
+  if(locals.env === 'production') {
+    locals.appRootPath = '/app-min/';
   }
   else {
-    return '/app/';
+    locals.appRootPath = '/app/';
   }
+  return locals.appRootPath;
+
 })())
 .constant('cachedFarmersKey', 'mainApp:cachedFarmers');//to inject into config, we need to register this value as constant
 
@@ -176,10 +173,32 @@ angular.module('mainApp')
     })
 
     .state({
-      name: 'transactionData',
+      name: 'transStatisData',
       templateUrl: appRootPath + 'statistics/transaction-list.html',
       url: '/statistics/transaction',
       controller: 'TransListPageCtrler as ctrler',
+      resolve: {
+        condition1 : ['myValidation', function(myValidation) {
+          //if this promise is rejected, then the transition will fail
+          return myValidation.checkPermission([
+              {
+                listName: 'Transaction',
+                opName: ['read', 'update', 'delete']
+              },
+              {
+                listName: 'AccountRecord',
+                opName: ['read', 'update', 'delete']
+              }
+            ]); 
+        }]
+      }
+    })
+
+    .state({
+      name: 'accRecStatisData',
+      templateUrl: appRootPath + 'statistics/acc-rec-aggregate.html',
+      url: '/statistics/acc-rec-aggregate',
+      controller: 'AccRecAggPageCtrler as ctrler',
       resolve: {
         condition1 : ['myValidation', function(myValidation) {
           //if this promise is rejected, then the transition will fail

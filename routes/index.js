@@ -118,8 +118,15 @@ exports = module.exports = function (app) {
   
   */
 
-
   //pdf that everyone can print
+  
+  app.post('/pdf/unfreeze-sheet',
+    compression(),
+    middleware.doPDFGenViaPDFMake.bind({
+      doc: 'unfreeze-sheet'
+    })
+  );
+
   app.post('/pdf/transacted-products',
     compression(),
     middleware.doPDFGenViaPDFMake.bind({
@@ -127,12 +134,8 @@ exports = module.exports = function (app) {
     })
   );
 
-  app.post('/pdf/unfreeze-sheet',
-    compression(),
-    middleware.doPDFGenViaPDFMake.bind({
-      doc: 'unfreeze-sheet'
-    })
-  );
+  //
+
 
   app.post('/pdf/deposit-withdraw-sheet',
     compression(),
@@ -235,6 +238,15 @@ exports = module.exports = function (app) {
     routes.api.AccountService.updateRec
   );
 
+  app.post('/api/account-rec/aggregate',
+    middleware.permissionCheck.bind([
+      {
+        opName: 'read',
+        listName: Constants.AccountRecordListName
+      }
+    ]),
+    routes.api.AggregateService.aggregateAccRecs
+  );
 
   app.post('/api/transaction/update', 
     middleware.permissionCheck.bind([
