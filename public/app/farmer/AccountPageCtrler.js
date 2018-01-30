@@ -194,6 +194,10 @@ angular.module('mainApp')
     var vm = this;
     vm.account = account;
     
+    var nowDate = new Date();
+    nowDate.setFullYear(nowDate.getFullYear() - 1, 6, 1); //July first in previous year
+    vm.startDateFilter = nowDate;
+
     vm.resetOpView = function() {
       //default values
       vm.closeAcc = {};
@@ -254,121 +258,6 @@ angular.module('mainApp')
       });
     }
 
-    vm.downloadDWSheetOp = function(accRec, op, msg) {
-      vm.isProcessing = true;
-      return $http.post('/pdf/deposit-withdraw-sheet',
-      {
-        op: op,
-        _id: accRec._id? accRec._id : accRec
-      })
-      .then(function(res) {
-        var filename = res.data.filename;
-        var file = new Blob([new Uint8Array(res.data.content.data)],{type: 'application/pdf'});
-        saveAs(file, filename);
-
-        if(msg)
-          vm.pubSuccessMsg(msg + ',轉帳單已下載');
-        else
-          vm.pubSuccessMsg('下載轉帳單成功');
-      })
-      .catch(function(err) {
-        vm.pubErrorMsg('下載轉帳單失敗,' + err.data.toString());
-      })
-      .finally(function(){
-        vm.isProcessing = false;
-      });
-    }
-
-    vm.downloadRecPDF = function(accRec) {
-      if(accRec.opType.value === 'withdraw' || accRec.opType.value === 'deposit') {
-        vm.downloadDWSheetOp(accRec, accRec.opType.value);
-      }
-    }
-
-    vm.deleteRec = function(accRec) {
-      if($window.confirm('即將刪除此記錄, 確定嗎')) {
-        $http.post('/api/account-rec/delete', accRec)
-        .then(function(res) {
-          var data = res.data;
-          if(data.success) {
-            vm.pubSuccessMsg('刪除紀錄成功,已更新畫面');
-            if(vm.edittingRec && accRec._id === vm.edittingRec._id) {
-              vm.edittingRec = undefined;
-            }
-            _.assign(vm.account, data.result);
-            vm.getAccountRecords();
-          }
-        })
-        .catch(function(err) {
-          vm.pubErrorMsg('刪除紀錄失敗,' + err.data.toString());
-        });
-        
-      }
-    }
-
-    vm.selectEdittingRec = function(accRec, readOnly) {
-      vm.edittingRec = _.clone(accRec);
-      if(vm.edittingRec.opType.value === 'transact') {
-        //fetch transaction data
-        $http.post('/api/read/',{
-          listName: 'Transaction',
-          filters: {
-            _id: accRec.transaction
-          }
-        })
-        .then(function(res) {
-          var data = res.data;
-          if(data.success) {
-            vm.edittingRec.products = data.result[0].products;
-          }
-        })
-        .catch(function(err) {
-          vm.pubErrorMsg('抓取兌領紀錄失敗,' + err.data.toString());
-        });
-      }
-      else {
-        vm.edittingRec.period = vm.edittingRec.period ? vm.edittingRec.period.name : vm.edittingRec.period;
-      }
-      vm.edittingRec.readOnly = readOnly;
-      vm.accountOp = 'update-rec';
-    }
-
-    vm.updateRecOp = function(accRec) {
-      var accRec = vm.edittingRec;
-      if(accRec.opType.value === 'transact') {
-        if(!accRec.products || accRec.products.length === 0) {
-          return vm.pubErrorMsg('產品列表不能為空的,不然就請刪除此紀錄');
-        }
-      }
-
-      vm.isProcessing = true;
-
-      $http.post('/api/account-rec/update', accRec)
-        .then(function(res) {
-          var data = res.data;
-          if(data.success) {
-            _.assign(vm.account, data.result.account);
-            vm.getAccountRecords();
-            vm.edittingRec = undefined;
-            vm.pubSuccessMsg('更新存摺紀錄成功,已更新畫面');
-          }
-        })
-        .catch(function(err) {
-          vm.pubErrorMsg('更新存摺紀錄失敗,' + err.data.toString());
-        })
-        .finally(function(){
-          vm.isProcessing = false;
-        });
-    }
-
-    /*
-    $scope.$watch('ctrler.accountOp', function(value) {
-      if(value !== 'update-rec') {
-        vm.edittingRec = undefined;
-      }
-    });
-    */
-
     vm.changeQty = function(item, val) {
       item.qty += val;
     }
@@ -410,7 +299,7 @@ angular.module('mainApp')
         return false;
       }
     }
-
+    
     vm.depositOp = function() {
       vm.isProcessing = true;
 
@@ -492,7 +381,6 @@ angular.module('mainApp')
 
     vm.downloadUnfreezeSheetOp = function() {
       vm.isProcessing = true;
-      //console.log(vm.account._id);
       $http.post('/pdf/unfreeze-sheet', 
       {
         _id: vm.account._id,
@@ -527,12 +415,6 @@ angular.module('mainApp')
 
       fd.append('opData', angular.toJson(data)); //convert it into json string
 
-      /*
-      $http.post('/api/account/set-freeze', fd, {
-            transformRequest: null,
-            headers: {'Content-type': undefined }
-      })
-      */
       Upload.http({
         url: '/api/account/set-freeze',
         headers:  {'Content-type': undefined },
@@ -621,167 +503,6 @@ angular.module('mainApp')
       .finally(function() {
         vm.isProcessing = false;
       });
-    }
-
-    vm.isActCountZero = function(accRec) {
-      var opType = accRec.opType.value;
-      if(opType === 'freeze' || 
-        opType === 'unfreeze' ||
-        opType === 'create' || 
-        opType === 'accUserChange') {
-          return true;
-        }
-      else 
-        return false;
-    }
-
-    vm.hasAct = function(accRec, act) {
-      var opType = accRec.opType.value;
-      if(opType === 'freeze' || 
-        opType === 'unfreeze' ||
-        opType === 'create' || 
-        opType === 'accUserChange') {
-          return false;
-        }
-      else if(opType === 'transact') {
-          if(act === 'delete' || act === 'update' || act === 'detail')
-            return true;
-          else
-            return false;
-      }
-      else if(opType === 'close') {
-          if(act === 'delete') {
-            return true;
-          }
-          else {
-            return false;
-          }
-      }
-      else if(opType === 'deposit' ||
-              opType === 'withdraw') {
-          if(act === 'delete' || act === 'download' || act === 'update')
-            return true;
-          else
-            return false;
-      }
-    }
-
-    vm.accRecCurPage = 1;
-    vm.perPage = 7;
-
-    var opTranslate = {
-      'any': '任何',
-      'transact': '兌換',
-      'deposit': '入款',
-      'withdraw': '提款',
-      'close': '結清',
-      'freeze': '凍結',
-      'unfreeze': '解凍',
-      'create': '開戶',
-      'accUserChange': '過戶'
-    };
-
-    vm.opTypes = [];
-    for(let prop in opTranslate) {
-      vm.opTypes.push({
-        name: opTranslate[prop],
-        value: prop 
-      });
-    }
-
-    vm.getAccountRecords = function() {  
-      $http.post('/api/read', {
-        listName: 'AccountRecord',
-        filters: vm.filters,
-        sort: '-date',
-        populate: 'operator period',
-        select: 'opType amount date operator comment period ioAccount transaction',
-        page: vm.accRecCurPage,
-        perPage: vm.perPage
-      })
-      .then(function(res) {
-        var data = res.data;
-        if(data.success) {
-          data.result.forEach(function(rec) {
-            rec.opType = {
-              name: opTranslate[rec.opType],
-              value: rec.opType
-            };
-          });
-          vm.accountRecs = data.result;
-          vm.totalAccRecs = data.total;
-        }
-        else {
-          vm.pubErrorMsg('讀取操作記錄失敗,' + data.message);
-        }
-      })
-      .catch(function(err) {
-        vm.pubErrorMsg('讀取操作記錄失敗,' + err.data.toString());
-      });
-    }
-
-    vm.filters = {
-      account: vm.account._id
-    };
-
-    vm.opTypeFilterSelected = function() {
-      if(vm.opTypeFilter && vm.opTypeFilter !== 'any')
-        vm.applyOpTypeFilter = true;
-    }
-
-    vm.initDateFilter = function() {
-      var todayStart = new Date();
-      todayStart.setHours(0,0,0,0);
-      vm.startDateFilter = todayStart;
-      vm.endDateFilter = todayStart;
-      vm.applyDateFilter = true;
-      vm.filterChange();
-    }
-
-    vm.datePickerChange = function() {
-      if(_.isDate(vm.endDateFilter) || _.isDate(vm.startDateFilter)) {
-          vm.applyDateFilter = true;
-      }
-    }
-
-    vm.filterChange = function() {
-      var filters = {
-        account: vm.account._id
-      };
-
-      if(vm.applyOpTypeFilter && vm.opTypeFilter && vm.opTypeFilter !== 'any') {
-        filters.opType = vm.opTypeFilter;
-      }
-
-      if(_.isDate(vm.endDateFilter) && vm.endDateFilter < vm.startDateFilter) {
-        vm.endDateFilter = vm.startDateFilter;
-      }
-
-      if(vm.applyDateFilter) {
-
-          if(_.isDate(vm.startDateFilter)) {
-              var start = new Date(vm.startDateFilter);
-              start.setHours(0,0,0,0);
-              
-              if(_.isDate(vm.endDateFilter)) {
-                  var end = new Date(vm.endDateFilter);
-                  end.setHours(24,0,0,0);
-                  filters.date = { $gte: start, $lt: end };
-              }
-              else {
-                  filters.date = { $gte: start };
-              }
-          }
-          else if(_.isDate(vm.endDateFilter)) {
-              var end = new Date(vm.endDateFilter);
-              end.setHours(24,0,0,0);
-              filters.date = { $lt: end };
-          }
-          
-      }
-
-      vm.filters = filters;
-      vm.getAccountRecords(); 
     }
 
     vm.cancel = function () {

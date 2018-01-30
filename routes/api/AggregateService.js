@@ -1,6 +1,7 @@
 var keystone = require('keystone');
 var mongoose = keystone.get('mongoose');
 var Constants = require(__base + 'Constants');
+var _ = require('lodash');
 
 var farmerList = keystone.list(Constants.FarmerListName);
 var accountList = keystone.list(Constants.AccountListName);
@@ -94,14 +95,12 @@ exports.aggregateProducts = function(req, res) {
     pipeline.push(projectStage, unwindStage, facetStage);
 
     var finalResult;
-    //console.log(pipeline[0]);
     
     const cursor = transactionList.model.aggregate(pipeline).allowDiskUse(true).cursor({ batchSize: 1000 }).exec();
     
     cursor.next()
     .then(function(result) {
         finalResult = result;
-        //console.log(finalResult);
 
         if(form.filters)
             return transactionList.model.count(form.filters).exec();
@@ -121,10 +120,10 @@ exports.aggregateProducts = function(req, res) {
 
 }
 
-exports.aggregateAccRecs = function(req, res) {
+exports.aggregateAccRelated = function(req, res) {
     var form = req.body;
 
-    var mainPipeline = [], depositPipeline = [];
+    var mainPipeline = [], depositPipeline;
 
     if(form.filters) {
         for(let prop in form.filters.date) {
@@ -137,6 +136,7 @@ exports.aggregateAccRecs = function(req, res) {
     }
 
     if(form.period) {
+        depositPipeline = [];
         form.period = mongoose.Types.ObjectId(form.period);
         depositPipeline.push({
             $match: {
@@ -183,18 +183,48 @@ exports.aggregateAccRecs = function(req, res) {
         }
     };
 
-    if(depositPipeline.length > 0) {
+    if(depositPipeline && depositPipeline.length > 0) {
         facetStage.$facet["sumDepositAmountByPeriod"] = depositPipeline;
     }
 
-    const cursor = transactionList.model.aggregate([facetStage]).allowDiskUse(true).cursor({ batchSize: 1000 }).exec();
+    var cursor = accountRecList.model.aggregate([facetStage]).allowDiskUse(true).cursor({ batchSize: 1000 }).exec();
     
+    var finalResult = {};
+
     cursor.next()
     .then(function(result) {
-        console.log(result);
+        _.assign(finalResult,result);
+        
+        cursor = accountList.model.aggregate([
+            {
+                $match: {
+                    active: true,
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    balance: 1
+                }
+            },
+            {
+                $group: {
+                    _id: null,
+                    totalActiveBalance: { $sum: '$balance' }
+                }
+            }
+        ]).allowDiskUse(true).cursor({ batchSize: 1000 }).exec();
+
+        return cursor.next();
+    })
+    .then(function(result) {
+        delete result._id;
+        _.assign(finalResult,result);
+        //console.log(finalResult);
+
         res.json({
             success: true,
-            result: result
+            result: finalResult
         });
     })
     .catch(function(err) {

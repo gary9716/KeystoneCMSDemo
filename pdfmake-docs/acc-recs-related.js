@@ -10,14 +10,8 @@ module.exports = function(req, res) {
     var sysInfo = keystone.get('sysParams');
     var locationName = sysInfo.farmName;
     
-    var sheetName = '商品兌領統計報表';
+    var sheetName = '存摺紀錄統計表';
     
-
-    if(form.shop) {
-        locationName += ('-' + form.shop);
-        filename += (form.shop);
-    }
-
     if(form.startDate) {
         startMoment = moment(form.startDate);
         var txt = '從'  + startMoment.rocFormat();
@@ -69,30 +63,30 @@ module.exports = function(req, res) {
         ];
 
     };
-    //------------
+    //-----------
 
-    
-    var products = form.products;
-    var transCount = form.transCount? form.transCount : 0;
 
-    var tableBody = [
-        ['品號', '品名', '包數', '總重(kg)', '單價', '總金額', '辦事處'],
-    ];
+    //main content
+    var accRecsAgg = form.accRecsAgg;
+    var totalActiveBalance = form.totalActiveBalance? form.totalActiveBalance : 0;
 
-    if(products) {
-        var wholeQty = 0;
-        var wholeMoney = 0;
-        var wholeWeight = 0;
-        products.forEach(function(product) {
-            wholeQty += product.qty;
-            wholeMoney += product.totalMoney;
-            wholeWeight += product.totalWeight;
-            var shopName = (product._id.shop && product._id.shop.name)? product._id.shop.name: '';
-            tableBody.push([product._id.pid, product._id.name, product.qty, product.totalWeight, product._id.price, product.totalMoney, shopName]);
-        });
-        tableBody.push(['合計','',wholeQty, wholeWeight, '', wholeMoney,'']);
+    var tableBody;
+    if(accRecsAgg) {
+        tableBody = [
+            ['開戶次數', accRecsAgg.create.count, '結清次數', accRecsAgg.close.count],
+            ['凍結次數', accRecsAgg.freeze.count, '解凍次數', accRecsAgg.unfreeze.count],
+            ['入款次數', accRecsAgg.deposit.count, '入款總金額', accRecsAgg.deposit.amount],
+            ['提款次數', accRecsAgg.withdraw.count, '提款總金額', accRecsAgg.withdraw.amount],
+            ['兌領次數', accRecsAgg.transact.count, '兌領總金額', accRecsAgg.transact.amount],
+            ['當前未結清存摺總餘額', totalActiveBalance, '', '']
+        ]
     }
     
+    var tableContent = {
+        widths: [120, '*', 120,'*'], //width can be [number, *, auto]
+        body: tableBody? tableBody:[]
+    };
+
     var doc = {
         // a string or { width: number, height: number }
         pageSize: 'A4',
@@ -112,13 +106,8 @@ module.exports = function(req, res) {
             timeInfo,
             {
                 margin: [0, 5, 0, 5],
-                table: {
-                    widths: [80, 90, 40, 60, 50, 65, '*'], //width can be [number, *, auto]
-                    body: tableBody
-                }
+                table: tableContent
             },
-            { text: ('兌領次數:' + transCount), fontSize: 14, alignment: 'right' },
-            
         ],
 
         footer: footerFunc

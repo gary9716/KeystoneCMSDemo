@@ -134,6 +134,13 @@ exports = module.exports = function (app) {
     })
   );
 
+  app.post('/pdf/acc-recs-aggregate',
+    compression(),
+    middleware.doPDFGenViaPDFMake.bind({
+      doc: 'acc-recs-related'
+    })
+  );
+
   //
 
 
@@ -243,9 +250,13 @@ exports = module.exports = function (app) {
       {
         opName: 'read',
         listName: Constants.AccountRecordListName
+      },
+      {
+        opName: 'read',
+        listName: Constants.AccountListName
       }
     ]),
-    routes.api.AggregateService.aggregateAccRecs
+    routes.api.AggregateService.aggregateAccRelated
   );
 
   app.post('/api/transaction/update', 

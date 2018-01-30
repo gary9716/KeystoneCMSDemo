@@ -7,7 +7,11 @@ angular.module('mainApp')
         //official hooks
         vm.$onInit = function() {
             vm.curPage = 1;
+            
             vm.refreshAccRecs = vm.getAccountRecords;
+            vm.updateRecFunc = vm.updateRecOp;
+            vm.downloadDWSheetFunc = vm.downloadDWSheetOp;
+
             vm.initDateFilter();
             vm.filterChange();
         }
@@ -38,7 +42,6 @@ angular.module('mainApp')
             });
         }
 
-
         vm.initDateFilter = function() {     
             var todayStart = new Date();
             todayStart.setHours(0,0,0,0);
@@ -52,8 +55,6 @@ angular.module('mainApp')
             vm.applyDateFilter = true;
         }
 
-        
-    
         vm.getAccountRecords = function() {  
             $http.post('/api/read', {
                 listName: 'AccountRecord',
@@ -310,10 +311,11 @@ angular.module('mainApp')
         }
 
         vm.openAccRecEditModal = function() {
+            var modalSize = vm.edittingRec.opType.value === 'transact'? 'lg':'md';
             var modalInstance = $uibModal.open({
                 templateUrl: 'acc-rec-edit.html', 
                 controller: 'AccRecEditModalCtrler as ctrler',
-                size: 'md', //'md','lg','sm'
+                size: modalSize, //'md','lg','sm'
                 resolve: { //used for passing parameters to modal controller
                   accRec: function() {
                       return vm.edittingRec;
@@ -333,11 +335,56 @@ angular.module('mainApp')
     }]
 )
 .controller('AccRecEditModalCtrler', [
-    '$uibModalInstance', 'accRec', '$scope',
-    function($uibModalInstance, accRec, $scope) {
+    '$uibModalInstance', 'accRec', '$scope', '$http',
+    function($uibModalInstance, accRec, $scope, $http) {
         var vm = this;
         vm.edittingRec = accRec;
         vm.isModalMode = true;
+
+        vm.getPeriods = function(keyword) {
+            return $http.post('/api/read', {
+              listName: 'Period',
+              contains: { name: keyword },
+              limit: 8,
+            })
+            .then(function(res) {
+              if(res.data.success) {
+                return res.data.result;
+              }
+              else {
+                return $q.reject();
+              }
+            });
+        }
+
+
+        vm.changeQty = function(item, val) {
+            item.qty += val;
+        }
+  
+        vm.rmItem = function(item) {
+            if(vm.edittingRec.products) {
+            var index = _.findIndex(vm.edittingRec.products, function(product) {
+                return product.pid === item.pid;
+            });
+            if(index !== -1)
+                vm.edittingRec.products.splice(index, 1);
+            }
+        }
+  
+        vm.getTotal = function() {
+            if(vm.edittingRec && vm.edittingRec.products) {
+            var total = 0;
+            vm.edittingRec.products.forEach(function(product) {
+                total += (product.price * product.qty);
+            });
+    
+            return total;
+            }
+            else {
+            return 0;
+            }
+        }
 
         vm.isUpdateRecButtonDisabled = function() {
             if(vm.edittingRec) {
@@ -360,27 +407,34 @@ angular.module('mainApp')
         vm.cancel = function() {
             $uibModalInstance.dismiss('cancel');
         }
+
+
     }]
 )
 .component('accRecList', {
     templateUrl: locals.appRootPath + 'common/component/acc-rec-list.html',
     bindings: {
         perPage : '@', //constant
-        showAccField : '@',
-        showOperatorField : '@',
+        showAccField : '<',
+        showOperatorField : '<',
         accRecEditMode: '@',
         
-        curPage : '=',
-        account : '=',
-        applyDateFilter: '=',
-        startDateFilter: '=',
-        endDateFilter: '=',
-        accountOp: '=',
-        edittingRec: '=',
-        
-        //hooks
-        refreshAccRecs : '=',
-        
+        curPage : '=?',
+        account : '=?',
+        filters : '=?',
+        opTypeFilter: '=?',
+        applyDateFilter: '=?',
+        startDateFilter: '=?',
+        endDateFilter: '=?',
+        accountOp: '=?',
+        edittingRec: '=?',
+        isProcessing: '=?',
+
+        //exposed functions
+        refreshAccRecs : '=?',
+        updateRecFunc: '=?',
+        downloadDWSheetFunc: '=?',
+
         //callbacks
         getAccRecErrorCB: '&',
         getAccRecSuccessCB: '&',
