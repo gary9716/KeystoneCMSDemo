@@ -4,6 +4,12 @@ angular.module('mainApp')
   function($http,$rootScope,$q) {
     this.checkPID = checkPID;
     this.checkPermission = checkPermission;
+    this.isAdmin = function(user) {
+      if(user && user.isAdmin)
+        return $q.resolve();
+      else
+        return $q.reject('access denied');
+    }
 
     function checkPID(pid, cb) {
 

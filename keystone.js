@@ -2,6 +2,7 @@
 // customising the .env file in your project's root folder.
 require('dotenv').config();
 global.__base = __dirname + '/';
+global.adminPath = process.env.ADMIN_PATH? process.env.ADMIN_PATH:'admin-back';
 
 // Require keystone
 var Fawn = require("fawn");
@@ -59,6 +60,7 @@ dotEngine.settings.dot = {
 keystone.init({
 	'name': '白米兌換管理系統',
 	'brand': '白米兌換管理系統',
+	'admin path' : adminPath,
 	'port': 8080,
 	'less': 'public',
 	'static': 'public',
@@ -70,6 +72,7 @@ keystone.init({
 	'auto update': false,
 	'user model': 'User',
 	'auth' : true,
+	'frame guard': true,
 	'compress': false //controle the compress middleware myself
 });
 

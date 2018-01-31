@@ -116,6 +116,7 @@
     <script src="/app/product/myNgCart.js" defer></script>
     <script src="/app/statistics/TransListPageCtrler.js" defer></script>
     <script src="/app/statistics/AccRecAggPageCtrler.js" defer></script>
+    <script src="/app/admin/AnnuallyWithdrawPageCtrler.js" defer></script>
     [[?]]
 
     <div class="container">

@@ -31,7 +31,8 @@ angular.module('mainApp')
             'freeze': '凍結',
             'unfreeze': '解凍',
             'create': '開戶',
-            'accUserChange': '過戶'
+            'accUserChange': '過戶',
+            'annuallyWithdraw': '年度結算'
         };
 
         vm.opTypes = [];

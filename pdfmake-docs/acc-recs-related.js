@@ -80,9 +80,21 @@ module.exports = function(req, res) {
             ['入款次數', accRecsAgg.deposit? accRecsAgg.deposit.count:0, '入款總金額', accRecsAgg.deposit? accRecsAgg.deposit.amount:0],
             ['提款次數', accRecsAgg.withdraw? accRecsAgg.withdraw.count:0, '提款總金額', accRecsAgg.withdraw? accRecsAgg.withdraw.amount:0],
             ['兌領次數', accRecsAgg.transact? accRecsAgg.transact.count:0, '兌領總金額', accRecsAgg.transact? accRecsAgg.transact.amount:0],
-            ['當前凍結中戶數', accAgg.freeze? accAgg.freeze.count:0,'當前未凍結戶數', accAgg.unfreeze? accAgg.unfreeze.count:0],
-            ['當前未結清戶數', accAgg.unclose? accAgg.unclose.count:0,'當前未結清存摺總餘額', balanceSum]
+            ['凍結中戶數', accAgg.freeze? accAgg.freeze.count:0,'凍結戶金額', accAgg.freeze? accAgg.freeze.balance:0],
+            ['有效戶數', accAgg.unfreeze? accAgg.unfreeze.count:0,'有效戶金額', accAgg.unfreeze? accAgg.unfreeze.balance:0],
+            ['全部戶數', accAgg.all? accAgg.all.count:0,'全部未領總金額', accAgg.all? accAgg.all.balance:0],  
         ]
+
+        tableBody.forEach(function(textArray) {
+            textArray[1] = {
+                text: textArray[1],
+                alignment: 'right'
+            }
+            textArray[3] = {
+                text: textArray[3],
+                alignment: 'right'
+            }
+        });
     }
     
     var tableContent = {

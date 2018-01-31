@@ -26,11 +26,11 @@ angular.module('mainApp')
         $rootScope.pubErrorMsg(msg);
     }
 
-    var opTypes = ['create','close','freeze','unfreeze', 'deposit', 'withdraw', 'transact', 'accUserChange', 'annuallyWithdraw'];
 
     vm.setAggregateResult = function(result) {
         var aggResult = {};
-        
+        var opTypes = ['create','close','freeze','unfreeze', 'deposit', 'withdraw', 'transact', 'accUserChange', 'annuallyWithdraw'];
+
         result.countOpTypeAndSumAmount.forEach(function(opTypeInfo) {
             aggResult[opTypeInfo._id] = opTypeInfo;
         });
@@ -43,24 +43,32 @@ angular.module('mainApp')
                     amount: 0
                 };
         });
+
+        aggResult['withdraw'].count += aggResult['annuallyWithdraw'].count;
+        aggResult['withdraw'].amount += aggResult['annuallyWithdraw'].amount;
         
+        var accTypes = ['all','freeze','unfreeze'];
         var accAgg = {};
-        result.countAcc.forEach(function(acc) {
-            if(acc._id.freezeStatus)
-                accAgg.freeze = acc;
-            else
-                accAgg.unfreeze = acc;
+        
+        accTypes.forEach(function(accType) {
+            accAgg[accType] = { count: 0, balance: 0 };
+        })
+
+        result.aggAcc.forEach(function(acc) {
+            if(acc._id.freeze) {
+                accAgg['freeze'].count += acc.count;
+                accAgg['freeze'].balance += acc.balance;
+            }
+            else {
+                accAgg['unfreeze'].count += acc.count;
+                accAgg['unfreeze'].balance += acc.balance;
+            }
+
+            accAgg['all'].count += acc.count;
+            accAgg['all'].balance += acc.balance;
+
         });
 
-        if(!accAgg.freeze)
-            accAgg.freeze = { count: 0 };
-        if(!accAgg.unfreeze)
-            accAgg.unfreeze = { count: 0 };
-
-        accAgg.unclose = {
-            count: (accAgg.freeze.count + accAgg.unfreeze.count)
-        };
-        accAgg.balanceSum = result.balanceSum[0].balance;
         vm.aggregateData.accAgg = accAgg;
         vm.aggregateData.accRecsAgg = aggResult;
     }

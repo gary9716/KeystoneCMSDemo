@@ -126,6 +126,14 @@ exports.requireUser = function (req, res, next) {
 	}
 };
 
+exports.requireAdmin = function (req, res, next) {
+  if(req.user && req.user.isAdmin)
+    next();
+  else {
+    res.ktSendRes(400, '權限不足');
+  }
+}
+
 var htmlMinify = function (err, html) {
 	//this would be bound in renderFunc
 	if(err) {

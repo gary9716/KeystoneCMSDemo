@@ -398,28 +398,27 @@ exports = module.exports = function (app) {
   );
 
   app.post('/api/account/annually-withdraw',
-    middleware.permissionCheck.bind([
-      {
-        opName: 'update',
-        listName: Constants.AccountListName
-      },
-      {
-        opName: 'create',
-        listName: Constants.AccountRecordListName
-      }
-    ]),
+    middleware.requireAdmin,
     routes.api.AccountService.annuallyWithdraw,
     routes.api.AccountService.downloadAWMediaFile
   );
 
+  app.post('/api/account/cancel-annually-withdraw',
+    middleware.requireAdmin,
+    routes.api.AccountService.deleteAnnuallyWithdraw);
+
   app.post('/api/account/gen-annually-withdraw-file',
     middleware.permissionCheck.bind([
       {
-        opName: 'update',
+        opName: 'read',
         listName: Constants.AccountListName
       },
       {
-        opName: 'create',
+        opName: 'read',
+        listName: Constants.FarmerListName
+      },
+      {
+        opName: 'read',
         listName: Constants.AccountRecordListName
       }
     ]),

@@ -8,12 +8,15 @@ var accountList = keystone.list(Constants.AccountListName);
 var accountRecList = keystone.list(Constants.AccountRecordListName);
 var periodList = keystone.list(Constants.PeriodListName);
 var transactionList = keystone.list(Constants.TransactionListName);
+var sysList = keystone.list(Constants.SystemListName);
 
-var mime = require('mime-to-extensions');
-var moment = require('moment');
-var mongoose = keystone.get('mongoose');
-var path = require('path');
-var fs = require('fs');
+const mime = require('mime-to-extensions');
+const moment = require('moment');
+const mongoose = keystone.get('mongoose');
+const path = require('path');
+const fs = require('fs');
+const os = require('os');
+
 var DBRecTask = require('../DBRecTask');
 
 exports.create = function(req, res) {
@@ -99,7 +102,7 @@ exports.close = function(req, res) {
   var newRec_id = mongoose.Types.ObjectId();
   
   accountList.model.findOne(filters)
-  .populate('farmer')
+  .populate('farmer lastRecord')
   .exec()
   .then(function(account) {
     if(!account)
@@ -174,7 +177,7 @@ exports.setFreeze = function(req, res) {
 
   var newRec_id = mongoose.Types.ObjectId();
   accountList.model.findOne(filters)
-  .populate('farmer')
+  .populate('farmer lastRecord')
   .exec()
   .then(function(account) {
     if(!account)
@@ -275,7 +278,7 @@ exports.changeAccUser = function(req, res) {
   var newRec_id = mongoose.Types.ObjectId();
 
   accountList.model.findOne(filters)
-  .populate('farmer')
+  .populate('farmer lastRecord')
   .exec()
   .then(function(account) {
     if(!account)
@@ -796,18 +799,24 @@ exports.deleteRec = function(req, res) {
     savAccount = account;
     oldAcc = account.toObject();
 
-    if(account.lastRecord === finalRec._id)
-      return accountRecList.model.find().select('_id').lean().sort('-date').limit(2).exec();
-    else 
-      return account.lastRecord;
+    return accountRecList.model.find({ 
+      account: account._id,
+    }).select('_id').lean().sort('-date').limit(2).exec();
 
   })
   .then(function(latestRecord) {
-    if(latestRecord instanceof Array && latestRecord.length > 1) {
-      savAccount.lastRecord = latestRecord[1];
+    if(latestRecord instanceof Array && latestRecord.length > 0) {
+      var index = _.findIndex(latestRecord, function(rec) {
+        return rec._id.toString() !== finalRec._id.toString();
+      });
+
+      if(index !== -1)
+        savAccount.lastRecord = latestRecord[index];
+      else
+        savAccount.lastRecord = null;
     }
     else {
-      savAccount.lastRecord = latestRecord;
+      savAccount.lastRecord = null;
     }
 
     var accRec = finalRec;
@@ -853,7 +862,6 @@ exports.deleteRec = function(req, res) {
 
 }
 
-var sysList = keystone.list(Constants.SystemListName);
 exports.annuallyWithdraw = function(req, res, next) {
   var form = req.body;
   var nowDate = new Date();
@@ -914,6 +922,8 @@ exports.annuallyWithdraw = function(req, res, next) {
       data.pids.push(account.farmer.pid);
 
       account.balance = 0;
+      account.lastRecord = newRec_id;
+
       dbRecTask.addPending(account.save, accountList, oldAcc, account)
                 .addPending(newRec.save, accountRecList, null, newRec);
     });
@@ -925,7 +935,7 @@ exports.annuallyWithdraw = function(req, res, next) {
       if(index % 2 === 1) {
         //acc rec
         data.amounts.push(result.amount);
-        data.ioAccount.push(result.ioAccount);
+        data.ioAccounts.push(result.ioAccount);
       }
       else {
         //account
@@ -943,6 +953,109 @@ exports.annuallyWithdraw = function(req, res, next) {
 
 }
 
+
+exports.deleteAnnuallyWithdraw = function(req, res) {
+
+  var form = req.body;
+  var accRecsMap = {};
+  var finalAccs;
+  var account_ids;
+  var numAccs;
+  var oldAccs = [];
+  Promise.resolve()
+  .then(function() {
+
+    if(!form.date) {
+      form.date = new Date(); //today
+    }
+    else {
+      form.date = new Date(form.date);
+    }
+
+    //console.log(form.date.getFullYear());
+
+    return accountRecList.model.find({ 
+      $expr: {
+        $and: [
+          { $eq: [{ $year: '$date' }, form.date.getFullYear()] }, //this year
+          { $eq: [ '$opType' , 'annuallyWithdraw' ] },  //annuallyWithdraw op
+        ]
+      }
+    }).exec();
+  })
+  .then(function(accRecs) {
+    if(!accRecs || accRecs.length === 0) {
+      return Promise.reject('沒找到年度結算紀錄');
+    }
+
+    account_ids = accRecs.map(function(accRec) {
+      accRecsMap[accRec.account] = accRec;
+      return accRec.account;
+    });
+
+    numAccs = account_ids.length;
+
+    return accountList.model.find({
+      _id: { $in: account_ids }
+    }).exec();
+  })
+  
+  .then(function(accounts) {
+    if(!accounts || accounts.length === 0 || numAccs !== accounts.length)
+      return Promise.reject('存摺資料有誤');
+
+    finalAccs = accounts;
+
+    var pChain = Promise.resolve();
+    accounts.forEach(function(account) {
+      oldAccs.push(account.toObject());
+      
+      account.balance += accRecsMap[account._id].amount;
+      var delRec = accRecsMap[account._id];
+      pChain = pChain.then(function() {
+          return accountRecList.model.find({ 
+            account: account._id
+          }).select('_id').sort('-date').limit(2).lean().exec();
+        }).then(function(accRecs){
+          var index = _.findIndex(accRecs, function(accRec) {
+            return (accRec._id.toString() !== delRec._id.toString());
+          });
+
+          if(index !== -1) {
+            account.lastRecord = accRecs[index]._id;
+          }
+          else{
+            account.lastRecord = null;
+          }
+        });
+    });
+
+    return pChain;
+  })
+  .then(function(){
+
+    var dbRecTask = new DBRecTask('deleteAnnuallyWithdraw');
+    finalAccs.forEach(function(acc, index) {
+      var delRec = accRecsMap[acc._id];
+      dbRecTask.addPending(acc.save, accountList, oldAccs[index], acc)
+               .addPending(delRec.remove, accountRecList, delRec, null);
+    });
+    
+    return dbRecTask.exec();
+  })
+  .then(function(results) {
+    return res.json({
+      success: true,
+    });
+  })
+  .catch(function(err) {
+    res.ktSendRes(400, err);
+  });
+
+}
+
+
+
 exports.getAnnuallyWithdrawData = function(req, res, next) {
   var form = req.body;
 
@@ -956,8 +1069,8 @@ exports.getAnnuallyWithdrawData = function(req, res, next) {
     ioAccounts : []
   };
 
-  var accounts;
-
+  var accounts = [];
+  var numFarmers;
   sysList.model.findOne().lean().select('finNum').exec()
   .then(function(sysData) {
     if(!sysData)
@@ -980,13 +1093,11 @@ exports.getAnnuallyWithdrawData = function(req, res, next) {
       form.date = new Date(form.date);
     }
 
-    form.data.date = form.date;
-
     return accountRecList.model.find({ 
       $expr: {
         $and: [
           { $eq: [{ $year: '$date' }, form.date.getFullYear()] }, //this year
-          { opType: 'annuallyWithdraw' }  //annuallyWithdraw op
+          { $eq: [ '$opType' , 'annuallyWithdraw' ] },  //annuallyWithdraw op
         ]
       }
     }).select('amount account date ioAccount').populate('account').lean().exec();
@@ -996,9 +1107,11 @@ exports.getAnnuallyWithdrawData = function(req, res, next) {
       return Promise.reject('沒找到年度結算紀錄');
     }
 
+    form.data.date = new Date(accRecs[0].date);
+
     var farmers = [];
     accRecs.forEach(function(accRec) {
-      farmers.push(accRec.account.farmer);
+      farmers.push(accRec.account.farmer.toString());
       accounts.push(accRec.account);
 
       form.data.amounts.push(accRec.amount);
@@ -1007,11 +1120,17 @@ exports.getAnnuallyWithdrawData = function(req, res, next) {
     });
 
     farmers = Array.from(new Set(farmers));
+    numFarmers = farmers.length;
+
     return farmerList.model.find({ _id: { $in: farmers } }).select('_id pid').lean().exec();
   })
   .then(function(farmers) {
     if(!farmers || farmers.length === 0)
       return Promise.reject('沒找到農夫的資料');
+
+    if(farmers.length !== numFarmers) {
+      return Promise.reject('農夫資料筆數缺漏');
+    }
 
     var pidMap = {};
     farmers.forEach(function(farmer) {
@@ -1032,11 +1151,84 @@ exports.getAnnuallyWithdrawData = function(req, res, next) {
   
 }
 
+String.prototype.padStart = function(num, padStr) {
+  return _.padStart(this.toString(),num,padStr);
+};
+
+String.prototype.padEnd = function(num, padStr) {
+  return _.padEnd(this.toString(),num,padStr);
+};
+
 exports.downloadAWMediaFile = function(req, res) {
   var data = req.body.data;
 
   if(!data)
     return res.ktSendRes(400, '沒有相關資料無法產生結算用媒體檔'); 
 
-  //TODO: output media file
+  data.code = data.code.toString();
+  if(data.code.length !== 3) 
+    return res.ktSendRes(400, '摘要代碼必須為3位數字'); 
+
+  try {
+
+    var newLineChar = os.EOL;
+
+    var lineLength = 150;
+    var blockOnePart = data.finNum.substring(0, 3) + 'XX001600' + (' '.repeat(5)); //finNum(3) + other fixed str
+    var linesOfData = [];
+    
+    var dateMoment = moment(data.date);
+    var dateFormat = dateMoment.rocYear().toString().padStart(3, '0') + dateMoment.format('MMDD');
+    var blockTwoPrefix = data.finNum.substring(0, 5) + dateFormat; //finNum(5) + dateStr
+    var twoZeros = '0'.repeat(2);
+    
+    var sendFileFixPart = '0'.repeat(12) + '99';
+    
+    //first line
+    var line = ('1' + blockOnePart + blockTwoPrefix + '100').padEnd(lineLength, ' ') + newLineChar;
+    linesOfData.push(line);
+    
+    var debitAmount = 0; //借
+    var count = 0;
+    data.pids.forEach(function(pid, index) {
+      var amount = Math.floor(data.amounts[index]);
+      debitAmount += amount;
+
+      line = ('2' + blockOnePart + blockTwoPrefix + 
+            '2' + data.code + data.ioAccounts[index].substring(0, 14).padEnd(14, ' ') + 
+            (amount.toString() + twoZeros).padStart(14, '0') + 
+            sendFileFixPart + data.accountIDs[index].padEnd(14,' ') + pid).padEnd(lineLength, ' ') + newLineChar;
+      console.log(line);
+      linesOfData.push(line);
+      count++;
+    });
+
+    var creditAmount = 0; //貸
+    
+    console.log('here');
+
+    //last line
+    line = ('3' + blockOnePart + blockTwoPrefix + count.toString().padStart(10, '0') +
+            creditAmount.toString().padStart(16, '0') +
+            debitAmount.toString().padStart(16, '0')).padEnd(lineLength, ' ') + newLineChar;
+    linesOfData.push(line);
+    
+    var finalData = linesOfData.join('');
+    const buf = Buffer.from(finalData, 'ascii');
+
+    var checkCode = (parseInt(dateFormat) + count + creditAmount + debitAmount).toString();
+    checkCode = checkCode.substring(checkCode.length - 5, checkCode.length).padStart(5,'0');
+
+    res.json({
+      success: true,
+      filename: (dateFormat + '-mediafile.txt'),
+      content: buf.toJSON(),
+      checkCode: checkCode
+    });
+
+  }
+  catch(err) {
+    res.ktSendRes(400, err.toString());
+  }  
+
 }

@@ -143,7 +143,7 @@ module.exports = function () {
     var output = '';
     if (user && user.isAdmin) {
       output = cssLinkTemplate({
-        href: '/keystone/styles/content/editor.min.css',
+        href: '/' + adminPath + '/styles/content/editor.min.css',
       });
     }
     return output;
@@ -154,7 +154,7 @@ module.exports = function () {
     var output = '';
     if (user && user.isAdmin) {
       output = scriptTemplate({
-        src: '/keystone/js/content/editor.js',
+        src: '/' + adminPath + '/js/content/editor.js',
       });
     }
     return output;

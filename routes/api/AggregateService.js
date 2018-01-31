@@ -197,11 +197,6 @@ exports.aggregateAccRelated = function(req, res) {
         
         cursor = accountList.model.aggregate([
             {
-                $match: {
-                    active: true,
-                }
-            },
-            {
                 $project: {
                     _id: 0,
                     balance: 1
@@ -209,18 +204,14 @@ exports.aggregateAccRelated = function(req, res) {
             },
             {
                 $facet: {
-                    'countAcc': [{
+                    'aggAcc': [{
                         $group: {
                             _id: {
-                                freezeStatus: '$freeze'
+                                freeze: '$freeze',
+                                active: '$active'
                             },
-                            count: { $sum: 1 }
-                        }
-                    }],
-                    'balanceSum': [{
-                        $group: {
-                            _id: null,
                             balance: { $sum: '$balance' },
+                            count: { $sum: 1 }
                         }
                     }]
                 }
@@ -230,7 +221,6 @@ exports.aggregateAccRelated = function(req, res) {
         return cursor.next();
     })
     .then(function(result) {
-        delete result.balanceSum._id;
         _.assign(finalResult,result);
         //console.log(finalResult);
         res.json({

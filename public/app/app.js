@@ -80,7 +80,7 @@ angular.module('mainApp')
     .state({
       name: 'farmerDetail',
       templateUrl: appRootPath + 'farmer/detail.html',
-      url: '/farmer/detail/',
+      url: '/farmer/detail',
       params: {
         farmerPID: null
       },
@@ -113,7 +113,7 @@ angular.module('mainApp')
     .state({
       name: 'product',
       templateUrl: appRootPath + 'product/index.html',
-      url: '/product/',
+      url: '/product',
     })
 
     .state({
@@ -169,7 +169,7 @@ angular.module('mainApp')
     .state({
       name: 'statistics',
       templateUrl: appRootPath + 'statistics/index.html',
-      url: '/statistics/'
+      url: '/statistics'
     })
 
     .state({
@@ -212,6 +212,31 @@ angular.module('mainApp')
                 opName: ['read', 'update', 'delete']
               }
             ]); 
+        }]
+      }
+    })
+
+    .state({
+      name: 'admin',
+      templateUrl: appRootPath + 'admin/index.html',
+      url: '/admin-front',
+      resolve: {
+        condition1 : ['myValidation', function(myValidation) {
+          //if this promise is rejected, then the transition will fail
+          return myValidation.isAdmin(locals.user);
+        }]
+      }
+    })
+
+    .state({
+      name: 'adminAnnuallyWithdraw',
+      templateUrl: appRootPath + 'admin/annually-withdraw.html',
+      url: '/admin-front/annually-withdraw',
+      controller: 'AnnuallyWithdrawPageCtrler as ctrler',
+      resolve: {
+        condition1 : ['myValidation', function(myValidation) {
+          //if this promise is rejected, then the transition will fail
+          return myValidation.isAdmin(locals.user);
         }]
       }
     })
