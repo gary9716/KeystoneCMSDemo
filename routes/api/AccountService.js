@@ -211,8 +211,6 @@ exports.setFreeze = function(req, res) {
           fs.access(relatedFile.path, fs.constants.F_OK, (err) => {
             if(err) reject(err);
 
-            console.log('here4');
-
             var boundGetFilename = getUnfreezeFilename.bind({
               account: account,
             });
@@ -222,8 +220,6 @@ exports.setFreeze = function(req, res) {
 
             newRec._.relatedFile.upload(relatedFile, (err2) => {
                 if (err2) return reject(err2.toString());
-
-                console.log('here3.5');
                 resolve(newRec.save());
             });
 
@@ -867,11 +863,10 @@ exports.deleteRec = function(req, res) {
 
 exports.annuallyWithdraw = function(req, res, next) {
   var form = req.body;
-  var nowDate = new Date();
-  nowDate.setMonth(5);
-  nowDate.setDate(30);
-
-  var comment = moment(nowDate).rocYear() + '年度結清';
+  var nowDate = moment();
+  var comment = nowDate.rocYear() + '年度結清';
+  var year = nowDate.year();
+  nowDate = new Date(year + '/06/30');
 
   var data = {
     code: undefined,
@@ -983,16 +978,16 @@ exports.deleteAnnuallyWithdraw = function(req, res) {
   .then(function() {
 
     if(!form.date) {
-      form.date = new Date(); //today
+      form.date = moment(); //today
     }
     else {
-      form.date = new Date(form.date);
+      form.date = moment(form.date);
     }
 
     return accountRecList.model.find({ 
       $expr: {
         $and: [
-          { $eq: [{ $year: '$date' }, form.date.getFullYear()] }, //this year
+          { $eq: [{ $year: '$date' }, form.date.year()] }, //this year
           { $eq: [ '$opType' , 'annuallyWithdraw' ] },  //annuallyWithdraw op
         ]
       }
@@ -1100,16 +1095,16 @@ exports.getAnnuallyWithdrawData = function(req, res, next) {
     form.data.code = form.code;
 
     if(!form.date) {
-      form.date = new Date(); //today
+      form.date = moment(); //today
     }
     else {
-      form.date = new Date(form.date);
+      form.date = moment(form.date);
     }
 
     return accountRecList.model.find({ 
       $expr: {
         $and: [
-          { $eq: [{ $year: '$date' }, form.date.getFullYear()] }, //this year
+          { $eq: [{ $year: '$date' }, form.date.year()] }, //this year
           { $eq: [ '$opType' , 'annuallyWithdraw' ] },  //annuallyWithdraw op
         ]
       }
@@ -1153,8 +1148,6 @@ exports.getAnnuallyWithdrawData = function(req, res, next) {
     accounts.forEach(function(account) {
       form.data.pids.push(pidMap[account.farmer.toString()]);
     });
-          
-    console.log(form.data);
     
     next();
   })
