@@ -397,6 +397,36 @@ exports = module.exports = function (app) {
     routes.api.AccountService.changeAccUser
   );
 
+  app.post('/api/account/annually-withdraw',
+    middleware.permissionCheck.bind([
+      {
+        opName: 'update',
+        listName: Constants.AccountListName
+      },
+      {
+        opName: 'create',
+        listName: Constants.AccountRecordListName
+      }
+    ]),
+    routes.api.AccountService.annuallyWithdraw,
+    routes.api.AccountService.downloadAWMediaFile
+  );
+
+  app.post('/api/account/gen-annually-withdraw-file',
+    middleware.permissionCheck.bind([
+      {
+        opName: 'update',
+        listName: Constants.AccountListName
+      },
+      {
+        opName: 'create',
+        listName: Constants.AccountRecordListName
+      }
+    ]),
+    routes.api.AccountService.getAnnuallyWithdrawData,
+    routes.api.AccountService.downloadAWMediaFile
+  );
+
   app.post('/api/p-type/upsert',
     middleware.permissionCheck.bind(
       {

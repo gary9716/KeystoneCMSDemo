@@ -208,9 +208,21 @@ exports.aggregateAccRelated = function(req, res) {
                 }
             },
             {
-                $group: {
-                    _id: null,
-                    totalActiveBalance: { $sum: '$balance' }
+                $facet: {
+                    'countAcc': [{
+                        $group: {
+                            _id: {
+                                freezeStatus: '$freeze'
+                            },
+                            count: { $sum: 1 }
+                        }
+                    }],
+                    'balanceSum': [{
+                        $group: {
+                            _id: null,
+                            balance: { $sum: '$balance' },
+                        }
+                    }]
                 }
             }
         ]).allowDiskUse(true).cursor({ batchSize: 1000 }).exec();
@@ -218,10 +230,9 @@ exports.aggregateAccRelated = function(req, res) {
         return cursor.next();
     })
     .then(function(result) {
-        delete result._id;
+        delete result.balanceSum._id;
         _.assign(finalResult,result);
         //console.log(finalResult);
-
         res.json({
             success: true,
             result: finalResult

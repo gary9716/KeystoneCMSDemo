@@ -71,9 +71,17 @@ div#acc-rec-aggregate .flex-row {
                     <td>{{ctrler.aggregateData.accRecsAgg.transact.amount}}</td>
                 </tr>
                 <tr>
+                        <td>當前凍結中帳戶</td>
+                        <td>{{ctrler.aggregateData.accAgg.freeze.count}}</td>
+                        <td>當前未凍結帳戶</td>
+                        <td>{{ctrler.aggregateData.accAgg.unfreeze.count}}</td>
+                </tr>
+                <tr>
+                    <td>當前未結清帳戶</td>
+                    <td>{{ctrler.aggregateData.accAgg.unclose.count}}</td>
                     <td>當前未結清存摺總餘額</td>
-                    <td>{{ctrler.aggregateData.totalActiveBalance}}</td>
-                </tr> 
+                    <td>{{ctrler.aggregateData.accAgg.balanceSum}}</td>
+                </tr>
             </tbody>
         </table>
     </div>

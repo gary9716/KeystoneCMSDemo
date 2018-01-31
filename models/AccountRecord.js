@@ -37,11 +37,12 @@ AccountRecord.add({
     { value: 'create', label: '開戶' },
     { value: 'deposit', label: '入款' },
     { value: 'withdraw', label: '提款' },
+    { value: 'annuallyWithdraw', label:'年度結算' },
     { value: 'unfreeze', label: '解凍' },
     { value: 'freeze', label: '凍結' },
     { value: 'transact', label: '兌領' },
     { value: 'close', label: '結清' },
-    { value: 'accUserChange', label:'過戶' }
+    { value: 'accUserChange', label:'過戶' },
   ], index: true, required: true, trim: true, initial: true, noedit: true },
   amount: { type: Types.Money, label: '金額', default: 0, initial: true, noedit: true },
   date: { type: Types.Datetime, format: 'YYYY-MM-DD kk:mm:ss', label: '記錄時間', default: Date.now, initial: true, noedit: true },

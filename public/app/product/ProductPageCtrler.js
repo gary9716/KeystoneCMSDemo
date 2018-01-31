@@ -33,7 +33,8 @@ angular.module('mainApp')
             }
         })
         .catch(function(err) {
-            $rootScope.pubErrorMsg('抓取商品資訊失敗,' + err.data.toString());
+            var msg = err && err.data? err.data.toString():(err? err.toString(): '');
+            $rootScope.pubErrorMsg('抓取商品資訊失敗,' + msg);
         });
     }
 
@@ -115,7 +116,8 @@ angular.module('mainApp')
 
             })
             .catch(function(err) {
-                $rootScope.pubErrorMsg('兌換失敗,原因' + err.data.toString());
+                var msg = err && err.data? err.data.toString():(err? err.toString(): '');
+                $rootScope.pubErrorMsg('兌換失敗,原因' + msg);
             })
 
             
@@ -236,7 +238,7 @@ angular.module('mainApp')
                     }
                 })
                 .catch(function(err) {
-                    $rootScope.pubErrorMsg(err.data.toString());
+                    $rootScope.pubErrorMsg(err && err.data? err.data.toString():(err? err.toString(): ''));
                 });
         }
 
@@ -279,7 +281,8 @@ angular.module('mainApp')
                     }
                 })
                 .catch(function(err) {
-                    $rootScope.pubErrorMsg('刪除商品失敗,' + err.data.toString());
+                    var msg = err && err.data? err.data.toString():(err? err.toString(): '');
+                    $rootScope.pubErrorMsg('刪除商品失敗,' + msg);
                 });
 
             }
@@ -342,7 +345,8 @@ angular.module('mainApp')
             }
           })
           .catch(function(err) {
-            $rootScope.pubErrorMsg('抓取商品類型資訊失敗,' + err.data.toString());
+            var msg = err && err.data? err.data.toString():(err? err.toString(): '');
+            $rootScope.pubErrorMsg('抓取商品類型資訊失敗,' + msg);
           });
     }
 
@@ -557,7 +561,7 @@ angular.module('mainApp')
                 }
             })
             .catch(function(err) {
-                vm.pubErrorMsg('失敗,' + err.data.toString());
+                vm.pubErrorMsg('失敗,' + msg);
             })
             .finally(function(){
                 vm.isUpdatingAccount = false;

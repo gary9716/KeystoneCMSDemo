@@ -852,3 +852,191 @@ exports.deleteRec = function(req, res) {
   });
 
 }
+
+var sysList = keystone.list(Constants.SystemListName);
+exports.annuallyWithdraw = function(req, res, next) {
+  var form = req.body;
+  var nowDate = new Date();
+  var comment = moment(nowDate).rocYear() + '年度結算';
+
+  var data = {
+    code: undefined,
+    finNum: undefined,
+    date: nowDate,
+    pids: [],
+    amounts: [],
+    accountIDs : [],
+    ioAccounts : []
+  };
+
+  sysList.model.findOne().lean().select('finNum').exec()
+  .then(function(sysData) {
+    if(!sysData)
+      return Promise.reject('無系統資料');
+    if(!sysData.finNum)
+      return Promise.reject('尚未設定金融代碼,請至後台系統表格設定');
+
+    data.finNum = sysData.finNum;
+
+    if(!form.code) {
+      return Promise.reject('無摘要代碼');
+    }
+
+    data.code = form.code;
+    return accountList.model.find({
+      active: true,
+      balance: { $gt: 0 }
+    })
+    .populate('farmer')
+    .exec();
+  })
+  .then(function(accounts) {
+    if(!accounts || accounts.length === 0) {
+      return Promise.reject('無可年度結清之存摺');
+    }
+
+    var dbRecTask = new DBRecTask('annuallyWithdraw');
+
+    accounts.forEach(function(account) {
+      var oldAcc = account.toObject();
+      var newRec_id = mongoose.Types.ObjectId();
+      var newRec = new accountRecList.model({
+        _id: newRec_id,
+        account: account._id,
+        opType: 'annuallyWithdraw',
+        amount: account.balance,
+        date: nowDate,
+        operator: req.user._id,
+        ioAccount: account.farmer.ioAccount,
+        comment: comment,
+      });
+
+      data.pids.push(account.farmer.pid);
+
+      account.balance = 0;
+      dbRecTask.addPending(account.save, accountList, oldAcc, account)
+                .addPending(newRec.save, accountRecList, null, newRec);
+    });
+
+    return dbRecTask.exec();
+  })
+  .then(function(results) {
+    results.forEach(function(result, index) {
+      if(index % 2 === 1) {
+        //acc rec
+        data.amounts.push(result.amount);
+        data.ioAccount.push(result.ioAccount);
+      }
+      else {
+        //account
+        data.accountIDs.push(result.accountID);
+      }
+    });
+
+    form.data = data;
+
+    next();
+  })
+  .catch(function(err) {
+    res.ktSendRes(400, err);
+  });
+
+}
+
+exports.getAnnuallyWithdrawData = function(req, res, next) {
+  var form = req.body;
+
+  form.data = {
+    code: undefined,
+    finNum: undefined,
+    date: undefined,
+    pids: [],
+    amounts: [],
+    accountIDs : [],
+    ioAccounts : []
+  };
+
+  var accounts;
+
+  sysList.model.findOne().lean().select('finNum').exec()
+  .then(function(sysData) {
+    if(!sysData)
+      return Promise.reject('無系統資料');
+    if(!sysData.finNum)
+      return Promise.reject('尚未設定金融代碼,請至後台系統表格設定');
+
+    form.data.finNum = sysData.finNum;
+
+    if(!form.code) {
+      return Promise.reject('無摘要代碼');
+    }
+
+    form.data.code = form.code;
+
+    if(!form.date) {
+      form.date = new Date(); //today
+    }
+    else {
+      form.date = new Date(form.date);
+    }
+
+    form.data.date = form.date;
+
+    return accountRecList.model.find({ 
+      $expr: {
+        $and: [
+          { $eq: [{ $year: '$date' }, form.date.getFullYear()] }, //this year
+          { opType: 'annuallyWithdraw' }  //annuallyWithdraw op
+        ]
+      }
+    }).select('amount account date ioAccount').populate('account').lean().exec();
+  })
+  .then(function(accRecs) {
+    if(!accRecs || accRecs.length === 0) {
+      return Promise.reject('沒找到年度結算紀錄');
+    }
+
+    var farmers = [];
+    accRecs.forEach(function(accRec) {
+      farmers.push(accRec.account.farmer);
+      accounts.push(accRec.account);
+
+      form.data.amounts.push(accRec.amount);
+      form.data.accountIDs.push(accRec.account.accountID);
+      form.data.ioAccounts.push(accRec.ioAccount);
+    });
+
+    farmers = Array.from(new Set(farmers));
+    return farmerList.model.find({ _id: { $in: farmers } }).select('_id pid').lean().exec();
+  })
+  .then(function(farmers) {
+    if(!farmers || farmers.length === 0)
+      return Promise.reject('沒找到農夫的資料');
+
+    var pidMap = {};
+    farmers.forEach(function(farmer) {
+      pidMap[farmer._id.toString()] = farmer.pid;
+    });
+
+    accounts.forEach(function(account) {
+      form.data.pids.push(pidMap[account.farmer.toString()]);
+    });
+          
+    console.log(form.data);
+    
+    next();
+  })
+  .catch(function(err) {
+    res.ktSendRes(400, err);
+  });
+  
+}
+
+exports.downloadAWMediaFile = function(req, res) {
+  var data = req.body.data;
+
+  if(!data)
+    return res.ktSendRes(400, '沒有相關資料無法產生結算用媒體檔'); 
+
+  //TODO: output media file
+}

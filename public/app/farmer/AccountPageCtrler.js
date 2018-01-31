@@ -39,7 +39,8 @@ angular.module('mainApp')
         }
       })
       .catch(function(err) {
-        $rootScope.pubErrorMsg('抓取農民存摺資訊失敗,' + err.data.toString());
+        var msg = err && err.data? err.data.toString():(err? err.toString(): '');
+        $rootScope.pubErrorMsg('抓取農民存摺資訊失敗,' + msg);
         console.log(err);
       });
 
@@ -68,7 +69,8 @@ angular.module('mainApp')
         }
       })
       .catch(function(err) {
-        $rootScope.pubErrorMsg('開立存摺失敗,' + err.data.toString());
+        var msg = err && err.data? err.data.toString():(err? err.toString(): '');
+        $rootScope.pubErrorMsg('開立存摺失敗,' + msg);
         console.log(err);
       });
 
@@ -142,7 +144,8 @@ angular.module('mainApp')
           }
         })
         .catch(function(err) {
-            $rootScope.pubErrorMsg('更新失敗,' + err.data.toString());
+            var msg = err && err.data? err.data.toString():(err? err.toString(): '');
+            $rootScope.pubErrorMsg('更新失敗,' + msg);
         });
       })
       .catch(function () { 
@@ -327,7 +330,8 @@ angular.module('mainApp')
         }
       })
       .catch(function(err) {
-        vm.pubErrorMsg('入款失敗,' + err.data.toString());
+        var msg = err && err.data? err.data.toString():(err? err.toString(): '');
+        vm.pubErrorMsg('入款失敗,' + msg);
       })
       .finally(function() {
         vm.isProcessing = false;
@@ -360,7 +364,8 @@ angular.module('mainApp')
         }
       })
       .catch(function(err) {
-        vm.pubErrorMsg('提款失敗,' + err.data.toString());
+        var msg = err && err.data? err.data.toString():(err? err.toString(): '');
+        vm.pubErrorMsg('提款失敗,' + msg);
       })
       .finally(function() {
         vm.isProcessing = false;
@@ -393,7 +398,8 @@ angular.module('mainApp')
         vm.pubSuccessMsg('下載解凍單成功');
       })
       .catch(function(err) {
-        vm.pubErrorMsg('下載解凍單失敗,' + err.data.toString());
+        var msg = err && err.data? err.data.toString():(err? err.toString(): '');
+        vm.pubErrorMsg('下載解凍單失敗,' + msg);
       })
       .finally(function() {
         vm.isProcessing = false;
@@ -433,7 +439,8 @@ angular.module('mainApp')
         }
       })
       .catch(function(err) {
-        vm.pubErrorMsg('失敗,' + err.data.toString());
+        var msg = err && err.data? err.data.toString():(err? err.toString(): '');
+        vm.pubErrorMsg('失敗,' + msg);
       })
       .finally(function() {
         vm.isProcessing = false;
@@ -467,7 +474,8 @@ angular.module('mainApp')
         }
       })
       .catch(function(err) {
-        vm.pubErrorMsg('結清失敗,' + err.data.toString());
+        var msg = err && err.data? err.data.toString():(err? err.toString(): '');
+        vm.pubErrorMsg('結清失敗,' + msg);
       })
       .finally(function() {
         vm.isProcessing = false;
@@ -498,7 +506,8 @@ angular.module('mainApp')
         }
       })
       .catch(function(err) {
-        vm.pubErrorMsg('過戶失敗,' + err.data.toString());
+        var msg = err && err.data? err.data.toString():(err? err.toString(): '');
+        vm.pubErrorMsg('過戶失敗,' + msg);
       })
       .finally(function() {
         vm.isProcessing = false;
@@ -563,7 +572,7 @@ angular.module('mainApp')
         });
       })
       .catch(function(err) {
-        var msg = err.data? err.data.toString() : err.toString();
+        var msg = err && err.data? err.data.toString():(err? err.toString(): '');
         $rootScope.pubErrorMsg('抓取地理資訊失敗,' + msg);
         console.log(err);
       });

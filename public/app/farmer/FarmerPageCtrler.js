@@ -28,7 +28,7 @@ angular.module('mainApp')
                 return data;
               })
               .catch(function(err) {
-                var msg = err.data? err.data.toString() : err.toString();
+                var msg = err && err.data? err.data.toString():(err? err.toString(): '');
                 $rootScope.pubErrorMsg('抓取地理資訊失敗,' + msg);
                 console.log(err);
               });
@@ -108,7 +108,8 @@ angular.module('mainApp')
         }
       })
       .catch(function(err) {
-        $rootScope.pubErrorMsg('註冊失敗,' + err.data.toString());
+        var msg = err && err.data? err.data.toString():(err? err.toString(): '');
+        $rootScope.pubErrorMsg('註冊失敗,' + msg);
       })
       .finally(function() {
         vm.isRegistering = false;
@@ -182,7 +183,8 @@ angular.module('mainApp')
         }
       })
       .catch(function(err) {
-        $rootScope.pubErrorMsg('搜尋失敗,' + err.data.toString());
+        var msg = err && err.data? err.data.toString():(err? err.toString(): '');
+        $rootScope.pubErrorMsg('搜尋失敗,' + msg);
         console.log(err);
       })
       .finally(function() {

@@ -68,17 +68,20 @@ module.exports = function(req, res) {
 
     //main content
     var accRecsAgg = form.accRecsAgg;
-    var totalActiveBalance = form.totalActiveBalance? form.totalActiveBalance : 0;
+    var accAgg = form.accAgg;
+
+    var balanceSum = accAgg.balanceSum? accAgg.balanceSum : 0;
 
     var tableBody;
     if(accRecsAgg) {
         tableBody = [
-            ['開戶次數', accRecsAgg.create.count, '結清次數', accRecsAgg.close.count],
-            ['凍結次數', accRecsAgg.freeze.count, '解凍次數', accRecsAgg.unfreeze.count],
-            ['入款次數', accRecsAgg.deposit.count, '入款總金額', accRecsAgg.deposit.amount],
-            ['提款次數', accRecsAgg.withdraw.count, '提款總金額', accRecsAgg.withdraw.amount],
-            ['兌領次數', accRecsAgg.transact.count, '兌領總金額', accRecsAgg.transact.amount],
-            ['當前未結清存摺總餘額', totalActiveBalance, '', '']
+            ['開戶次數', accRecsAgg.create? accRecsAgg.create.count:0, '結清次數', accRecsAgg.close? accRecsAgg.close.count:0],
+            ['凍結次數', accRecsAgg.freeze? accRecsAgg.freeze.count:0, '解凍次數', accRecsAgg.unfreeze? accRecsAgg.unfreeze.count:0],
+            ['入款次數', accRecsAgg.deposit? accRecsAgg.deposit.count:0, '入款總金額', accRecsAgg.deposit? accRecsAgg.deposit.amount:0],
+            ['提款次數', accRecsAgg.withdraw? accRecsAgg.withdraw.count:0, '提款總金額', accRecsAgg.withdraw? accRecsAgg.withdraw.amount:0],
+            ['兌領次數', accRecsAgg.transact? accRecsAgg.transact.count:0, '兌領總金額', accRecsAgg.transact? accRecsAgg.transact.amount:0],
+            ['當前凍結中戶數', accAgg.freeze? accAgg.freeze.count:0,'當前未凍結戶數', accAgg.unfreeze? accAgg.unfreeze.count:0],
+            ['當前未結清戶數', accAgg.unclose? accAgg.unclose.count:0,'當前未結清存摺總餘額', balanceSum]
         ]
     }
     

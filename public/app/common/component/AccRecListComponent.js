@@ -85,8 +85,9 @@ angular.module('mainApp')
                 }
             })
             .catch(function(err) {
+                var msg = err && err.data? err.data.toString():(err? err.toString(): '');
                 if(vm.getAccRecErrorCB)
-                    vm.getAccRecErrorCB({ msg: ('讀取操作記錄失敗,' + err.data.toString()) });
+                    vm.getAccRecErrorCB({ msg: ('讀取操作記錄失敗,' + msg) });
             });
         }
 
@@ -205,8 +206,9 @@ angular.module('mainApp')
                 }
               })
               .catch(function(err) {
+                var msg = err && err.data? err.data.toString():(err? err.toString(): '');
                 if(vm.deleteAccRecErrorCB)
-                    vm.deleteAccRecErrorCB({ msg: '刪除紀錄失敗,' + err.data.toString() });
+                    vm.deleteAccRecErrorCB({ msg: '刪除紀錄失敗,' + msg});
               });
               
             }
@@ -229,8 +231,9 @@ angular.module('mainApp')
                     }
                 })
                 .catch(function(err) {
+                    var msg = err && err.data? err.data.toString():(err? err.toString(): '');
                     if(vm.getTransErrorCB)
-                        vm.getTransErrorCB({ msg:'抓取兌領紀錄失敗,' + err.data.toString() });
+                        vm.getTransErrorCB({ msg:'抓取兌領紀錄失敗,' + msg });
                 });
             }
             else {
@@ -267,8 +270,9 @@ angular.module('mainApp')
                 }
             })
             .catch(function(err) {
+                var msg = err && err.data? err.data.toString():(err? err.toString(): '');
                 if(vm.updateAccRecErrorCB)
-                    vm.updateAccRecErrorCB({ msg:'更新存摺紀錄失敗,' + err.data.toString() });
+                    vm.updateAccRecErrorCB({ msg:'更新存摺紀錄失敗,' + msg });
             })
             .finally(function(){
                 vm.isProcessing = false;
@@ -296,8 +300,9 @@ angular.module('mainApp')
               
             })
             .catch(function(err) {
+                var msg = err && err.data? err.data.toString():(err? err.toString(): '');
                 if(vm.downloadDWSheetErrorCB)
-                    vm.downloadDWSheetErrorCB({ msg: '下載轉帳單失敗,' + err.data.toString()});
+                    vm.downloadDWSheetErrorCB({ msg: '下載轉帳單失敗,' + msg });
             })
             .finally(function(){
               vm.isProcessing = false;

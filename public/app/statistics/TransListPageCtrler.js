@@ -80,7 +80,8 @@ angular.module('mainApp')
             }
         })
         .catch(function(err) {
-            $rootScope.pubErrorMsg('讀取兌領處資訊失敗,' + err.data.toString());
+            var msg = err && err.data? err.data.toString():(err? err.toString(): '');
+            $rootScope.pubErrorMsg('讀取兌領處資訊失敗,' + msg);
         });
     }
 
@@ -107,7 +108,8 @@ angular.module('mainApp')
             }
         })
         .catch(function(err) {
-            $rootScope.pubErrorMsg('讀取兌領記錄失敗,' + err.data.toString());
+            var msg = err && err.data? err.data.toString():(err? err.toString(): '');
+            $rootScope.pubErrorMsg('讀取兌領記錄失敗,' + msg);
         });
     }
 
@@ -128,7 +130,8 @@ angular.module('mainApp')
             }
         })
         .catch(function(err) {
-            $rootScope.pubErrorMsg('更新兌領紀錄失敗,' + err.data.toString());
+            var msg = err && err.data? err.data.toString():(err? err.toString(): '');
+            $rootScope.pubErrorMsg('更新兌領紀錄失敗,' + msg);
         });
     }
 
@@ -149,7 +152,8 @@ angular.module('mainApp')
                 }
             })
             .catch(function(err) {
-                $rootScope.pubErrorMsg('刪除兌領紀錄失敗,' + err.data.toString());
+                var msg = err && err.data? err.data.toString():(err? err.toString(): '');
+                $rootScope.pubErrorMsg('刪除兌領紀錄失敗,' + msg);
             });
         }
     }
@@ -270,7 +274,8 @@ angular.module('mainApp')
             }
         })
         .catch(function(err) {
-            $rootScope.pubErrorMsg("統計失敗,", err.data.toString());
+            var msg = err && err.data? err.data.toString():(err? err.toString(): '');
+            $rootScope.pubErrorMsg("統計失敗,"+ msg);
         })
         .finally(function() {
             vm.isAggregating = false;
@@ -296,7 +301,8 @@ angular.module('mainApp')
             $rootScope.pubSuccessMsg('下載兌領統計表成功');
         })
         .catch(function(err) {
-            $rootScope.pubErrorMsg('下載兌領統計表失敗,', err.data.toString());
+            var msg = err && err.data? err.data.toString():(err? err.toString(): '');
+            $rootScope.pubErrorMsg('下載兌領統計表失敗,' + msg);
         })
         .finally(function(){
             vm.isDownloading = false;
