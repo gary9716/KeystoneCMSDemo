@@ -16,7 +16,7 @@ System.add({
   farmAddr : { type:String, label: '農會地址', initial: true, trim: true },
   farmEmail: { type: Types.Email, label: '農會信箱', initial: true, trim: true },
   cityDist : { type:Types.Relationship, label: '縣市鄉鎮', ref:Constants.AddrPrefixListName, initial: true },
-  finNum: { type:String, label: '金融代碼(年度結算用)', initial: true, trim: true }
+  finNum: { type:String, label: '金融代碼(年度結清用)', initial: true, trim: true }
 });
 
 System.defaultColumns = 'sysName, farmName, farmTel, farmFax, farmEmail, farmAddr';

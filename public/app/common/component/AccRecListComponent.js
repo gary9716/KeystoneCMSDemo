@@ -32,7 +32,7 @@ angular.module('mainApp')
             'unfreeze': '解凍',
             'create': '開戶',
             'accUserChange': '過戶',
-            'annuallyWithdraw': '年度結算'
+            'annuallyWithdraw': '年度結清'
         };
 
         vm.opTypes = [];
@@ -170,7 +170,7 @@ angular.module('mainApp')
                 else
                   return false;
             }
-            else if(opType === 'close') {
+            else if(opType === 'close' || opType === 'annuallyWithdraw') {
                 if(act === 'delete') {
                   return true;
                 }

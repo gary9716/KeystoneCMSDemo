@@ -24,12 +24,12 @@ angular.module('mainApp')
                 saveAs(file, filename);
 
                 vm.checkCode = data.checkCode;
-                $rootScope.pubSuccessMsg('年度結算執行成功,已下載媒體擋');
+                $rootScope.pubSuccessMsg('年度結清執行成功,已下載媒體檔');
             }
         })
         .catch(function(err) {
             var msg = err && err.data? err.data.toString():(err? err.toString(): '');
-            $rootScope.pubErrorMsg('年度結算執行失敗,'+ msg);
+            $rootScope.pubErrorMsg('年度結清執行失敗,'+ msg);
         })
         .finally(function() {
             vm.isProcessing = false;
@@ -44,12 +44,12 @@ angular.module('mainApp')
         .then(function(res) {
             var data = res.data;
             if(data.success) {
-                $rootScope.pubSuccessMsg('年度結算撤銷成功');
+                $rootScope.pubSuccessMsg('年度結清撤銷成功');
             }
         })
         .catch(function(err) {
             var msg = err && err.data? err.data.toString():(err? err.toString(): '');
-            $rootScope.pubErrorMsg('年度結算撤銷失敗,'+ msg);
+            $rootScope.pubErrorMsg('年度結清撤銷失敗,'+ msg);
         })
         .finally(function() {
             vm.isProcessing = false;
@@ -69,12 +69,12 @@ angular.module('mainApp')
                 var file = new Blob([new Uint8Array(data.content.data)],{type: 'text/plain'});
                 saveAs(file, filename);
 
-                $rootScope.pubSuccessMsg('年度結算媒體檔已下載');
+                $rootScope.pubSuccessMsg('年度結清媒體檔已下載');
             }
         })
         .catch(function(err) {
             var msg = err && err.data? err.data.toString():(err? err.toString(): '');
-            $rootScope.pubErrorMsg('年度結算媒體檔下載失敗,'+ msg);
+            $rootScope.pubErrorMsg('年度結清媒體檔下載失敗,'+ msg);
         })
         .finally(function() {
             vm.isProcessing = false;

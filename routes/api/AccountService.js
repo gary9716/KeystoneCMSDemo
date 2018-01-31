@@ -835,6 +835,9 @@ exports.deleteRec = function(req, res) {
       savAccount.active = true;
       savAccount.closedAt = null;
     }
+    else if(accRec.opType === 'annuallyWithdraw') {
+      savAccount.balance += accRec.amount;
+    }
     else {
       return Promise.reject('該紀錄無法刪除');
     }
@@ -865,7 +868,10 @@ exports.deleteRec = function(req, res) {
 exports.annuallyWithdraw = function(req, res, next) {
   var form = req.body;
   var nowDate = new Date();
-  var comment = moment(nowDate).rocYear() + '年度結算';
+  nowDate.setMonth(5);
+  nowDate.setDate(30);
+
+  var comment = moment(nowDate).rocYear() + '年度結清';
 
   var data = {
     code: undefined,
@@ -905,7 +911,15 @@ exports.annuallyWithdraw = function(req, res, next) {
 
     var dbRecTask = new DBRecTask('annuallyWithdraw');
 
+    var rejectThis = false;
+    var reason = '';
+
     accounts.forEach(function(account) {
+      if(!account.farmer.ioAccount || account.farmer.ioAccount.length === 0) {
+        rejectThis = true;
+        reason = '農民預設對口帳戶為空';
+      }
+        
       var oldAcc = account.toObject();
       var newRec_id = mongoose.Types.ObjectId();
       var newRec = new accountRecList.model({
@@ -927,6 +941,10 @@ exports.annuallyWithdraw = function(req, res, next) {
       dbRecTask.addPending(account.save, accountList, oldAcc, account)
                 .addPending(newRec.save, accountRecList, null, newRec);
     });
+
+    if(rejectThis) {
+      return Promise.reject(reason);
+    }
 
     return dbRecTask.exec();
   })
@@ -953,7 +971,6 @@ exports.annuallyWithdraw = function(req, res, next) {
 
 }
 
-
 exports.deleteAnnuallyWithdraw = function(req, res) {
 
   var form = req.body;
@@ -972,8 +989,6 @@ exports.deleteAnnuallyWithdraw = function(req, res) {
       form.date = new Date(form.date);
     }
 
-    //console.log(form.date.getFullYear());
-
     return accountRecList.model.find({ 
       $expr: {
         $and: [
@@ -985,7 +1000,7 @@ exports.deleteAnnuallyWithdraw = function(req, res) {
   })
   .then(function(accRecs) {
     if(!accRecs || accRecs.length === 0) {
-      return Promise.reject('沒找到年度結算紀錄');
+      return Promise.reject('沒找到年度結清紀錄');
     }
 
     account_ids = accRecs.map(function(accRec) {
@@ -1054,8 +1069,6 @@ exports.deleteAnnuallyWithdraw = function(req, res) {
 
 }
 
-
-
 exports.getAnnuallyWithdrawData = function(req, res, next) {
   var form = req.body;
 
@@ -1104,7 +1117,7 @@ exports.getAnnuallyWithdrawData = function(req, res, next) {
   })
   .then(function(accRecs) {
     if(!accRecs || accRecs.length === 0) {
-      return Promise.reject('沒找到年度結算紀錄');
+      return Promise.reject('沒找到年度結清紀錄');
     }
 
     form.data.date = new Date(accRecs[0].date);
@@ -1193,20 +1206,16 @@ exports.downloadAWMediaFile = function(req, res) {
     data.pids.forEach(function(pid, index) {
       var amount = Math.floor(data.amounts[index]);
       debitAmount += amount;
-
       line = ('2' + blockOnePart + blockTwoPrefix + 
             '2' + data.code + data.ioAccounts[index].substring(0, 14).padEnd(14, ' ') + 
             (amount.toString() + twoZeros).padStart(14, '0') + 
             sendFileFixPart + data.accountIDs[index].padEnd(14,' ') + pid).padEnd(lineLength, ' ') + newLineChar;
-      console.log(line);
       linesOfData.push(line);
       count++;
     });
 
     var creditAmount = 0; //貸
     
-    console.log('here');
-
     //last line
     line = ('3' + blockOnePart + blockTwoPrefix + count.toString().padStart(10, '0') +
             creditAmount.toString().padStart(16, '0') +

@@ -37,7 +37,7 @@ AccountRecord.add({
     { value: 'create', label: '開戶' },
     { value: 'deposit', label: '入款' },
     { value: 'withdraw', label: '提款' },
-    { value: 'annuallyWithdraw', label:'年度結算' },
+    { value: 'annuallyWithdraw', label:'年度結清' },
     { value: 'unfreeze', label: '解凍' },
     { value: 'freeze', label: '凍結' },
     { value: 'transact', label: '兌領' },
