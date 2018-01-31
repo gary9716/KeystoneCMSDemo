@@ -984,7 +984,7 @@ exports.deleteAnnuallyWithdraw = function(req, res) {
       form.date = moment(form.date);
     }
 
-    console.log('year:' + form.date.year());
+    //console.log('year:' + form.date.year());
 
     return accountRecList.model.find({ 
       $expr: {
@@ -1103,7 +1103,7 @@ exports.getAnnuallyWithdrawData = function(req, res, next) {
       form.date = moment(form.date);
     }
 
-    console.log('year:' + form.date.year());
+    //console.log('year:' + form.date.year());
 
     return accountRecList.model.find({ 
       $expr: {

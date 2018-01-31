@@ -5,9 +5,6 @@ angular.module('mainApp')
     var vm = this;
     
     var thisYear = new Date();
-    thisYear.setDate(1);
-    thisYear.setMonth(0);
-
     vm.cancelAWDate = thisYear;
     vm.downloadAWDate = thisYear;
 
