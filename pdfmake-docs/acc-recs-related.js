@@ -10,7 +10,7 @@ module.exports = function(req, res) {
     var sysInfo = keystone.get('sysParams');
     var locationName = sysInfo.farmName;
     
-    var sheetName = '存摺紀錄統計表';
+    var sheetName = '白米存摺交易匯總表';
     
     if(form.startDate) {
         startMoment = moment(form.startDate);
