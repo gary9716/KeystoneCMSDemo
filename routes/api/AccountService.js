@@ -863,15 +863,22 @@ exports.deleteRec = function(req, res) {
 
 exports.annuallyWithdraw = function(req, res, next) {
   var form = req.body;
-  var nowDate = moment();
-  var comment = nowDate.rocYear() + '年度結清';
-  var year = nowDate.year();
-  nowDate = new Date(year + '/06/30');
 
+  var date;
+  if(form.date) {
+    date = new Date(form.date);
+  }
+  else {
+    date = new Date();
+  }
+  
+  var dateMoment = moment(date);
+  var comment = dateMoment.rocYear() + '年度結清';
+  
   var data = {
     code: undefined,
     finNum: undefined,
-    date: nowDate,
+    date: date,
     pids: [],
     amounts: [],
     accountIDs : [],
@@ -922,7 +929,7 @@ exports.annuallyWithdraw = function(req, res, next) {
         account: account._id,
         opType: 'annuallyWithdraw',
         amount: account.balance,
-        date: nowDate,
+        date: date,
         operator: req.user._id,
         ioAccount: account.farmer.ioAccount,
         comment: comment,
@@ -1215,8 +1222,8 @@ exports.downloadAWMediaFile = function(req, res) {
     
     //last line
     line = ('3' + blockOnePart + blockTwoPrefix + count.toString().padStart(10, '0') +
-            creditAmount.toString().padStart(16, '0') +
-            debitAmount.toString().padStart(16, '0')).padEnd(lineLength, ' ') + newLineChar;
+            (creditAmount.toString() + twoZeros).padStart(16, '0') +
+            (debitAmount.toString() + twoZeros).padStart(16, '0')).padEnd(lineLength, ' ') + newLineChar;
     linesOfData.push(line);
     
     var finalData = linesOfData.join('');
@@ -1227,7 +1234,7 @@ exports.downloadAWMediaFile = function(req, res) {
 
     res.json({
       success: true,
-      filename: (dateFormat + '-mediafile.txt'),
+      filename: (dateFormat + '-' + checkCode + '.txt'),
       content: buf.toJSON(),
       checkCode: checkCode
     });

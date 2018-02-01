@@ -18,9 +18,18 @@ div#aw-submit-page .flex-row {
         <div class="flex-row" style="margin-bottom:10px;">
             <label style="width: 20%;">摘要代碼（3位數字）</label>
             <input name="code" type="number" ng-model="ctrler.code" ng-model-options="{ debounce : 200 }" required ng-minlength="3" ng-maxlength="3">
-            <button style="margin-left:10px;" type="button" class="btn btn-primary" ng-click="ctrler.doAW()" ng-disabled="ctrler.isProcessing || awSubmitForm.code.$invalid">進行</button>
         </div>
-        <div>資料核證總數:{{ctrler.checkCode}}</div>
+        <div class="flex-row" style="margin-bottom:10px;">
+            <label style="width: 20%;">結清日期</label>
+            <div class="input-group" style="width:15%;">
+                <input type="text" name="doAWDate" class="form-control input-md" uib-datepicker-popup="yyyy/MM/dd" ng-model="ctrler.doAWDate" is-open="ctrler.doAWDateSelOpened" required close-text="關閉" clear-text="清除" current-text="今天"/>
+                <span class="input-group-btn">
+                    <button type="button" class="btn btn-default" ng-click="ctrler.doAWDateSelOpened=true;"><i class="fa fa-calendar"></i></button>
+                </span>
+            </div>
+            <button style="margin-left:10px;" type="button" class="btn btn-primary" ng-click="ctrler.doAW()" ng-disabled="ctrler.isProcessing || awSubmitForm.code.$invalid || awSubmitForm.doAWDate.$invalid">進行</button>
+        </div>
+        <div ng-show="ctrler.checkCode">資料核證總數:{{ctrler.checkCode}}</div>
 
         <h4>撤銷年度結清</h4>
         <div class="flex-row">

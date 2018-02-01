@@ -7,11 +7,13 @@ angular.module('mainApp')
     var thisYear = new Date();
     vm.cancelAWDate = thisYear;
     vm.downloadAWDate = thisYear;
+    vm.doAWDate = new Date(thisYear.getFullYear() + '/06/30');
 
     vm.doAW = function() {
         vm.isProcessing = true;
         $http.post('/api/account/annually-withdraw',{
-            code: vm.code
+            code: vm.code,
+            date: vm.doAWDate
         })
         .then(function(res) {
             var data = res.data;
@@ -39,6 +41,7 @@ angular.module('mainApp')
             date: vm.cancelAWDate
         })
         .then(function(res) {
+            vm.checkCode = undefined;
             var data = res.data;
             if(data.success) {
                 $rootScope.pubSuccessMsg('年度結清撤銷成功');
