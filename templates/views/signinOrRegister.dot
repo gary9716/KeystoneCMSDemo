@@ -163,11 +163,11 @@ title: 登入頁面
                 
               }
               else {
-                $("#ajax-msg").removeClass().addClass("alert alert-danger").text(res.message);
+                $("#ajax-msg").removeClass().addClass("alert alert-danger").text(res.responseText);
               }
           },
           error: function (res) {
-              $("#ajax-msg").removeClass().addClass("alert alert-danger").text(res.message);
+              $("#ajax-msg").removeClass().addClass("alert alert-danger").text(res.responseText);
           }
         });
       }

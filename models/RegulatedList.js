@@ -4,7 +4,7 @@ var Constants = require(__base + 'Constants');
 //console.log(Constants.RegulatedListName);
 var RegulatedList = new keystone.List(Constants.RegulatedListName, {
   label: '權限管制表格',
-  //hidden: true,
+//  hidden: true,
   noedit: true,
   nodelete: true,
   nocreate: true,

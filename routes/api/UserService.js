@@ -65,7 +65,7 @@ exports.signin = function (req, res) {
           return signInWithId(req, res, user, '登錄成功');
         } 
         else if (err) {
-          return res.ktSendRes(400,err);
+          return res.ktSendRes(400,(err && err.message ? err.message : false) || '不好意思, 登錄失敗, 請重新再試一次');
         } 
         else {
           return res.ktSendRes(400,'密碼不合');

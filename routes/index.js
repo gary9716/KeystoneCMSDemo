@@ -85,6 +85,10 @@ var routes = {
 
 // Setup Route Bindings
 exports = module.exports = function (app) {
+  const createOp = 'create';
+  const readOp = 'read';
+  const updateOp = 'update';
+  const deleteOp = 'delete';
 
   //log request error to log files
   app.use(morgan('{date:":date[clf]", ip:":remote-addr", user::sysUser, method:":method :url", code:":status", msg:":errInfo", agent:":user-agent"}', { 
@@ -146,10 +150,16 @@ exports = module.exports = function (app) {
 
   app.post('/pdf/deposit-withdraw-sheet',
     compression(),
-    middleware.permissionCheck.bind({
-      listName: Constants.AccountRecordListName,
-      opName: 'read'
-    }),
+    middleware.permissionCheck.bind([
+      {
+        listName: Constants.AccountRecordListName,
+        opName: readOp
+      },
+      {
+        opName: readOp,
+        listName: Constants.FarmerListName
+      }
+    ]),
     middleware.doPDFGenViaPDFMake.bind({
       doc: 'deposit-withdraw-sheet'
     })
@@ -159,7 +169,7 @@ exports = module.exports = function (app) {
   app.post('/api/read',
     compression(),
     middleware.permissionCheck.bind({
-      opName: 'read'
+      opName: readOp
     }),
     routes.api.CRUDOp.read);
 
@@ -173,28 +183,28 @@ exports = module.exports = function (app) {
 
   app.post('/api/farmer/register',
     middleware.permissionCheck.bind({
-      opName: 'create',
+      opName: createOp,
       listName: Constants.FarmerListName
     }),
     routes.api.FarmerService.upsert.bind({
-      mode: 'create'
+      mode: createOp
     })
   );
 
   app.post('/api/farmer/update',
     middleware.permissionCheck.bind({
-      opName: 'update',
+      opName: updateOp,
       listName: Constants.FarmerListName
     }),
     routes.api.FarmerService.upsert.bind({
-      mode: 'update'
+      mode: updateOp
     })
   );
 
   app.post('/api/farmer/search',
     compression(),
     middleware.permissionCheck.bind({
-      opName: 'read',
+      opName: readOp,
       listName: Constants.FarmerListName
     }),
     routes.api.FarmerService.search
@@ -204,11 +214,11 @@ exports = module.exports = function (app) {
     compression(),
     middleware.permissionCheck.bind([
       {
-        opName: 'read',
+        opName: readOp,
         listName: Constants.FarmerListName
       },
       {
-        opName: 'read',
+        opName: readOp,
         listName: Constants.AccountListName
       }
     ]),
@@ -216,16 +226,19 @@ exports = module.exports = function (app) {
   );
 
 
-
   app.post('/api/account-rec/delete',
     middleware.permissionCheck.bind([
       {
-        opName: 'delete',
+        opName: deleteOp,
         listName: Constants.AccountRecordListName
       },
       {
-        opName: 'delete',
+        opName: deleteOp,
         listName: Constants.TransactionListName
+      },
+      {
+        opName: updateOp,
+        listName: Constants.AccountListName
       }
     ]),
     routes.api.AccountService.deleteRec
@@ -234,12 +247,16 @@ exports = module.exports = function (app) {
   app.post('/api/account-rec/update',
     middleware.permissionCheck.bind([
       {
-        opName: 'update',
+        opName: updateOp,
         listName: Constants.AccountRecordListName
       },
       {
-        opName: 'update',
+        opName: updateOp,
         listName: Constants.TransactionListName
+      },
+      {
+        opName: updateOp,
+        listName: Constants.AccountListName
       }
     ]),
     routes.api.AccountService.updateRec
@@ -248,11 +265,11 @@ exports = module.exports = function (app) {
   app.post('/api/account-rec/aggregate',
     middleware.permissionCheck.bind([
       {
-        opName: 'read',
+        opName: readOp,
         listName: Constants.AccountRecordListName
       },
       {
-        opName: 'read',
+        opName: readOp,
         listName: Constants.AccountListName
       }
     ]),
@@ -262,12 +279,16 @@ exports = module.exports = function (app) {
   app.post('/api/transaction/update', 
     middleware.permissionCheck.bind([
       {
-        opName: 'update',
+        opName: updateOp,
         listName: Constants.AccountRecordListName
       },
       {
-        opName: 'update',
+        opName: updateOp,
         listName: Constants.TransactionListName
+      },
+      {
+        opName: updateOp,
+        listName: Constants.AccountListName
       }
     ]),
     routes.api.AccountService.lookupAccIDViaTrans,
@@ -277,12 +298,16 @@ exports = module.exports = function (app) {
   app.post('/api/transaction/delete', 
     middleware.permissionCheck.bind([
       {
-        opName: 'delete',
+        opName: deleteOp,
         listName: Constants.AccountRecordListName
       },
       {
-        opName: 'delete',
+        opName: deleteOp,
         listName: Constants.TransactionListName
+      },
+      {
+        opName: updateOp,
+        listName: Constants.AccountListName
       }
     ]),
     routes.api.AccountService.lookupAccIDViaTrans,
@@ -292,15 +317,19 @@ exports = module.exports = function (app) {
   app.post('/api/transaction/aggregate-product',
     middleware.permissionCheck.bind([
       {
-        opName: 'read',
+        opName: readOp,
         listName: Constants.TransactionListName
       },
       {
-        opName: 'read',
+        opName: readOp,
+        listName: Constants.AccountRecordListName
+      },
+      {
+        opName: readOp,
         listName: Constants.AccountListName
       },
       {
-        opName: 'read',
+        opName: readOp,
         listName: Constants.FarmerListName
       }
     ]),
@@ -312,15 +341,15 @@ exports = module.exports = function (app) {
   app.post('/api/account/create',
     middleware.permissionCheck.bind([
       {
-        opName: 'create',
+        opName: createOp,
         listName: Constants.AccountListName
       },
       {
-        opName: 'read',
+        opName: readOp,
         listName: Constants.FarmerListName
       },
       {
-        opName: 'create',
+        opName: createOp,
         listName: Constants.AccountRecordListName
       }
     ]),
@@ -330,11 +359,11 @@ exports = module.exports = function (app) {
   app.post('/api/account/close',
     middleware.permissionCheck.bind([
       {
-        opName: 'update',
+        opName: updateOp,
         listName: Constants.AccountListName
       },
       {
-        opName: 'create',
+        opName: createOp,
         listName: Constants.AccountRecordListName
       }
     ]),
@@ -344,11 +373,11 @@ exports = module.exports = function (app) {
   app.post('/api/account/set-freeze',
     middleware.permissionCheck.bind([
       {
-        opName: 'update',
+        opName: updateOp,
         listName: Constants.AccountListName
       },
       {
-        opName: 'create',
+        opName: createOp,
         listName: Constants.AccountRecordListName
       }
     ]),
@@ -358,11 +387,11 @@ exports = module.exports = function (app) {
   app.post('/api/account/deposit',
     middleware.permissionCheck.bind([
       {
-        opName: 'update',
+        opName: updateOp,
         listName: Constants.AccountListName
       },
       {
-        opName: 'create',
+        opName: createOp,
         listName: Constants.AccountRecordListName
       }
     ]),
@@ -372,11 +401,11 @@ exports = module.exports = function (app) {
   app.post('/api/account/withdraw',
     middleware.permissionCheck.bind([
       {
-        opName: 'update',
+        opName: updateOp,
         listName: Constants.AccountListName
       },
       {
-        opName: 'create',
+        opName: createOp,
         listName: Constants.AccountRecordListName
       }
     ]),
@@ -386,11 +415,11 @@ exports = module.exports = function (app) {
   app.post('/api/account/change-acc-user',
     middleware.permissionCheck.bind([
       {
-        opName: 'update',
+        opName: updateOp,
         listName: Constants.AccountListName
       },
       {
-        opName: 'create',
+        opName: createOp,
         listName: Constants.AccountRecordListName
       }
     ]),
@@ -410,15 +439,15 @@ exports = module.exports = function (app) {
   app.post('/api/account/gen-annually-withdraw-file',
     middleware.permissionCheck.bind([
       {
-        opName: 'read',
+        opName: readOp,
         listName: Constants.AccountListName
       },
       {
-        opName: 'read',
+        opName: readOp,
         listName: Constants.FarmerListName
       },
       {
-        opName: 'read',
+        opName: readOp,
         listName: Constants.AccountRecordListName
       }
     ]),
@@ -429,7 +458,7 @@ exports = module.exports = function (app) {
   app.post('/api/p-type/upsert',
     middleware.permissionCheck.bind(
       {
-        opName: ['create','update'],
+        opName: [createOp,updateOp],
         listName: Constants.ProductTypeListName
       }
     ),
@@ -440,7 +469,7 @@ exports = module.exports = function (app) {
     compression(),
     middleware.permissionCheck.bind(
       {
-        opName: 'read',
+        opName: readOp,
         listName: Constants.ProductListName
       }
     ),
@@ -450,19 +479,23 @@ exports = module.exports = function (app) {
   app.post('/api/product/transact',
     middleware.permissionCheck.bind([
       {
-        opName: 'create',
+        opName: createOp,
         listName: Constants.TransactionListName
       },
       {
-        opName: 'read',
+        opName: readOp,
         listName: Constants.ProductListName
       },
       {
-        opName: 'update',
+        opName: readOp,
+        listName: Constants.ProductTypeListName
+      },
+      {
+        opName: updateOp,
         listName: Constants.AccountListName
       },
       {
-        opName: 'create',
+        opName: createOp,
         listName: Constants.AccountRecordListName
       }
     ]),
@@ -473,7 +506,7 @@ exports = module.exports = function (app) {
   app.post('/api/product/upsert',
     middleware.permissionCheck.bind(
       {
-        opName: ['create', 'update'],
+        opName: [createOp, updateOp],
         listName: Constants.ProductListName
       }
     ),
@@ -483,7 +516,7 @@ exports = module.exports = function (app) {
   app.post('/api/product/delete',
     middleware.permissionCheck.bind(
       {
-        opName: 'delete',
+        opName: deleteOp,
         listName: Constants.ProductListName
       }
     ),

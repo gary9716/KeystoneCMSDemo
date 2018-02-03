@@ -16,7 +16,7 @@ module.exports = function(done) {
 
 	var defaultAdmin = { 
 		'userID': 'admin',
-		'name': '管理者', 
+		'name': '最高權限者', 
 		'password': 'admin', 
 		'isAdmin': true
 	};

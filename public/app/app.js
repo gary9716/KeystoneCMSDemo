@@ -26,6 +26,14 @@ angular.module('mainApp', [
 angular.module('mainApp')
 .config(['appRootPath', '$stateProvider', '$urlRouterProvider', 'localStorageServiceProvider',
   function (appRootPath, $stateProvider, $urlRouterProvider, localStorageServiceProvider){
+    const createOp = 'create';
+    const readOp = 'read';
+    const updateOp = 'update';
+    const deleteOp = 'delete';
+
+    //for permission validation, here we only need to validate minimal permissions.
+    //in practical, every request has already been guarded by permission check middleware
+
     $stateProvider
     .state({
       name: 'home',
@@ -50,9 +58,8 @@ angular.module('mainApp')
           return myValidation.checkPermission([
               {
                 listName: 'Farmer',
-                opName: 'create'
+                opName: createOp
               },
-
             ]); 
         }]
       }
@@ -69,7 +76,7 @@ angular.module('mainApp')
           return myValidation.checkPermission([
               {
                 listName: 'Farmer',
-                opName: 'read'
+                opName: readOp
               },
 
             ]); 
@@ -91,19 +98,18 @@ angular.module('mainApp')
           return myValidation.checkPermission([
               {
                 listName: 'Farmer',
-                opName: 'read'
+                opName: readOp
               },
 
               {
                 listName: 'Account',
-                opName: ['read','create','update']
-              },
-
-              {
-                listName: 'AccountRecord',
-                opName: ['read','create','update','delete']
+                opName: readOp
               },
               
+              {
+                listName: 'AccountRecord',
+                opName: readOp
+              },
             ]); 
         }]
       }
@@ -127,18 +133,29 @@ angular.module('mainApp')
           return myValidation.checkPermission([
               {
                 listName: 'Product',
-                opName: 'read'
+                opName: readOp
               },
               
               {
                 listName: 'Farmer',
-                opName: 'read'
+                opName: readOp
               },
 
               {
                 listName: 'Account',
-                opName: ['read','update']
+                opName: [readOp, updateOp]
+              },
+
+              {
+                listName: 'AccountRecord',
+                opName: createOp
+              },
+
+              {
+                listName: 'Transaction',
+                opName: createOp
               }
+
             ]); 
         }]
       }
@@ -155,11 +172,11 @@ angular.module('mainApp')
           return myValidation.checkPermission([
               {
                 listName: 'Product',
-                opName: ['read','create', 'update', 'delete']
+                opName: [createOp, readOp, updateOp, deleteOp]
               },
               {
                 listName: 'ProductType',
-                opName: ['read','create', 'update']
+                opName: [createOp, readOp, updateOp, deleteOp]
               },
             ]); 
         }]
@@ -183,11 +200,11 @@ angular.module('mainApp')
           return myValidation.checkPermission([
               {
                 listName: 'Transaction',
-                opName: ['read', 'update', 'delete']
+                opName: readOp
               },
               {
                 listName: 'AccountRecord',
-                opName: ['read', 'update', 'delete']
+                opName: readOp
               }
             ]); 
         }]
@@ -203,15 +220,15 @@ angular.module('mainApp')
         condition1 : ['myValidation', function(myValidation) {
           //if this promise is rejected, then the transition will fail
           return myValidation.checkPermission([
-              {
-                listName: 'Transaction',
-                opName: ['read', 'update', 'delete']
-              },
-              {
-                listName: 'AccountRecord',
-                opName: ['read', 'update', 'delete']
-              }
-            ]); 
+            {
+              listName: 'Transaction',
+              opName: readOp
+            },
+            {
+              listName: 'AccountRecord',
+              opName: readOp
+            }
+          ]); 
         }]
       }
     })
