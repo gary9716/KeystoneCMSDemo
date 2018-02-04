@@ -64,7 +64,7 @@ keystone.init({
 	'port': 8080,
 	'less': 'public',
 	'static': 'public',
-	'favicon': 'public/favicon.ico',
+	'favicon': 'public/favicon.svg',
 	'views': 'templates/views',
 	'view engine': 'dot',
 	'custom engine': dotEngine.__express,

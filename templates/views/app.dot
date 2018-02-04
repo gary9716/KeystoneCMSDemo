@@ -119,13 +119,14 @@
     <script src="/app/admin/AnnuallyWithdrawPageCtrler.js" defer></script>
     [[?]]
 
-    <div class="container">
+    <div class="container" style="margin-top:10px;">
       <hr>
       <!-- Footer -->
       <footer>
           <div class="row">
               <div class="col-lg-12">
                   <p>Copyright &copy; 2017 by KT Chou</p>
+                  <div>Icons made by <a href="http://www.freepik.com" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>
               </div>
           </div>
           <!-- /.row -->
