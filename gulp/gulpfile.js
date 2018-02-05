@@ -1,6 +1,6 @@
 var gulp = require('gulp')
-, uglify = require("gulp-uglify")
 ,gulpLivereload = require('gulp-livereload');  // 載入 gulp-livereload;
+let uglify = require('gulp-uglify-es').default;
 var pump = require('pump'); 
 var concat = require('gulp-concat');
 var sourcemaps = require('gulp-sourcemaps');

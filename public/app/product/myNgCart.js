@@ -200,6 +200,7 @@ angular.module('ngCart', ['ngCart.directives', 'ngLodash'])
 
 
         this.$restore = function(key){
+            var storedCart;
             if(key)
               storedCart = store.get(key);
             else 

@@ -1,0 +1,366 @@
+<style>.detail-col1 {
+  width: 30%;
+}
+
+.detail-col2 {
+  width: 70%;
+}
+
+.table-hover tbody tr.hightlight:hover td{
+  background-color: #c9d4e2;
+}</style><div class="container"><div class="form-group" ng-init="ctrler.getDetail()"><table class="table-responsive table table-bordered table-hover" style="width: 80%; margin: auto;"><tbody><tr><td class="detail-col1">姓名</td><td class="detail-col2 text-primary">{{ctrler.farmer.name}}</td></tr><tr><td class="detail-col1">生日</td><td class="detail-col2 text-primary">{{ctrler.farmer.birth | date : 'yyyy/MM/dd'}}</td></tr><tr><td class="detail-col1">身分證字號</td><td class="detail-col2 text-primary">{{ctrler.farmer.pid}}</td></tr><tr><td class="detail-col1">提入款預設帳戶</td><td class="detail-col2 text-primary">{{ctrler.farmer.ioAccount}}</td></tr><tr><td class="detail-col1">住家電話</td><td class="detail-col2 text-primary">{{ctrler.farmer.teleNum1}}</td></tr><tr><td class="detail-col1">行動電話</td><td class="detail-col2 text-primary">{{ctrler.farmer.teleNum2}}</td></tr><tr><td class="detail-col1">村里</td><td class="detail-col2 text-primary">{{ctrler.farmer.village.name}}</td></tr><tr><td class="detail-col1">地址</td><td class="detail-col2 text-primary">{{ctrler.farmer.addr}}</td></tr><tr ng-repeat="account in ctrler.accounts track by account._id" ng-click="ctrler.openAccountDetail(account)" class="hightlight clickable" uib-tooltip="點我可觀看細節與進行相關操作" tooltip-placement="left"><td class="detail-col1">存摺{{$index + 1}}編號</td><td class="detail-col2 text-primary">{{account.accountID}}</td></tr></tbody></table></div><div class="form-group text-center"><button class="btn btn-primary" ng-click="ctrler.openUpdateFarmerModal()">更改基本資料</button> <button class="btn btn-primary" ng-click="ctrler.openCreateAccountModal()">開立存摺</button> <button class="btn btn-primary" ng-click="ctrler.addFarmerToCache()">加入暫存</button></div></div><script type="text/ng-template" id="create-account.html"><div class="modal-header">
+    <h4 class="modal-title" id="modal-title">存摺開立表單</h4>
+</div>
+<div class="modal-body" id="modal-body">
+    <!-- any click event within modal should add $event.preventDefault(); to prevent modal from dismiss -->
+    <form class="form-horizontal">
+      <div class="form-group">
+        <label class="control-label col-md-4">存摺使用人</label>
+        <div class="col-md-8">
+          <input type="text" class="form-control" placeholder="請輸入姓名" ng-model="$ctrl.result.accountUser" ng-model-options="{ updateOn: 'blur' }">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="control-label col-md-4" for="comment">備註</label>
+        <div class="col-md-8">
+        <textarea class="form-control" rows="5" id="comment" ng-model="$ctrl.result.comment" ng-model-options="{ updateOn: 'blur' }" style="resize: none;" ng-trim="true"></textarea>
+        </div>
+      </div>
+    </form>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-success" type="button" style="margin-right:10px;" ng-click="$ctrl.ok()">提交</button>
+    <button class="btn btn-warning" type="button" ng-click="$ctrl.cancel()">取消</button>
+</div></script><script type="text/ng-template" id="account-detail.html"><!--
+<div class="modal-header">
+    <h4 class="modal-title">存摺資訊</h4>
+</div>
+-->
+<div class="modal-body" id="account-details">
+    <!-- any click event within modal should add $event.preventDefault(); to prevent modal from dismiss -->
+    <style>
+    
+    table#account-details-table td.account-col1,
+    table#account-details-table td.account-col3,
+    table#account-details-table td.account-col5 {
+      width: 13%;
+    }
+
+    table#account-details-table td.account-col2,
+    table#account-details-table td.account-col4 {
+      width: 26%;
+    }
+
+
+    div#account-details input.opt-radio {
+      width:0.85em; height:0.85em;
+    }
+
+    form#account-op-form input[type=number]::-webkit-inner-spin-button, 
+    form#account-op-form input[type=number]::-webkit-outer-spin-button { 
+      -webkit-appearance: none;
+      margin: 0; 
+    }
+
+    form#account-op-form input[type=number] {
+      -moz-appearance:textfield;
+    }
+
+    div#account-details div.flex-row {
+      display: flex; align-items: center;
+    }
+
+    form#account-op-form div.flex-row {
+      display: flex; align-items: center;
+      margin-bottom: 10px;
+    }
+
+    table#account-rec-table tr.editting {
+      background-color: #9ce1f4;
+    }
+
+    div.flex-row .radio-item {
+      margin-right: 5px;
+    }
+    </style>
+    <table id="account-details-table" class="table table-responsive table-bordered" style="width: 100%; margin: 0px auto 0px;">
+      <tbody>
+        <tr>
+            <td class="account-col1">存摺編號</td>
+            <td class="account-col2 text-primary">{{ctrler.account.accountID}}</td>
+
+            <td class="account-col3 ">擁有者</td>
+            <td class="account-col4 text-primary">{{ctrler.account.farmer.name}}</td>
+
+            <td class="account-col5">凍結中</td>
+            <td class="account-col6" ng-class="{'text-warning':ctrler.account.freeze,'text-primary':!ctrler.account.freeze}">{{ctrler.account.freeze? '是':'否'}}</td>
+
+        </tr>
+        <tr>
+            <td class="">開戶時間</td>
+            <td class="text-primary">{{ctrler.account.createdAt | date : 'yyyy/MM/dd'}}</td>
+
+
+            <td class="">使用者</td>
+            <td class="text-primary">{{ctrler.account.accountUser}}</td>
+
+
+            <td class="">已結清</td>
+            <td ng-class="{'text-warning':!ctrler.account.active,'text-primary':ctrler.account.active}">{{ctrler.account.active? '否':'是'}}</td>
+
+        </tr>
+        <tr>        
+            <td class="">結清時間</td>
+            <td class="text-primary">{{ctrler.account.closedAt | date : 'yyyy/MM/dd'}}</td>
+            
+            <td class="">餘額</td>
+            <td ng-class="{'text-warning':ctrler.account.balance === 0,'text-primary':ctrler.account.balance > 0}">{{ctrler.account.balance}}</td>            
+        </tr>
+
+
+      </tbody>
+      
+    </table>
+
+    <acc-rec-list per-page="7"
+        cur-page="ctrler.curPage"
+        show-operator-field="true"
+        
+        refresh-acc-recs="ctrler.getAccountRecords" 
+        update-rec-func="ctrler.updateRecOp"
+        download-d-w-sheet-func="ctrler.downloadDWSheetOp"
+        
+        account="ctrler.account"
+        apply-date-filter="ctrler.applyDateFilter"
+        start-date-filter="ctrler.startDateFilter" 
+        end-date-filter="ctrler.endDateFilter"
+        account-op="ctrler.accountOp"
+        editting-rec="ctrler.edittingRec"
+        is-processing="ctrler.isProcessing"
+
+        get-acc-rec-error-c-b="ctrler.pubErrorMsg(msg)"
+        update-acc-rec-error-c-b="ctrler.pubErrorMsg(msg)"
+        update-acc-rec-success-c-b="ctrler.pubSuccessMsg(msg)"
+        delete-acc-rec-error-c-b="ctrler.pubErrorMsg(msg)"
+        delete-acc-rec-success-c-b="ctrler.pubSuccessMsg(msg)"
+        get-trans-error-c-b="ctrler.pubErrorMsg(msg)"
+        download-d-w-sheet-error-c-b="ctrler.pubErrorMsg(msg)"
+        download-d-w-sheet-success-c-b="ctrler.pubSuccessMsg(msg)"></acc-rec-list>
+
+    <!-- alert messages -->
+    <div style="margin-top:10px;" uib-alert ng-repeat="alert in ctrler.alerts track by $index" ng-class="'alert-' + (alert.type || 'warning')" dismiss-on-timeout="3000" close="ctrler.alerts.splice(ctrler.alerts.indexOf(alert),1);">{{::alert.msg}}</div>
+    
+    <h4 class="flex-row">相關操作</h4>
+    <div class="flex-row">
+      <label class="radio-item"><input type="radio" class="opt-radio" value="deposit" ng-model="ctrler.accountOp">入款</label>
+      <label class="radio-item"><input type="radio" class="opt-radio" value="withdraw" ng-model="ctrler.accountOp">提款</label>
+      <label class="radio-item"><input type="radio" class="opt-radio" value="setFreeze" ng-model="ctrler.accountOp">{{ctrler.account.freeze? '解凍':'凍結'}}</label>
+      <label class="radio-item"><input type="radio" class="opt-radio" value="close" ng-model="ctrler.accountOp">結清</label>
+      <label class="radio-item"><input type="radio" class="opt-radio" value="accUserChange" ng-model="ctrler.accountOp">過戶</label>
+      <label class="radio-item"><input type="radio" class="opt-radio" value="downloadUnfreezeSheet" ng-model="ctrler.accountOp">下載掛失止付書</label>
+      <label class="radio-item"><input type="radio" class="opt-radio" value="update-rec" ng-model="ctrler.accountOp">修改記錄</label>
+    </div>
+  
+
+    <form name="accountOpForm" id="account-op-form" style="padding-top: 10px;" novalidate>
+      <section ng-show="ctrler.accountOp==='deposit'">
+        <div class="flex-row">
+          <label class="col-md-2">入款金額</label>
+          <input type="number" name="depositAmount" ng-model="ctrler.deposit.amount" ng-trim="true" ng-min="0" required>
+        </div>
+        <div class="flex-row">
+          <label class="col-md-2">期別</label>
+          <input type="text" name="depositPeriod" ng-model="ctrler.deposit.period" ng-trim="true" typeahead-no-results="ctrler.noPeriodFound" typeahead-loading="ctrler.loadingPeriod" uib-typeahead="period.name for period in ctrler.getPeriods($viewValue)" ng-model-options= "{ debounce: { default: 700 } }">
+          <i ng-show="ctrler.loadingPeriod" class="glyphicon glyphicon-refresh">搜尋中</i>
+          <div ng-show="ctrler.noPeriodFound">
+            <i class="glyphicon glyphicon-remove"></i> 沒找到相關期別
+          </div>
+        </div>
+        <div class="flex-row">
+          <label class="col-md-2">轉入帳號</label>
+          <input type="text" name="depositIOAcc" ng-model="ctrler.deposit.ioAccount" ng-trim="true">
+        </div>
+        <div class="flex-row">
+          <label class="col-md-2">備註</label>
+          <div>
+            <textarea rows="5" ng-model="ctrler.deposit.comment" ng-model-options="{ updateOn: 'blur' }" style="resize: none;" ng-trim="true"></textarea>
+          </div>
+        </div>
+      </section>
+
+      <section ng-show="ctrler.accountOp==='withdraw'" class="form-group">
+        <div class="flex-row">
+          <label class="col-md-2">提款金額</label>
+          <input type="number" name="withdrawAmount" ng-model="ctrler.withdraw.amount" ng-trim="true" ng-min="0" required>
+        </div>
+        <div class="flex-row">
+          <label class="col-md-2">轉出帳號</label>
+          <input type="text" name="withdrawIOAcc" ng-model="ctrler.withdraw.ioAccount" ng-trim="true">
+        </div>
+        <div class="flex-row">
+          <label class="col-md-2">備註</label>
+          <div>
+            <textarea rows="5" ng-model="ctrler.withdraw.comment" ng-model-options="{ updateOn: 'blur' }" style="resize: none;" ng-trim="true"></textarea>
+          </div>
+        </div>
+      </section>
+
+      <section ng-show="ctrler.accountOp==='setFreeze'" class="form-group">
+        <div class="container">
+          <div class="col-md-4">
+            <div class="flex-row" ng-show="ctrler.account.freeze">
+              <label class="col-md-4">解凍單</label>
+              <div class="btn btn-primary" ngf-select="ctrler.unfreezeFileSelect($file, $invalidFiles)" ng-model="ctrler.setFreeze.unfreezeSheet" name="unfreezeSheetFile" ngf-pattern="'image/*'" ngf-accept="'image/*'" ngf-max-size="ctrler.FileSizeLimit" ngf-resize="{ quality: 0.4 }">選擇</div>
+
+            </div>
+            <div class="flex-row">
+              <label class="col-md-4">備註</label>
+              <div>
+                <textarea rows="5" ng-model="ctrler.setFreeze.comment" ng-model-options="{ updateOn: 'blur' }" style="resize: none;" ng-trim="true"></textarea>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6" ng-show="ctrler.account.freeze">
+            <div class="row">
+            <label class="col-md-2">預覽圖</label>
+            <img ngf-thumbnail="ctrler.setFreeze.unfreezeSheet" class="col-md-8">
+            </div>
+            <div class="row col-md-10">
+            <label ng-show="ctrler.errFile" class="text-danger">檔案:{{ctrler.errFile.name}} {{ctrler.errFile.errorChMsg}} </label>
+            <uib-progressbar ng-show="ctrler.setFreeze.uploadProgress >= 0" animate="false" value="ctrler.setFreeze.uploadProgress" type="success"><b>{{ctrler.setFreeze.uploadProgress}}%</b></uib-progressbar>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section ng-show="ctrler.accountOp==='close'" class="form-group">
+        <div class="flex-row">
+          <label class="col-md-2">備註</label>
+          <div>
+            <textarea rows="5" ng-model="ctrler.closeAcc.comment" ng-model-options="{ updateOn: 'blur' }" style="resize: none;" ng-trim="true"></textarea>
+          </div>
+        </div>
+      </section>
+
+      <section ng-show="ctrler.accountOp==='accUserChange'" class="form-group">
+        <div class="flex-row">
+          <label class="col-md-2">新使用者</label>
+          <input type="text" name="accUserChgNewUser" ng-model="ctrler.accUserChange.newUser" ng-trim="true">
+        </div>
+        <div class="flex-row">
+          <label class="col-md-2">備註</label>
+          <div>
+            <textarea rows="5" ng-model="ctrler.accUserChange.comment" ng-model-options="{ updateOn: 'blur' }" style="resize: none;" ng-trim="true"></textarea>
+          </div>
+        </div>
+      </section>
+
+      <section ng-show="ctrler.accountOp==='update-rec'" class="form-group">
+        <div ng-hide="ctrler.edittingRec">
+          請點選一個存摺記錄的類別項目以進行修改
+        </div>
+        <div ng-show="ctrler.edittingRec">
+          <div ng-hide="ctrler.edittingRec.opType.value==='transact'">
+            <div class="flex-row"  ng-show="ctrler.edittingRec.opType.value==='withdraw' || ctrler.edittingRec.opType.value==='deposit'">
+              <label class="col-md-2">金額</label>
+              <input type="number" name="editRecAmount" ng-model="ctrler.edittingRec.amount" ng-trim="true" required>
+            </div>
+            <div class="flex-row" ng-show="ctrler.edittingRec.opType.value==='withdraw' || ctrler.edittingRec.opType.value==='deposit'">
+              <label class="col-md-2">對口帳戶</label>
+              <input type="text" ng-model="ctrler.edittingRec.ioAccount" ng-trim="true">
+            </div>
+            <div class="flex-row" ng-show="ctrler.edittingRec.opType.value==='deposit'">
+              <label class="col-md-2">期別</label>
+              <input type="text" name="editRecPeriod" ng-model="ctrler.edittingRec.period" ng-trim="true" typeahead-no-results="ctrler.noPeriodFound" typeahead-loading="ctrler.loadingPeriod" uib-typeahead="period.name for period in ctrler.getPeriods($viewValue)" ng-model-options= "{ debounce: { default: 700 } }">
+              <i ng-show="ctrler.loadingPeriod" class="glyphicon glyphicon-refresh">搜尋中</i>
+              <div ng-show="ctrler.noPeriodFound">
+                <i class="glyphicon glyphicon-remove"></i> 沒找到相關期別
+              </div>
+            </div>
+            <div class="flex-row">
+              <label class="col-md-2">備註</label>
+              <div>
+                <textarea rows="5" ng-model="ctrler.edittingRec.comment" ng-model-options="{ updateOn: 'blur' }" style="resize: none;" ng-trim="true"></textarea>
+              </div>
+            </div>
+          </div>
+          <div ng-show="ctrler.edittingRec.products">
+              <table class="table table-bordered">
+                  <thead>
+                      <tr>
+                          <th>商品</th>
+                          <th class="text-center">數量</th>
+                          <th class="text-center">單價</th>
+                          <th class="text-center">總價</th>
+                          <th ng-hide="ctrler.edittingRec.readOnly" class="text-center">操作</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                      <tr ng-repeat="item in ctrler.edittingRec.products track by item.pid">
+                          <td style="width: 30%;">
+                            <label>{{::item.name}}</label>
+                            <!--
+                            <div class="media">
+                                <div class="media-body">
+                                    <h4 class="media-heading">{{::item.name}}</h4>
+                                </div>
+                            </div>
+                            -->
+                          </td>
+                          
+                          <td style="width: 22%;" class="text-center">
+                            <div class="input-group" ng-hide="ctrler.edittingRec.readOnly">
+                              <span class="input-group-btn">
+                                <button class="btn btn-default btn-info" ng-click="ctrler.changeQty(item,-1);"><span class="fa fa-minus"></span></button>
+                              </span>
+                              <input type="number" name="editRecItemQty" ng-model="item.qty" ng-model-options="{ debounce: 200 }" class="form-control text-center" min="1" required>
+                              <span class="input-group-btn">
+                                <button class="btn btn-default btn-info" ng-click="ctrler.changeQty(item,1);"><span class="fa fa-plus"></span></button>
+                              </span>
+                            </div>
+                            <div ng-show="ctrler.edittingRec.readOnly">
+                                <strong>{{item.qty}}</strong>
+                            </div>
+                          </td>
+                          
+                          <td style="width: 18%;" class="text-center">
+                            <strong>{{::item.price}}</strong>
+                          </td>
+                          
+                          <td style="width: 20%;" class="text-center">
+                            <strong>{{item.price * item.qty}}</strong>
+                          </td>
+      
+                          <td style="width: 10%;" class="text-center" ng-hide="ctrler.edittingRec.readOnly">
+                            <button ng-click="ctrler.rmItem(item)" class="btn btn-danger"><i class="fa fa-times"></i> 移除</button>
+                          </td>
+      
+                        </tr>
+                  </tbody>
+              </table>
+              <div class="text-right">
+                <h4>合計:{{ctrler.getTotal()}}</h4>
+              </div>
+
+          </div>
+
+        </div>
+        
+      </section>
+
+    </form>
+
+</div>
+<div class="modal-footer">
+    <div class="flex-row form-group">
+      <button ng-click="ctrler.depositOp()" class="btn btn-success col-md-offset-4" ng-disabled="accountOpForm.depositAmount.$invalid || ctrler.isProcessing" ng-show="ctrler.accountOp==='deposit'">入款</button>
+      <button ng-click="ctrler.withdrawOp()" class="btn btn-success col-md-offset-4" ng-disabled="accountOpForm.withdrawAmount.$invalid || ctrler.isProcessing" ng-show="ctrler.accountOp==='withdraw'">提款</button>
+      <button ng-click="ctrler.setFreezeOp()" class="btn btn-success col-md-offset-4" ng-disabled="ctrler.isProcessing" ng-show="ctrler.accountOp==='setFreeze'">{{ctrler.account.freeze? '解凍':'凍結'}}</button>
+      <button ng-click="ctrler.closeAccOp()" class="btn btn-success col-md-offset-4" ng-disabled="ctrler.isProcessing" ng-show="ctrler.accountOp==='close'">結清</button>
+      <button ng-click="ctrler.accUserChangeOp()" class="btn btn-success col-md-offset-4" ng-disabled="ctrler.isProcessing" ng-show="ctrler.accountOp==='accUserChange'">過戶</button>
+      <button ng-click="ctrler.downloadUnfreezeSheetOp()" class="btn btn-success col-md-offset-4" ng-disabled="ctrler.isProcessing" ng-show="ctrler.accountOp==='downloadUnfreezeSheet'">下載</button>
+      <button ng-click="ctrler.updateRecOp()" class="btn btn-success col-md-offset-4" ng-disabled="ctrler.isUpdateRecButtonDisabled()" ng-show="ctrler.accountOp==='update-rec'">修改</button>
+      
+      <button class="btn" ng-class="{ 'btn-warning': (ctrler.accountOp && ctrler.accountOp.length > 0), 'btn-primary': (!ctrler.accountOp || ctrler.accountOp.length === 0) }" type="button" ng-click="ctrler.cancel()">{{(ctrler.accountOp && ctrler.accountOp.length > 0)? '取消' : '關閉'}}</button>
+    </div>
+</div></script>

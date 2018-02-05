@@ -1,0 +1,98 @@
+<div class="container"><legend>所有商品</legend><div ng-show="ctrler.productList.length === 0" class="form-group text-center"><label>目前沒有任何商品 請新增商品</label></div><table id="all-product-table" ng-hide="ctrler.productList.length === 0" class="table table-bordered table-responsive"><thead><th class="text-center" style="width: 10%">類型</th><th class="text-center" style="width: 15%">編號</th><th class="text-center" style="width: 17%">名稱</th><th class="text-center" style="width: 10%">定價</th><th class="text-center" style="width: 10%">兌換價</th><th class="text-center" style="width: 10%">上架日期</th><th class="text-center" style="width: 8%">可上架</th><th class="text-center" style="width: 10%">當前狀態</th><th class="text-center" style="width: 10%">操作</th></thead><tbody><tr ng-repeat="product in ctrler.productList track by product._id"><td>{{product.pType.name}}</td><td>{{product.pid}}</td><td>{{product.name}}</td><td>{{product.marketPrice}}</td><td>{{product.exchangePrice}}</td><td>{{product.startSaleDate | date: 'yyyy/MM/dd'}}</td><td>{{product.canSale? '是':'否'}}</td><td>{{ctrler.getProductStatus(product)}}</td><td><button ng-click="ctrler.openProductEditModal(product)" type="button" class="btn btn-primary"><i class="fa fa-pencil-square-o"></i> 修改</button> <button style="margin-top:5px;" ng-click="ctrler.deleteProduct(product)" type="button" class="btn btn-danger"><i class="fa fa-remove"></i> 移除</button></td></tr></tbody></table></div><div ng-include="ctrler.productTypeTemplatePath"></div><style>table#all-product-table {
+    width: 100%;
+    height: 100%;
+    display: table;
+    text-align: center;
+  }
+
+  table#all-product-table td {
+    display: table-cell;
+    vertical-align: middle;
+  }
+  
+  form#pEditModalForm div.product-info-row {
+    display: flex; align-items: center;
+  }
+  input[type=number]::-webkit-inner-spin-button, 
+  input[type=number]::-webkit-outer-spin-button { 
+      -webkit-appearance: none;
+      margin: 0; 
+  }
+
+  input[type=number] {
+      -moz-appearance:textfield;
+  }</style><script type="text/ng-template" id="product-edit-modal.html"><div class="modal-body">
+  <form id="pEditModalForm" name="pEditModalForm">
+  <fieldset>
+
+    <div class="form-group product-info-row">
+      <label class="col-md-4 text-right">商品類型</label>
+      <div class="col-md-5">
+        <select ng-model="ctrler.product.pType" ng-change="ctrler.pTypeSelect()"  required>
+          <option ng-repeat="pTypeVal in ctrler.pTypeVals track by pTypeVal._id" ng-value="pTypeVal">{{::pTypeVal.name}}</option>  
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group product-info-row">
+      <label class="col-md-4 text-right">商品編號</label>
+      <div class="col-md-5">
+        <input name="pid" ng-model="ctrler.product.pid" ng-model-options="{ debounce: 200 }" type="text" placeholder="" class="form-control input-md" required>
+      </div>
+    </div>
+
+    <div class="form-group product-info-row">
+      <label class="col-md-4 text-right">商品名稱</label>
+      <div class="col-md-5">
+        <input name="productName" ng-model="ctrler.product.name" ng-model-options="{ debounce: 200 }" type="text" placeholder="" class="form-control input-md" required>
+      </div>
+    </div>
+
+    <div class="form-group product-info-row">
+      <label class="col-md-4 text-right">每包重量</label>
+      <div class="col-md-5">
+        <input name="productWeight" ng-model="ctrler.product.weight" ng-model-options="{ debounce: 200 }" type="number" placeholder="" class="form-control input-md" ng-min="0" required>
+      </div>
+    </div>    
+
+    <div class="form-group product-info-row">
+      <label class="col-md-4 text-right">定價</label>
+      <div class="col-md-5">
+        <input name="marketPrice" ng-model="ctrler.product.marketPrice" ng-model-options="{ debounce: 200 }" type="number" placeholder="" class="form-control input-md" ng-min="0" required>
+      </div>
+    </div>
+
+    <div class="form-group product-info-row">
+      <label class="col-md-4 text-right">兌換價</label>
+      <div class="col-md-5">
+        <input name="exchangePrice" ng-model="ctrler.product.exchangePrice" ng-model-options="{ debounce: 200 }" type="number" placeholder="" class="form-control input-md" ng-min="0">
+      </div>
+    </div>
+    
+    <div class="form-group product-info-row">
+      <label class="col-md-4 text-right">上架日期</label>
+      <div class="col-md-5 input-group">
+        <input type="text" style="margin-left:15px;" class="form-control input-md" uib-datepicker-popup="yyyy/MM/dd" ng-model="ctrler.product.startSaleDate" is-open="ctrler.saleDateSelOpened" required close-text="關閉" clear-text="清除" current-text="今天"/>
+        <span class="input-group-btn">
+          <button type="button" class="btn btn-default" ng-click="ctrler.saleDateSelOpened=true;"><i class="fa fa-calendar"></i></button>
+        </span>
+      </div>
+    </div>
+
+    <div class="form-group product-info-row">
+      <label class="col-md-4 text-right">是否上架</label>
+      <div class="col-md-3" style="padding-bottom:12px;">
+        <input type="checkbox" class="col-md-12" ng-model="ctrler.product.canSale">
+      </div>
+    </div>
+
+    <div class="form-group product-info-row">
+      <div class="col-md-4 col-md-offset-4">
+        <button class="btn btn-success" ng-click="ctrler.ok()" ng-disabled="pEditModalForm.$invalid">{{::ctrler.product._id? '更新':'增加' }}</button>
+        <button class="btn btn-warning" ng-click="ctrler.cancel()">取消</button>
+      </div>
+    </div>
+
+  </fieldset>
+  </form>
+</div></script>

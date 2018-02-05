@@ -1,0 +1,1 @@
+!function(){"use strict";angular.module("mainApp").filter("listTo2DMat",[function(){return function(n,t){if(!n||0===n.length)return[];var r=[],u=-1;return n.forEach(function(n,i){i%t==0&&(r[++u]=[]),r[u].push(n)}),r}}])}();

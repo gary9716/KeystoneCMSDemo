@@ -1,0 +1,75 @@
+<style>div#transaction-data .flex-row {
+    display: flex; align-items: center;
+}</style><div id="transaction-data" class="container"><div class="flex-row" style="height:2em; margin-top:7px; margin-bottom:0px;"><h4 ng-click="ctrler.isTransTableCollapsed=!ctrler.isTransTableCollapsed;">兌換紀錄<i ng-hide="ctrler.isTransTableCollapsed" class="fa fa-chevron-down"></i><i ng-show="ctrler.isTransTableCollapsed" class="fa fa-chevron-up"></i></h4><ul uib-pagination total-items="ctrler.totalTrans" ng-init="ctrler.getTransactionData();" ng-model="ctrler.curPage" max-size="5" items-per-page="ctrler.perPage" class="pagination-sm" boundary-links="true" num-pages="numPages" style="margin-left: 10px;" next-text="下一頁" previous-text="上一頁" last-text="最終頁" first-text="最初頁" ng-change="ctrler.getTransactionData();"></ul></div><div ng-init="ctrler.initDateFilter()" class="flex-row" style="margin-top:3px; margin-bottom:3px;"><label>過濾條件</label><input style="margin: 10px;" type="checkbox" ng-change="ctrler.filterChange()" ng-model="ctrler.applyShopFilter" ng-model-options="{ debounce: 200 }"> <span style="margin-right:5px;">辦事處</span><select style="width: 15%;" ng-init="ctrler.getShops();" ng-change="ctrler.shopFilterSelected();ctrler.filterChange();" ng-model="ctrler.shopFilter" ng-model-options="{ debounce: 200 }" ng-options="shop._id as shop.name for shop in ctrler.shops track by shop._id"></select><input style="margin: 10px;" type="checkbox" ng-change="ctrler.filterChange()" ng-model="ctrler.applyDateFilter" ng-model-options="{ debounce: 200 }"> <span style="margin-right:5px;">起</span><div class="input-group" style="width: 20%;"><input type="text" class="form-control input-md" uib-datepicker-popup="yyyy/MM/dd" ng-change="ctrler.datePickerChange();ctrler.filterChange()" ng-model="ctrler.startDateFilter" ng-model-options="{ debounce: 200 }" is-open="ctrler.startDateSelOpened" close-text="關閉" clear-text="清除" current-text="今天"> <span class="input-group-btn"><button type="button" class="btn btn-default" ng-click="ctrler.startDateSelOpened=true;"><i class="fa fa-calendar"></i></button></span></div><span style="margin-left:5px; margin-right:5px;">迄</span><div class="input-group" style="width: 20%;"><input type="text" class="form-control input-md" uib-datepicker-popup="yyyy/MM/dd" ng-change="ctrler.datePickerChange();ctrler.filterChange()" ng-model="ctrler.endDateFilter" ng-model-options="{ debounce: 200 }" is-open="ctrler.endDateSelOpened" close-text="關閉" clear-text="清除" current-text="今天"> <span class="input-group-btn"><button type="button" class="btn btn-default" ng-click="ctrler.endDateSelOpened=true;"><i class="fa fa-calendar"></i></button></span></div></div><div uib-collapse="ctrler.isTransTableCollapsed"><table class="table table-bordered table-responsive" style="margin-bottom:0px;" id="transactions-table"><thead><tr><th style="width:14%">日期</th><th style="width:18%">存摺</th><th style="width:18%">金額</th><th style="width:12%">交易員</th><th style="width:15%">辦事處</th><th style="width:10%" class="text-center">操作</th></tr></thead><tbody><tr ng-repeat="singleTrans in ctrler.transactions track by singleTrans._id"><td>{{singleTrans.date | date:'yyyy/MM/dd'}}</td><td>{{singleTrans.account.accountID}}</td><td>{{singleTrans.amount}}</td><td>{{singleTrans.trader.name}}</td><td>{{singleTrans.shop.name}}</td><td class="text-center"><div class="btn-group" uib-dropdown><button type="button" class="btn btn-primary" uib-dropdown-toggle>操作 <span class="caret"></span></button><ul class="dropdown-menu" uib-dropdown-menu role="menu"><li ng-click="ctrler.openProductsModal(singleTrans, 'readonly')" role="menuitem"><a>明細</a></li><li ng-click="ctrler.openProductsModal(singleTrans, 'edit')" role="menuitem"><a>修改</a></li><li ng-click="ctrler.deleteTrans(singleTrans)" role="menuitem"><a>刪除</a></li></ul></div></td></tr></tbody></table></div><div class="flex-row"><h4>統計結果</h4><button style="margin-left:10px;" class="btn btn-primary" type="button" ng-click="ctrler.aggregateProducts()" ng-disabled="ctrler.isAggregating">統計</button> <button style="margin-left:10px;" class="btn btn-success" type="button" ng-show="ctrler.aggregateData.products && ctrler.aggregateData.products.length" ng-click="ctrler.downloadProductAggInfoPDF()" ng-disabled="ctrler.isDownloading">下載</button></div><label ng-hide="ctrler.aggregateData.products || ctrler.isAggregating">請按統計按鈕進行統計,按了之後將以過濾條件進行統計,沒設定過濾條件將以全部資料進行統計</label><label ng-show="ctrler.isAggregating">統計中</label><div ng-show="ctrler.aggregateData.products"><table class="table table-bordered table-responsive" style="margin-bottom:0px;" id="product-aggregate-table"><thead><tr><th style="width:14%">品號</th><th style="width:18%">品名</th><th style="width:12%">包數</th><th style="width:14%">總重(kg)</th><th style="width:10%">單價</th><th style="width:18%">總金額</th><th style="width:14%">辦事處</th></tr></thead><tbody><tr ng-repeat="product in ctrler.aggregateData.products"><td>{{product._id.pid}}</td><td>{{product._id.name}}</td><td>{{product.qty}}</td><td>{{product.totalWeight}}</td><td>{{product._id.price}}</td><td>{{product.totalMoney}}</td><td>{{product._id.shop.name}}</td></tr><tr><td>合計</td><td></td><td>{{ctrler.getAggVal('qty')}}</td><td>{{ctrler.getAggVal('weight')}}</td><td></td><td>{{ctrler.getAggVal('money')}}</td><td></td></tr></tbody></table><div class="text-right"><h4>兌領次數:{{ctrler.aggregateData.transCount}}</h4></div></div></div><script type="text/ng-template" id="trans-detail-and-edit-modal.html"><style>
+form#transEditForm input[type=number]::-webkit-inner-spin-button, 
+form#transEditForm input[type=number]::-webkit-outer-spin-button { 
+    -webkit-appearance: none;
+    margin: 0; 
+}
+
+form#transEditForm input[type=number] {
+    -moz-appearance:textfield;
+}
+</style>
+<div class="modal-body">
+<form name="transEditForm" id="transEditForm" novalidate>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>商品</th>
+                <th class="text-center">數量</th>
+                <th class="text-center">單價</th>
+                <th class="text-center">總價</th>
+                <th class="text-center" ng-show="ctrler.isMode('edit')">操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="item in ctrler.products track by item.pid">
+                <td style="width: 30%;">
+                    <label>{{::item.name}}</label>
+                    <!--
+                    <div class="media">
+                        <div class="media-body">
+                            <h4 class="media-heading">{{::item.name}}</h4>
+                        </div>
+                    </div>
+                    -->
+                </td>
+                
+                <td style="width: 22%;" class="text-center">
+                    <div class="input-group" ng-show="ctrler.isMode('edit')">
+                        <span class="input-group-btn">
+                            <button class="btn btn-default btn-info" ng-click="ctrler.changeQty(item,-1);"><span class="fa fa-minus"></span></button>
+                        </span>
+                        <input type="number" name="itemQty" ng-model="item.qty" ng-model-options="{ debounce: 200 }" class="form-control text-center" min="1" required>
+                        <span class="input-group-btn">
+                            <button class="btn btn-default btn-info" ng-click="ctrler.changeQty(item,1);"><span class="fa fa-plus"></span></button>
+                        </span>
+                    </div>
+                    <strong ng-show="ctrler.isMode('readonly')">{{::item.qty}}</strong>
+                </td>
+                
+                <td style="width: 18%;" class="text-center">
+                    <strong>{{::item.price}}</strong>
+                </td>
+                
+                <td style="width: 20%;" class="text-center">
+                    <strong>{{item.price * item.qty}}</strong>
+                </td>
+
+                <td style="width: 10%;" class="text-center" ng-show="ctrler.isMode('edit')">
+                    <button ng-click="ctrler.rmItem(item)" class="btn btn-danger"><i class="fa fa-times"></i> 移除</button>
+                </td>
+
+                </tr>
+        </tbody>
+    </table>
+    <div class="text-right">
+        <h4>合計:{{ctrler.getTotal()}}</h4>
+    </div>
+</form>
+</div>
+<div class="modal-footer">
+    <button ng-show="ctrler.isMode('edit')" ng-click="ctrler.updateTrans()" class="btn btn-success col-md-offset-4" ng-disabled="transEditForm.itemQty.$invalid">修改</button>
+    <button class="btn btn-primary" type="button" ng-click="ctrler.cancel()">關閉</button>
+</div></script><script type="text/ng-template" id="product-info-aggregate.html"></script>

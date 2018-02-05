@@ -1,0 +1,18 @@
+<style>.fl-col1 {
+  width: 10%;
+}
+.fl-col2 {
+  width: 15%;
+}
+.fl-col3 {
+  width: 40%;
+}
+.fl-col4 {
+  width: 15%;
+}
+.fl-col5 {
+  width: 15%;
+}
+.fl-col6 {
+  width: 5%;
+}</style><div class="modal-header"><h4 style="margin: 5px;">暫存農民列表</h4></div><div class="modal-body"><table class="table-responsive table table-striped table-bordered"><tbody><tr><th class="fl-col1">姓名</th><th class="fl-col2">身分證字號</th><th class="fl-col3">地址</th><th class="fl-col4">住家電話</th><th class="fl-col5">行動電話</th><th class="fl-col6"></th></tr><tr ng-repeat="farmer in ctrler.farmers track by farmer.pid"><td>{{::farmer.name}}</td><td>{{::farmer.pid}}</td><td>{{::farmer.addr}}</td><td>{{::farmer.teleNum1}}</td><td>{{::farmer.teleNum2}}</td><td><div class="btn-group" uib-dropdown><button id="single-button" type="button" class="btn btn-primary" uib-dropdown-toggle>操作</button><ul class="dropdown-menu" uib-dropdown-menu role="menu" aria-labelledby="single-button"><li role="menuitem"><a ng-click="ctrler.rmFarmerFromList(farmer)">從列表移除</a></li><li role="menuitem"><a ng-click="ctrler.goDetailPage(farmer)">觀看資料</a></li></ul></div></td></tr></tbody></table></div>

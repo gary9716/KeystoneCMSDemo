@@ -1,0 +1,28 @@
+<style>.p-type-col1 {
+  width: 30%;
+}
+.p-type-col2 {
+  width: 70%;
+}
+form#product-type-edit-form div.p-type-info-row{
+  display: flex; align-items: center;
+}</style><div class="container" ng-controller="ProductTypePageCtrler as ctrler"><legend>商品類型</legend><table class="table table-bordered table-hover table-responsive" style="width:70%; margin-left: auto; margin-right: auto;"><tbody><tr><th class="p-type-col1">商品類型</th><th class="p-type-col2">代號（將被用於商品編號開頭）</th></tr><tr class="clickable" ng-click="ctrler.openEditModal(pType)" ng-repeat="pType in ctrler.pTypes track by pType._id"><td class="p-type-col1">{{pType.name}}</td><td class="p-type-col2">{{pType.code}}</td></tr></tbody></table></div><script type="text/ng-template" id="product-type-edit-modal.html"><form name="productTypeEditForm" id="product-type-edit-form" class="modal-body">
+  <div class="form-group p-type-info-row">
+    <label class="col-md-3">商品類型</label>
+    <div class="col-md-9">
+      <input class="form-control" type="text" ng-model="ctrler.productType.name" ng-model-options="{ debounce: 200 }" required>
+    </div>
+  </div>
+  <div class="form-group p-type-info-row">
+    <label class="col-md-3">代號</label>
+    <div class="col-md-9">
+      <input class="form-control" type="text" ng-model="ctrler.productType.code" ng-model-options="{ debounce: 200 }" required>
+    </div>
+  </div>
+  <div class="form-group p-type-info-row text-center">
+    <div class="col-md-4 col-md-offset-4">
+      <button class="btn btn-success" ng-click="ctrler.ok()" ng-disabled="productTypeEditForm.$invalid">{{::ctrler.productType._id? '更新':'增加'}}</button>
+      <button class="btn btn-warning" ng-click="ctrler.cancel()">取消</button>
+    </div>
+  </div>
+</form></script>

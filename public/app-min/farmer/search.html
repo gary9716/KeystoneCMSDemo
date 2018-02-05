@@ -1,0 +1,19 @@
+<div class="container"><button type="button" class="btn btn-primary" style="margin-bottom:5px;" ng-click="ctrler.isCollapsed = !ctrler.isCollapsed">{{ctrler.isCollapsed? "開啟搜尋頁面": "關閉搜尋頁面"}}</button><div class="well well-lg" uib-collapse="ctrler.isCollapsed"><table class="table" style="margin:0px auto; width:85%;"><tbody><tr><td>姓名</td><td><input name="farmerName" ng-model="ctrler.farmerName" ng-model-options="{ debounce: 200 }" type="text" placeholder=""></td><td>電話</td><td><input name="tele" ng-model="ctrler.tele" ng-model-options="{ debounce: 500 }" type="text" placeholder=""></td></tr><tr><td>身分證字號</td><td><input name="pid" ng-model="ctrler.pid" ng-model-options="{ debounce: 200 }" type="text" placeholder=""></td><td>地址</td><td><div class="row-offset-2" style="margin-top:7px;" id="geoSelectors"><label>直轄縣市<select style="min-width:90px;" name="city" ng-init="ctrler.getCities()" ng-options="city as city.name for city in ctrler.cities track by city._id" ng-model="ctrler.citySelect" ng-model-options="{ debounce: 300 }" ng-change="ctrler.selectOnChange('dists',ctrler.citySelect._id)"></select></label><label>鄉鎮市區<select style="min-width:90px;" name="dist" ng-options="dist as dist.dist for dist in ctrler.dists track by dist._id" ng-model="ctrler.distSelect" ng-model-options="{ debounce: 300 }" ng-change="ctrler.selectOnChange('villages',ctrler.distSelect._id)"></select></label><label>村里<select style="min-width:90px;" name="village" ng-options="village as village.name for village in ctrler.villages track by village._id" ng-model="ctrler.villageSelect" ng-model-options="{ debounce: 300 }"></select></label></div></td></tr></tbody></table><div class="form-group text-center" style="margin:0px auto; width:85%;"><button class="clickable btn btn-primary" ng-click="ctrler.search();" ng-disabled="ctrler.isSearching">搜尋</button></div></div><style>.farmer-search-col1 {
+  width: 15%;
+}
+.farmer-search-col2 {
+  width: 20%;
+}
+.farmer-search-col3 {
+  width: 35%;
+}
+.farmer-search-col4 {
+  width: 15%;
+}
+.farmer-search-col5 {
+  width: 15%;
+}
+
+.table-hover tbody tr:hover td{
+  background-color: #c9d4e2;
+}</style><div style="margin-bottom:5px;"><h4>搜尋結果</h4><label ng-show="ctrler.numTotalResult > ctrler.maxCanDisplay">此次搜尋超過可顯示數量,只取回部分結果</label></div><div class="table-responsive" ng-show="ctrler.farmers && ctrler.farmers.length > 0"><table class="table table-bordered table-hover" style="margin: 0px auto 20px;"><tbody><tr><th class="farmer-search-col1">姓名</th><th class="farmer-search-col2">身分證字號</th><th class="farmer-search-col3">地址</th><th class="farmer-search-col4">住家電話</th><th class="farmer-search-col5">行動電話</th></tr><tr class="clickable" ui-sref="farmerDetail({farmerPID: farmer.pid})" ng-repeat="farmer in ctrler.farmers track by farmer.pid"><td class="farmer-search-col1">{{::farmer.name}}</td><td class="farmer-search-col2">{{::farmer.pid}}</td><td class="farmer-search-col3">{{::farmer.addr}}</td><td class="farmer-search-col4">{{::farmer.teleNum1}}</td><td class="farmer-search-col5">{{::farmer.teleNum2}}</td></tr></tbody></table></div></div>

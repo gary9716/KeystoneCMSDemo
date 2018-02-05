@@ -39,6 +39,7 @@
     "gulp-livereload": "^3.8.1",
     "gulp-sourcemaps": "^2.6.2",
     "gulp-uglify": "^3.0.0",
+    "gulp-uglify-es": "^1.0.0",
     "pump": "^2.0.0"
   },
   "scripts": {
