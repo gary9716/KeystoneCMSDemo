@@ -15,12 +15,11 @@ https://www.googleapis.com/auth/drive.scripts Allows access to Apps Script files
 
 // If modifying these scopes, delete your previously saved credentials
 // at ./.credentials/keystone.json
-
-  var TOKEN_DIR = './.credentials/';
-  var TOKEN_PATH = TOKEN_DIR + 'keystone.json';
+  var path = require('path');
+  var TOKEN_PATH = path.resolve(__dirname, './.credentials/', 'keystone.json');
 
   return {
-    clientSecret: 'client_secret.json',
+    clientSecret: path.resolve(__dirname, './client_secret.json'),
     scopes: ['https://www.googleapis.com/auth/drive.file'],
     tokenPath: TOKEN_PATH
   };
