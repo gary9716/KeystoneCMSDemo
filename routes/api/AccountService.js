@@ -1225,7 +1225,8 @@ exports.downloadAWMediaFile = function(req, res) {
     
     var dateMoment = moment(data.date);
     var rocYearStr = dateMoment.rocYear().toString().padStart(3, '0');
-    var withdrawMsg = rocYearStr.padStart(4, ' ') + '米單結清款'; //this should be 14 bytes
+    var withdrawMsg =  '米單結清款' + rocYearStr.padEnd(4, ' '); //this should be 14 bytes
+    //var withdrawMsg = '107'.padEnd(14,' ');
     var numCHChars = 5;
     var dateFormat = rocYearStr + dateMoment.format('MMDD');
     var blockTwoPrefix = data.finNum.substring(0, 5) + dateFormat; //finNum(5) + dateStr
@@ -1242,7 +1243,7 @@ exports.downloadAWMediaFile = function(req, res) {
     var count = 0;
     data.pids.forEach(function(pid, index) {
       var amount = Math.floor(data.amounts[index]);
-      var accountIDInfo = data.accountIDs[index].padEnd(12,' ');
+      var accountIDInfo = data.accountIDs[index];
       debitAmount += amount;
       line = ('2' + blockOnePart + blockTwoPrefix + 
             '2' + data.code + data.ioAccounts[index].substring(0, 14).padEnd(14, ' ') + 
@@ -1250,7 +1251,7 @@ exports.downloadAWMediaFile = function(req, res) {
             sendFileFixPart //通知＋狀況代碼
             + withdrawMsg //交易註記(1)
             + tenSpaces //交易註記(2)
-            + '*' //(身分證檢核號)
+            + ' ' //(身分證檢核號,不進行檢核)
             + pid
             + accountIDInfo).padEnd(lineLength - numCHChars, ' ') + newLineChar;
       linesOfData.push(line);
