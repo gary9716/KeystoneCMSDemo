@@ -8,6 +8,7 @@ angular.module('mainApp')
     vm.cancelAWDate = thisYear;
     vm.downloadAWDate = thisYear;
     vm.doAWDate = new Date(thisYear.getFullYear() + '/06/30');
+    vm.code = '000';
 
     vm.doAW = function() {
         vm.isProcessing = true;
@@ -66,7 +67,7 @@ angular.module('mainApp')
             var data = res.data;
             if(data.success) {
                 var filename = data.filename;
-                var file = new Blob([new Uint8Array(data.content.data)],{type: 'text/plain'});
+                var file = new Blob([new Uint8Array(data.content.data)],{type: "text/plain;charset=big-5"});
                 saveAs(file, filename);
 
                 $rootScope.pubSuccessMsg('年度結清媒體檔已下載');

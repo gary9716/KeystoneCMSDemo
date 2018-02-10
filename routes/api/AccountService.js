@@ -16,6 +16,7 @@ const mongoose = keystone.get('mongoose');
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
+const iconv = require('iconv-lite');
 
 var DBRecTask = require('../DBRecTask');
 
@@ -880,6 +881,7 @@ exports.annuallyWithdraw = function(req, res, next) {
     finNum: undefined,
     date: date,
     pids: [],
+    names: [],
     amounts: [],
     accountIDs : [],
     ioAccounts : []
@@ -936,7 +938,8 @@ exports.annuallyWithdraw = function(req, res, next) {
       });
 
       data.pids.push(account.farmer.pid);
-
+      data.names.push(account.farmer.name);
+      
       account.balance = 0;
       account.lastRecord = newRec_id;
 
@@ -1081,6 +1084,7 @@ exports.getAnnuallyWithdrawData = function(req, res, next) {
     finNum: undefined,
     date: undefined,
     pids: [],
+    names: [],
     amounts: [],
     accountIDs : [],
     ioAccounts : []
@@ -1141,7 +1145,7 @@ exports.getAnnuallyWithdrawData = function(req, res, next) {
     farmers = Array.from(new Set(farmers));
     numFarmers = farmers.length;
 
-    return farmerList.model.find({ _id: { $in: farmers } }).select('_id pid').lean().exec();
+    return farmerList.model.find({ _id: { $in: farmers } }).select('_id pid name').lean().exec();
   })
   .then(function(farmers) {
     if(!farmers || farmers.length === 0)
@@ -1152,12 +1156,17 @@ exports.getAnnuallyWithdrawData = function(req, res, next) {
     }
 
     var pidMap = {};
+    var nameMap = {};
     farmers.forEach(function(farmer) {
-      pidMap[farmer._id.toString()] = farmer.pid;
+      var farmerID = farmer._id.toString();
+      pidMap[farmerID] = farmer.pid;
+      nameMap[farmerID] = farmer.name;
     });
 
     accounts.forEach(function(account) {
-      form.data.pids.push(pidMap[account.farmer.toString()]);
+      var farmerID = account.farmer.toString();
+      form.data.pids.push(pidMap[farmerID]);
+      form.data.names.push(nameMap[farmerID]);
     });
     
     next();
@@ -1175,6 +1184,26 @@ String.prototype.padStart = function(num, padStr) {
 String.prototype.padEnd = function(num, padStr) {
   return _.padEnd(this.toString(),num,padStr);
 };
+
+var digitCHMap = {
+  '0': '零',
+  '1': '一',
+  '2': '二',
+  '3': '三',
+  '4': '四',
+  '5': '五',
+  '6': '六',
+  '7': '七',
+  '8': '八',
+  '9': '九',
+}
+
+var rocYearToCH = function(rocYearStr) {
+  var result = '';
+  for (var i = 0; i < rocYearStr.length; i++) {
+    result += digitCHMap[rocYearStr.charAt(i)];
+  }
+}
 
 exports.downloadAWMediaFile = function(req, res) {
   var data = req.body.data;
@@ -1195,10 +1224,14 @@ exports.downloadAWMediaFile = function(req, res) {
     var linesOfData = [];
     
     var dateMoment = moment(data.date);
-    var dateFormat = dateMoment.rocYear().toString().padStart(3, '0') + dateMoment.format('MMDD');
+    var rocYearStr = dateMoment.rocYear().toString().padStart(3, '0');
+    var withdrawMsg = rocYearStr.padStart(4, ' ') + '米單結清款'; //this should be 14 bytes
+    var numCHChars = 5;
+    var dateFormat = rocYearStr + dateMoment.format('MMDD');
     var blockTwoPrefix = data.finNum.substring(0, 5) + dateFormat; //finNum(5) + dateStr
     var twoZeros = '0'.repeat(2);
-    
+    var tenSpaces = ' '.repeat(10);
+
     var sendFileFixPart = '0'.repeat(12) + '99';
     
     //first line
@@ -1209,11 +1242,17 @@ exports.downloadAWMediaFile = function(req, res) {
     var count = 0;
     data.pids.forEach(function(pid, index) {
       var amount = Math.floor(data.amounts[index]);
+      var accountIDInfo = data.accountIDs[index].padEnd(12,' ');
       debitAmount += amount;
       line = ('2' + blockOnePart + blockTwoPrefix + 
             '2' + data.code + data.ioAccounts[index].substring(0, 14).padEnd(14, ' ') + 
             (amount.toString() + twoZeros).padStart(14, '0') + 
-            sendFileFixPart + data.accountIDs[index].padEnd(14,' ') + pid).padEnd(lineLength, ' ') + newLineChar;
+            sendFileFixPart //通知＋狀況代碼
+            + withdrawMsg //交易註記(1)
+            + tenSpaces //交易註記(2)
+            + '*' //(身分證檢核號)
+            + pid
+            + accountIDInfo).padEnd(lineLength - numCHChars, ' ') + newLineChar;
       linesOfData.push(line);
       count++;
     });
@@ -1227,11 +1266,12 @@ exports.downloadAWMediaFile = function(req, res) {
     linesOfData.push(line);
     
     var finalData = linesOfData.join('');
-    const buf = Buffer.from(finalData, 'ascii');
+    const buf = Buffer.from(iconv.encode(finalData,'big5'));
 
     var checkCode = (parseInt(dateFormat) + count + creditAmount + debitAmount).toString();
     checkCode = checkCode.substring(checkCode.length - 5, checkCode.length).padStart(5,'0');
-
+    
+    res.charset = 'big5';
     res.json({
       success: true,
       filename: (dateFormat + '-' + checkCode + '.txt'),

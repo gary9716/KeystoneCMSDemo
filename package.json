@@ -14,6 +14,7 @@
     "google-auth-library": "^0.12.0",
     "googleapis": "^24.0.0",
     "htmlmin": "0.0.7",
+    "iconv-lite": "^0.4.19",
     "keystone": "4.0.0-beta.5",
     "keystone-email": "1.0.5",
     "lodash": "^4.13.1",

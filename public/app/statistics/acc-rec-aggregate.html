@@ -29,9 +29,10 @@ div#acc-rec-aggregate .flex-row {
         download-d-w-sheet-success-c-b="ctrler.pubSuccessMsg(msg)"></acc-rec-list>
     
     <div class="flex-row">
-            <h4>統計結果</h4>
-            <button style="margin-left:10px;" class="btn btn-primary" type="button" ng-click="ctrler.aggregateAccRecs()" ng-disabled="ctrler.isAggregating">統計</button>
-            <button style="margin-left:10px;" class="btn btn-success" type="button" ng-show="ctrler.aggregateData.accRecsAgg" ng-click="ctrler.downloadAccRecsAggInfoPDF()" ng-disabled="ctrler.isDownloading">下載</button>
+        <h4>統計交易匯總紀錄</h4>
+        <button style="margin-left:10px;" class="btn btn-primary" type="button" ng-click="ctrler.aggregateAccRecs()" ng-disabled="ctrler.isAggregating">統計</button>
+        <button style="margin-left:10px;" class="btn btn-success" type="button" ng-show="ctrler.aggregateData.accRecsAgg" ng-click="ctrler.downloadAccRecsAggInfoPDF('all')" ng-disabled="ctrler.isDownloading">下載交易匯總表</button>
+        <button style="margin-left:10px;" class="btn btn-success" type="button" ng-show="ctrler.aggregateData.accRecsAgg" ng-click="ctrler.downloadAccRecsAggInfoPDF('awCheck')" ng-disabled="ctrler.isDownloading">下載年度結清表</button>
     </div>
     <div class="flex-row">
         <label ng-hide="ctrler.aggregateData.accRecsAgg || ctrler.isAggregating">
@@ -43,7 +44,7 @@ div#acc-rec-aggregate .flex-row {
                 <tr>
                     <td style="width:25%;">開戶次數</td>
                     <td>{{ctrler.aggregateData.accRecsAgg.create.count}}</td>
-                    <td style="width:18%;">結清次數</td>
+                    <td style="width:25%;">結清次數</td>
                     <td>{{ctrler.aggregateData.accRecsAgg.close.count}}</td>
                 </tr>
                 <tr>
@@ -71,15 +72,21 @@ div#acc-rec-aggregate .flex-row {
                     <td>{{ctrler.aggregateData.accRecsAgg.transact.amount}}</td>
                 </tr>
                 <tr>
+                    <td>年度結清戶數</td>
+                    <td>{{ctrler.aggregateData.accRecsAgg.annuallyWithdraw.count}}</td>
+                    <td>年度結清總金額</td>
+                    <td>{{ctrler.aggregateData.accRecsAgg.annuallyWithdraw.amount}}</td>
+                </tr>
+                <tr>
                     <td>凍結中戶數</td>
                     <td>{{ctrler.aggregateData.accAgg.freeze.count}}</td>
-                    <td>凍結戶金額</td>
+                    <td>凍結戶總金額</td>
                     <td>{{ctrler.aggregateData.accAgg.freeze.balance}}</td>
                 </tr>
                 <tr>
                     <td>有效戶數</td>
                     <td>{{ctrler.aggregateData.accAgg.unfreeze.count}}</td>
-                    <td>有效戶金額</td>
+                    <td>有效戶總金額</td>
                     <td>{{ctrler.aggregateData.accAgg.unfreeze.balance}}</td>
                 </tr>
                 <tr>
