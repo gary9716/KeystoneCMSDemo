@@ -1217,7 +1217,7 @@ exports.downloadAWMediaFile = function(req, res) {
 
   try {
 
-    var newLineChar = '\n';
+    var newLineChar = os.EOL;
 
     var lineLength = 150;
     var blockOnePart = data.finNum.substring(0, 3) + 'XX001600' + (' '.repeat(5)); //finNum(3) + other fixed str
