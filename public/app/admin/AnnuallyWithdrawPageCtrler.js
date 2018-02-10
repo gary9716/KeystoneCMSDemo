@@ -8,7 +8,7 @@ angular.module('mainApp')
     vm.cancelAWDate = thisYear;
     vm.downloadAWDate = thisYear;
     vm.doAWDate = new Date(thisYear.getFullYear() + '/06/30');
-    vm.doAWDate.setHours(0,0,0,0);
+    vm.doAWDate.setHours(12,0,0,0);
     vm.code = '000';
 
     vm.doAW = function() {
