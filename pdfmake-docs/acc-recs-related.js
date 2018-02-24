@@ -1,6 +1,10 @@
 var moment = require('moment');
 var keystone = require('keystone');
 
+const numberWithCommas = (x) => {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
 module.exports = function(req, res) {
     
     var form = req.body;
@@ -84,21 +88,20 @@ module.exports = function(req, res) {
             tableBody = [
                 ['開戶次數', accRecsAgg.create? accRecsAgg.create.count:0, '結清次數', accRecsAgg.close? accRecsAgg.close.count:0],
                 ['凍結次數', accRecsAgg.freeze? accRecsAgg.freeze.count:0, '解凍次數', accRecsAgg.unfreeze? accRecsAgg.unfreeze.count:0],
-                ['入款次數', accRecsAgg.deposit? accRecsAgg.deposit.count:0, '入款總金額', accRecsAgg.deposit? accRecsAgg.deposit.amount:0],
-                ['提款次數', accRecsAgg.withdraw? accRecsAgg.withdraw.count:0, '提款總金額', accRecsAgg.withdraw? accRecsAgg.withdraw.amount:0],
-                ['兌領次數', accRecsAgg.transact? accRecsAgg.transact.count:0, '兌領總金額', accRecsAgg.transact? accRecsAgg.transact.amount:0],
-                ['年度結清戶數', accRecsAgg.annuallyWithdraw? accRecsAgg.annuallyWithdraw.count:0,'年度結清總金額', accRecsAgg.annuallyWithdraw? accRecsAgg.annuallyWithdraw.amount:0],
-                ['凍結中戶數', accAgg.freeze? accAgg.freeze.count:0,'凍結戶總金額', accAgg.freeze? accAgg.freeze.balance:0],
-                ['有效戶數', accAgg.unfreeze? accAgg.unfreeze.count:0,'有效戶總金額', accAgg.unfreeze? accAgg.unfreeze.balance:0],
-                ['全部戶數', accAgg.all? accAgg.all.count:0,'全部未領總金額', accAgg.all? accAgg.all.balance:0],  
+                ['入款次數', accRecsAgg.deposit? accRecsAgg.deposit.count:0, '入款總金額', accRecsAgg.deposit? numberWithCommas(accRecsAgg.deposit.amount):0],
+                ['提款次數', accRecsAgg.withdraw? accRecsAgg.withdraw.count:0, '提款總金額', accRecsAgg.withdraw? numberWithCommas(accRecsAgg.withdraw.amount):0],
+                ['兌領次數', accRecsAgg.transact? accRecsAgg.transact.count:0, '兌領總金額', accRecsAgg.transact? numberWithCommas(accRecsAgg.transact.amount):0],
+                ['年度結清戶數', accRecsAgg.annuallyWithdraw? accRecsAgg.annuallyWithdraw.count:0,'年度結清總金額', accRecsAgg.annuallyWithdraw? numberWithCommas(accRecsAgg.annuallyWithdraw.amount):0],
+                ['凍結中戶數', accAgg.freeze? accAgg.freeze.count:0,'凍結戶總金額', accAgg.freeze? numberWithCommas(accAgg.freeze.balance):0],
+                ['有效戶數', accAgg.unfreeze? accAgg.unfreeze.count:0,'有效戶總金額', accAgg.unfreeze? numberWithCommas(accAgg.unfreeze.balance):0],
+                ['全部戶數', accAgg.all? accAgg.all.count:0,'全部未領總金額', accAgg.all? numberWithCommas(accAgg.all.balance):0],  
             ]  
         }
         else {
             tableBody = [
-                ['年度結清戶數', accRecsAgg.annuallyWithdraw? accRecsAgg.annuallyWithdraw.count:0,'年度結清總金額', accRecsAgg.annuallyWithdraw? accRecsAgg.annuallyWithdraw.amount:0],
-                ['凍結中戶數', accAgg.freeze? accAgg.freeze.count:0,'凍結戶總金額', accAgg.freeze? accAgg.freeze.balance:0],
-                ['有效戶數', accAgg.unfreeze? accAgg.unfreeze.count:0,'有效戶總金額', accAgg.unfreeze? accAgg.unfreeze.balance:0],
-                ['全部戶數', accAgg.all? accAgg.all.count:0,'全部未領總金額', accAgg.all? accAgg.all.balance:0],  
+                ['凍結中戶數', accAgg.freeze? accAgg.freeze.count:0,'凍結戶總金額', accAgg.freeze? numberWithCommas(accAgg.freeze.balance):0],
+                ['有效戶數', accAgg.unfreeze? accAgg.unfreeze.count:0,'有效戶總金額', accAgg.unfreeze? numberWithCommas(accAgg.unfreeze.balance):0],
+                ['全部戶數', accAgg.all? accAgg.all.count:0,'全部未領總金額', accAgg.all? numberWithCommas(accAgg.all.balance):0],  
             ]
         }
         

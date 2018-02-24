@@ -1,6 +1,10 @@
 var moment = require('moment');
 var keystone = require('keystone');
 
+const numberWithCommas = (x) => {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
 module.exports = function(req, res) {
     
     var form = req.body;
@@ -88,7 +92,7 @@ module.exports = function(req, res) {
             wholeMoney += product.totalMoney;
             wholeWeight += product.totalWeight;
             var shopName = (product._id.shop && product._id.shop.name)? product._id.shop.name: '';
-            tableBody.push([product._id.pid, product._id.name, product.qty, product.totalWeight, product._id.price, product.totalMoney, shopName]);
+            tableBody.push([product._id.pid, product._id.name, product.qty, product.totalWeight, numberWithCommas(product._id.price), numberWithCommas(product.totalMoney), shopName]);
         });
         tableBody.push(['合計','',wholeQty, wholeWeight, '', wholeMoney,'']);
     }

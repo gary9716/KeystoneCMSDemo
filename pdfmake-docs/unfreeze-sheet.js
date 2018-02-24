@@ -46,18 +46,38 @@ module.exports = function(req, res) {
               content.push({
                 text: account.farmer.addr,
                 absolutePosition: {
-                  x: 198 * factor,
-                  y: 395 * factor
+                  x: 199 * factor,
+                  y: 372 * factor
                 },
                 fontSize: 12
+              });
+
+            if(account.farmer.name)
+              content.push({
+                  text: account.farmer.name,
+                  absolutePosition: {
+                    x: 199 * factor,
+                    y: 326 * factor
+                  },
+                  fontSize: 12
+              });
+
+            if(account.farmer.pid)
+              content.push({
+                  text: account.farmer.pid,
+                  absolutePosition: {
+                    x: 199 * factor,
+                    y: 351 * factor
+                  },
+                  fontSize: 12
               });
 
             if(account.farmer.teleNum1)
               content.push({
                 text: account.farmer.teleNum1,
                 absolutePosition: {
-                  x: 438  * factor,
-                  y: 371  * factor
+                  x: 440  * factor,
+                  y: 373  * factor
                 },
                 fontSize: 12
               });
@@ -65,8 +85,8 @@ module.exports = function(req, res) {
               content.push({
                 text: account.farmer.teleNum2,
                 absolutePosition: {
-                  x: 438  * factor,
-                  y: 371  * factor
+                  x: 440  * factor,
+                  y: 373  * factor
                 },
                 fontSize: 12
               });
@@ -128,7 +148,7 @@ module.exports = function(req, res) {
               },
 
               images: {
-                'bgImg': __base + 'public/images/unfreeze-freeze_v2.jpg'
+                'bgImg': __base + 'public/images/unfreeze-freeze_v3.jpg'
               },
 
               background: {
