@@ -23,10 +23,12 @@
         <td>{{product.name}}</td>
         <td>
           <table class="product-price-table table-responsive table-condensed table-striped" style="margin-left:2%; text-align: left;">
+              <!-- 
               <tr ng-hide="product.isInCart && product.price===product.exchangePrice">
                 <td><label class="price-selector"><input type="radio" class="price-radio" ng-value="product.marketPrice" ng-model="product.price" ng-hide="product.isInCart">定價</label></td> 
                 <td style="padding-left:10px;">{{::product.marketPrice}} 元</td>
               </tr>
+              -->
               <tr ng-hide="product.isInCart && product.price===product.marketPrice">
                 <td><label class="price-selector"><input type="radio" class="price-radio" ng-value="product.exchangePrice" ng-model="product.price" ng-hide="product.isInCart">兌換價</label></td> 
                 <td style="padding-left:10px;">{{::product.exchangePrice}} 元</td>
