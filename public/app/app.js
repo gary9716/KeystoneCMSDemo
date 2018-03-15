@@ -278,7 +278,30 @@ angular.module('mainApp')
 .run(['$state', '$window', '$http', '$uibModal', '$rootScope', '$transitions', 'myValidation', 'cachedFarmersKey', 'appRootPath',
   function ($state, $window, $http, $uibModal, $rootScope, $transitions, myValidation, cachedFarmersKey, appRootPath) {
     console.log('config end, angular app start to run');
-    $rootScope.locals = locals; //access global variable locals in $rootScope 
+    $rootScope.locals = locals; //access global variable locals in $rootScope
+    
+    if(locals.user && locals.user.shop && locals.user.shop !== '') {
+      $http.post(
+        '/api/read',
+        {
+          listName: 'Shop',
+          filters: {
+            _id: locals.user.shop
+          }
+        }
+      )
+      .then(function(res) {
+        if(res.data.success) {
+          $rootScope.locals.user.shopName = res.data.result[0].name;
+        }
+  
+      })
+      .catch(function(err) {
+        console.log(err);
+      });
+    }
+
+    
 
     $rootScope.alerts = [];
     $rootScope.pubSuccessMsg = function(msg) {

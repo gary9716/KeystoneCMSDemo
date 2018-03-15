@@ -92,7 +92,8 @@ exports.initLocals = function (req, res, next) {
 		res.locals.user = {
 			isAdmin: user.isAdmin,
 			userID: user.userID,
-			name: user.name
+      name: user.name,
+      shop: user.shop
 		};
 	}
 	
