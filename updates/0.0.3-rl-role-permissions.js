@@ -43,7 +43,7 @@ module.exports = function(done) {
     '兌領交易員': [
       {
         listName: Constants.FarmerListName,
-        doableOp: [createOp, readOp, updateOp]
+        doableOp: [readOp, updateOp]
       },
       {
         listName: Constants.AccountListName,
@@ -74,7 +74,7 @@ module.exports = function(done) {
     '紀錄修正員': [
       {
         listName: Constants.FarmerListName,
-        doableOp: [readOp]
+        doableOp: [createOp, readOp]
       },
       {
         listName: Constants.AccountListName,
