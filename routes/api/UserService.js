@@ -78,7 +78,7 @@ exports.signin = function (req, res) {
 
 };
 
-/*
+
 exports.register = function (req, res) {
   var newUser = false;
   var form = req.body;
@@ -182,4 +182,4 @@ exports.register = function (req, res) {
   });
 
 }
-*/
+

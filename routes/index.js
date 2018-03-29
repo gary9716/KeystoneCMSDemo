@@ -177,7 +177,7 @@ exports = module.exports = function (app) {
 
   app.post('/api/permission',middleware.permissionCheck,middleware.okResponse);
 
-  app.post('/api/user/register',routes.api.UserService.register);
+  //app.post('/api/user/register',routes.api.UserService.register);
   app.post('/api/user/signin',routes.api.UserService.signin);
   
 
