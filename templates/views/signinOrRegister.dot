@@ -51,7 +51,7 @@ title: 登入頁面
                     </div>
                   </div>
                 </form>
-
+								<!--
                 <form id="register-form"
                 class="form-horizontal"
                 method="post" 
@@ -100,7 +100,7 @@ title: 登入頁面
                     </div>
                   </div>
                 </form>
-
+								-->
               </div>
             </div>
           </div>
@@ -130,6 +130,7 @@ title: 登入頁面
         $(this).addClass('active');
         e.preventDefault();
       });
+			/*
       $('#register-form-link').click(function(e) {
         $("#register-form").delay(100).fadeIn(100);
         $("#login-form").fadeOut(100);
@@ -137,6 +138,7 @@ title: 登入頁面
         $(this).addClass('active');
         e.preventDefault();
       });
+			*/
 
       var doFormAjax = function(formID, doRedirect) {
         var form = $(formID);
@@ -176,11 +178,14 @@ title: 登入頁面
         e.preventDefault();
         doFormAjax('#login-form', true);
       });
-
+			
+			/*
       $('#register-submit').click(function(e) {
         e.preventDefault();
         doFormAjax('#register-form', false);
       });
+			*/
+
   })();
   </script>
 #]]
