@@ -74,7 +74,7 @@ morgan.token('errInfo', function (req, res) {
 
 // Common Middleware
 keystone.pre('admin', middleware.blockRoute);
-keystone.pre('routes', middleware.initLocals, middleware.addCustomResHandler);
+keystone.pre('routes', middleware.refreshSysInfo, middleware.initLocals, middleware.addCustomResHandler);
 keystone.pre('render', middleware.flashMessages);
 
 // Import Route Controllers

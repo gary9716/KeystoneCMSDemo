@@ -256,7 +256,10 @@
           <div>
             <textarea rows="5" ng-model="ctrler.deposit.comment" ng-model-options="{ updateOn: 'blur' }" style="resize: none;" ng-trim="true"></textarea>
           </div>
-        </div>
+				</div>
+				<div class="flex-row" ng-show="ctrler.reachDepositLimit()">
+					<label>入款限制{{ctrler.deposit.limit}}</label>
+				</div>
       </section>
 
       <section ng-show="ctrler.accountOp==='withdraw'" class="form-group">
@@ -424,7 +427,7 @@
 </div>
 <div class="modal-footer">
     <div class="flex-row form-group">
-      <button ng-click="ctrler.depositOp()" class="btn btn-success col-md-offset-4" ng-disabled="accountOpForm.depositAmount.$invalid || ctrler.isProcessing" ng-show="ctrler.accountOp==='deposit'">入款</button>
+      <button ng-click="ctrler.depositOp()" class="btn btn-success col-md-offset-4" ng-disabled="accountOpForm.depositAmount.$invalid || ctrler.isProcessing || ctrler.reachDepositLimit()" ng-show="ctrler.accountOp==='deposit'">入款</button>
       <button ng-click="ctrler.withdrawOp()" class="btn btn-success col-md-offset-4" ng-disabled="accountOpForm.withdrawAmount.$invalid || ctrler.isProcessing" ng-show="ctrler.accountOp==='withdraw'">提款</button>
       <button ng-click="ctrler.setFreezeOp()" class="btn btn-success col-md-offset-4" ng-disabled="ctrler.isProcessing" ng-show="ctrler.accountOp==='setFreeze'">{{ctrler.account.freeze? '解凍':'凍結'}}</button>
       <button ng-click="ctrler.closeAccOp()" class="btn btn-success col-md-offset-4" ng-disabled="ctrler.isProcessing" ng-show="ctrler.accountOp==='close'">結清</button>

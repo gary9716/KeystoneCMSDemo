@@ -201,6 +201,11 @@ angular.module('mainApp')
     nowDate.setFullYear(nowDate.getFullYear() - 1, 6, 1); //July first in previous year
     vm.startDateFilter = nowDate;
 
+		if(locals.depositLimit && locals.depositLimit > 0)
+			vm.deposit.limit = locals.depositLimit;
+		else
+			vm.deposit.limit = 50000;
+
     vm.resetOpView = function() {
       //default values
       vm.closeAcc = {};
@@ -212,10 +217,14 @@ angular.module('mainApp')
       vm.withdraw.comment = vm.account.farmer.name + " 白米存摺轉出";
       vm.withdraw.ioAccount = vm.account.farmer.ioAccount;
       
-      vm.deposit.comment = vm.account.farmer.name + " 白米存摺轉入";
-      vm.deposit.ioAccount = vm.account.farmer.ioAccount;
+      //vm.deposit.comment = vm.account.farmer.name + " 白米存摺轉入";
+      //vm.deposit.ioAccount = vm.account.farmer.ioAccount;
     }
     vm.resetOpView();
+
+		vm.reachDepositLimit = function() {
+			return vm.deposit.amount > vm.deposit.limit;
+		}
 
     vm.alerts = [];
     vm.pubSuccessMsg = function(msg) {

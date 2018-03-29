@@ -115,12 +115,7 @@ function setup() {
 	//do db updates here
 	//manually do db update after some incomplete transaction rollback completed
 	require('./DBUpdate')(function() {
-		//set system parameters after DB update
-		middleware.refreshSysInfo(null, null, function(err) {
-			if(err) throw err;
-			console.log('sys parameters set');
-
-		});
+		
 	});
 
 	/*
