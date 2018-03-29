@@ -40,14 +40,14 @@ module.exports = function(done) {
   var roleIdMap = {};
   var roleNames = [];
   var roleInfos = {
-    '兌領交易員': [
+    '兌領交易員': [//可以對存摺進行相關操作，但無法交易商品(想成類似註冊員即可)
       {
         listName: Constants.FarmerListName,
-        doableOp: [readOp, updateOp]
+        doableOp: [readOp]
       },
       {
         listName: Constants.AccountListName,
-        doableOp: [createOp, readOp, updateOp]
+        doableOp: [readOp, updateOp]
       },
       {
         listName: Constants.AccountRecordListName,
@@ -55,10 +55,6 @@ module.exports = function(done) {
       },
       {
         listName: Constants.TransactionListName,
-        doableOp: [createOp, readOp]
-      },
-      {
-        listName: Constants.PeriodListName,
         doableOp: [createOp, readOp]
       },
       {
@@ -71,10 +67,33 @@ module.exports = function(done) {
       }
     ],
 
+		'存摺操作員': [//可以對存摺進行相關操作，但無法交易商品(想成類似註冊員即可)
+      {
+        listName: Constants.FarmerListName,
+        doableOp: [createOp, readOp, updateOp]
+      },
+      {
+        listName: Constants.AccountListName,
+        doableOp: [createOp, readOp, updateOp]
+      },
+      {
+        listName: Constants.AccountRecordListName,
+        doableOp: [createOp, readOp]
+      },
+      {
+        listName: Constants.TransactionListName,
+        doableOp: [readOp]
+      },
+      {
+        listName: Constants.PeriodListName,
+        doableOp: [createOp, readOp]
+      }
+    ],
+
     '紀錄修正員': [
       {
         listName: Constants.FarmerListName,
-        doableOp: [createOp, readOp]
+        doableOp: [readOp]
       },
       {
         listName: Constants.AccountListName,

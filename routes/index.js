@@ -168,7 +168,7 @@ exports = module.exports = function (app) {
   //APIs
   app.post('/api/read',
     compression(),
-    middleware.permissionCheck.bind({
+    middleware.permissionCheck.bind({ //listName would be passed in request
       opName: readOp
     }),
     routes.api.CRUDOp.read);
@@ -177,7 +177,7 @@ exports = module.exports = function (app) {
 
   app.post('/api/permission',middleware.permissionCheck,middleware.okResponse);
 
-  //app.post('/api/user/register',routes.api.UserService.register);
+  //app.post('/api/user/register',routes.api.UserService.register); //this register feature was used in front end
   app.post('/api/user/signin',routes.api.UserService.signin);
   
 

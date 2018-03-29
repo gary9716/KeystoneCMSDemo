@@ -108,7 +108,7 @@ angular.module('mainApp')
               
               {
                 listName: 'AccountRecord',
-                opName: readOp
+                opName: [readOp, updateOp]
               },
             ]); 
         }]
