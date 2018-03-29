@@ -17,12 +17,7 @@ title: 登入頁面
         <div class="panel panel-login">
           <div class="panel-heading">
             <div class="row">
-              <div class="col-xs-6">
-                <a href="#" class="active" id="login-form-link">登入</a>
-              </div>
-              <div class="col-xs-6">
-                <a href="#" id="register-form-link">註冊</a>
-              </div>
+              <a href="#" class="active" id="login-form-link">登入</a>
             </div>
             <hr>
           </div>
