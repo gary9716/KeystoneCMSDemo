@@ -93,7 +93,7 @@ module.exports = function(done) {
     '紀錄修正員': [
       {
         listName: Constants.FarmerListName,
-        doableOp: [readOp]
+        doableOp: [readOp, updateOp]
       },
       {
         listName: Constants.AccountListName,
