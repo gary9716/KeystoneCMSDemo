@@ -17,7 +17,7 @@ System.add({
   farmEmail: { type: Types.Email, label: '農會信箱', initial: true, trim: true },
   cityDist : { type:Types.Relationship, label: '縣市鄉鎮', ref:Constants.AddrPrefixListName, initial: true },
 	finNum: { type:String, label: '金融代碼(年度結清用)', initial: true, trim: true },
-	depositLimit: { type:Number, label: '入款限額', initial: true, default:0 }
+	depositLimit: { type:Number, label: '入款限額', initial: true, default:50000 }
 });
 
 System.defaultColumns = 'sysName, farmName, farmTel, farmFax, farmEmail, farmAddr';

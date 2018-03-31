@@ -238,17 +238,14 @@
         <div class="flex-row">
           <label class="col-md-2">入款金額</label>
           <input type="number" name="depositAmount" ng-model="ctrler.deposit.amount" ng-trim="true" ng-min="0" required>
+          <label style="color:red; margin-left:5px;" ng-show="ctrler.reachDepositLimit()">限制{{ctrler.deposit.limit}}</label>
         </div>
         <div class="flex-row">
           <label class="col-md-2">期別</label>
-          <input type="text" name="depositPeriod" ng-model="ctrler.deposit.period" ng-trim="true" typeahead-no-results="ctrler.noPeriodFound" typeahead-loading="ctrler.loadingPeriod" uib-typeahead="period.name for period in ctrler.getPeriods($viewValue)" ng-model-options= "{ debounce: { default: 700 } }">
-          <i ng-show="ctrler.loadingPeriod" class="glyphicon glyphicon-refresh">搜尋中</i>
-          <div ng-show="ctrler.noPeriodFound">
-            <i class="glyphicon glyphicon-remove"></i> 沒找到相關期別
-          </div>
+          <select ng-init="ctrler.getPeriods()" ng-options="period as period.name for period in ctrler.periods track by period._id" ng-model="ctrler.deposit.period"></select>
         </div>
         <div class="flex-row">
-          <label class="col-md-2">轉入帳號</label>
+          <label class="col-md-2" style="color:#c4c4c4;">轉入帳號</label>
           <input type="text" name="depositIOAcc" ng-model="ctrler.deposit.ioAccount" ng-trim="true">
         </div>
         <div class="flex-row">
@@ -256,9 +253,6 @@
           <div>
             <textarea rows="5" ng-model="ctrler.deposit.comment" ng-model-options="{ updateOn: 'blur' }" style="resize: none;" ng-trim="true"></textarea>
           </div>
-				</div>
-				<div class="flex-row" ng-show="ctrler.reachDepositLimit()">
-					<label>入款限制{{ctrler.deposit.limit}}</label>
 				</div>
       </section>
 

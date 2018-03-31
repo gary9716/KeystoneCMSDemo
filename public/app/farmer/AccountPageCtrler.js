@@ -201,11 +201,6 @@ angular.module('mainApp')
     nowDate.setFullYear(nowDate.getFullYear() - 1, 6, 1); //July first in previous year
     vm.startDateFilter = nowDate;
 
-		if(locals.depositLimit && locals.depositLimit > 0)
-			vm.deposit.limit = locals.depositLimit;
-		else
-			vm.deposit.limit = 50000;
-
     vm.resetOpView = function() {
       //default values
       vm.closeAcc = {};
@@ -214,11 +209,14 @@ angular.module('mainApp')
       vm.setFreeze = {};
       vm.isProcessing = false;
 
+      if(locals.depositLimit && locals.depositLimit > 0)
+        vm.deposit.limit = locals.depositLimit;
+      else
+        vm.deposit.limit = 50000;
+
       vm.withdraw.comment = vm.account.farmer.name + " 白米存摺轉出";
       vm.withdraw.ioAccount = vm.account.farmer.ioAccount;
       
-      //vm.deposit.comment = vm.account.farmer.name + " 白米存摺轉入";
-      //vm.deposit.ioAccount = vm.account.farmer.ioAccount;
     }
     vm.resetOpView();
 
@@ -254,15 +252,17 @@ angular.module('mainApp')
       }
     } 
 
-    vm.getPeriods = function(keyword) {
+    vm.getPeriods = function() {
       return $http.post('/api/read', {
         listName: 'Period',
-        contains: { name: keyword },
+        sort: '-createdAt',
         limit: 8,
       })
       .then(function(res) {
         if(res.data.success) {
-          return res.data.result;
+          vm.periods = res.data.result;
+          if(vm.periods && vm.periods.length > 0)
+            vm.deposit.period = vm.periods[0];
         }
         else {
           return $q.reject();
@@ -320,7 +320,9 @@ angular.module('mainApp')
         amount: vm.deposit.amount
       };
 
-      notEmptyOrUndefThenAdd(data, 'period', vm.deposit.period);
+      if(vm.deposit.period)
+        notEmptyOrUndefThenAdd(data, 'period', vm.deposit.period.name);
+        
       notEmptyOrUndefThenAdd(data, 'comment', vm.deposit.comment);
       notEmptyOrUndefThenAdd(data, 'ioAccount', vm.deposit.ioAccount);
 
@@ -332,7 +334,10 @@ angular.module('mainApp')
           vm.resetOpView();
           vm.getAccountRecords();
           var accRec = vm.account.lastRecord;
-          return vm.downloadDWSheetOp(accRec, 'deposit','入款成功,頁面資料已更新');
+          
+          vm.pubSuccessMsg('入款成功,頁面資料已更新');
+          //return vm.downloadDWSheetOp(accRec, 'deposit','入款成功,頁面資料已更新'); //this function is defined in common/AccRecListComponent
+        
         }
         else {
           vm.pubErrorMsg('入款失敗,' + resData.message);
@@ -366,7 +371,10 @@ angular.module('mainApp')
           vm.resetOpView();
           vm.getAccountRecords();
           var accRec = vm.account.lastRecord;
-          return vm.downloadDWSheetOp(accRec, 'withdraw','提款成功,頁面資料已更新');
+          
+          vm.pubSuccessMsg('提款成功,頁面資料已更新');
+          //return vm.downloadDWSheetOp(accRec, 'withdraw','提款成功,頁面資料已更新'); //this function is defined in common/AccRecListComponent
+        
         }
         else {
           vm.pubErrorMsg('提款失敗,' + resData.message);
