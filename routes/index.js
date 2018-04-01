@@ -26,11 +26,11 @@ var compression = require('compression');
 var path = require('path');
 var fs = require('fs');
 var morgan = require('morgan');
-var logDirectory = path.join(__base, 'Logs');
 var util = require('util');
 
+//var logDirectory = path.join(__base, 'Logs');
 // ensure log directory exists
-fs.existsSync(logDirectory) || fs.mkdirSync(logDirectory);
+//fs.existsSync(logDirectory) || fs.mkdirSync(logDirectory);
 
 function pad(num) {
     return (num > 9 ? "" : "0") + num;
@@ -51,7 +51,8 @@ function generator(time, index) {
 }
 
 //rotating logging sys
-var rfs    = require('rotating-file-stream');
+//var rfs    = require('rotating-file-stream');
+/*
 var accessLogStream = rfs(generator, {
     //size:     '10M', // rotate every 10 MegaBytes written
     interval: '1d',  // rotate daily
@@ -71,6 +72,7 @@ morgan.token('sysUser', function (req) {
 morgan.token('errInfo', function (req, res) {
   return res.myErrInfo? res.myErrInfo: res.statusMessage;
 });
+*/
 
 // Common Middleware
 keystone.pre('admin', middleware.blockRoute);
@@ -91,12 +93,14 @@ exports = module.exports = function (app) {
   const deleteOp = 'delete';
 
   //log request error to log files
+  /*
   app.use(morgan('{date:":date[clf]", ip:":remote-addr", user::sysUser, method:":method :url", code:":status", msg:":errInfo", agent:":user-agent"}', { 
     stream: accessLogStream,
     //only log error, skip success request
     skip: function (req, res) { return res.statusCode < 400 }, 
   }));
-
+  */
+ 
   // Views
   app.get('/',
     compression(),
