@@ -62,21 +62,20 @@ function setup() {
 		'name': '白米兌換管理系統',
 		'brand': '白米兌換管理系統',
 		'admin path' : adminPath,
-		'port': 3000,
 		'less': 'public',
 		'static': 'public',
 		'favicon': 'public/favicon.svg',
 		'views': 'templates/views',
 		'view engine': 'dot',
 		'custom engine': dotEngine.__express,
-		/*
+		
 		'session store': 'connect-redis',
 		'session store options': {
 			'port': process.env.REDIS_PORT || 6379,
 			'host': process.env.REDIS_HOST || 'localhost',
 			'pass': process.env.REDIS_SECRET || process.env.REDIS_PRIMARY_KEY || process.env.REDIS_SECONDARY_KEY|| null,
 		},
-		*/
+		
 		'auto update': false,
 		'user model': 'User',
 		'auth' : true,
