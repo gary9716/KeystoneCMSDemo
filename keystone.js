@@ -73,8 +73,7 @@ function setup() {
 		'session store options': {
 			'port': process.env.REDIS_PORT || 6379,
 			'host': process.env.REDIS_HOST || 'localhost',
-			'pass': process.env.REDIS_PRIMARY_KEY || process.env.REDIS_SECONDARY_KEY|| null,
-			'secret': process.env.REDIS_SECRET || null
+			'pass': process.env.REDIS_SECRET || process.env.REDIS_PRIMARY_KEY || process.env.REDIS_SECONDARY_KEY|| null,
 		},
 		'auto update': false,
 		'user model': 'User',
