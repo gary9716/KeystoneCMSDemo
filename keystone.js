@@ -18,11 +18,13 @@ var mongoose = keystone.get('mongoose');
 function setup() {
 	keystone.set('defaultState', process.env.DEFAULT_STATE || 'home' );
 
+	/*
 	if(!process.env.FILE_UPLOAD_PATH)
 		throw new Error('please specify file upload directory in .env');
 
 	var uploadDir = process.env.FILE_UPLOAD_PATH
 	fs.existsSync(uploadDir) || fs.mkdirSync(uploadDir)
+	*/
 
 	// Initialise Keystone with your project's configuration.
 	// See http://keystonejs.com/guide/config for available options
@@ -60,7 +62,7 @@ function setup() {
 		'name': '白米兌換管理系統',
 		'brand': '白米兌換管理系統',
 		'admin path' : adminPath,
-		'port': 8080,
+		'port': 3000,
 		'less': 'public',
 		'static': 'public',
 		'favicon': 'public/favicon.svg',
@@ -68,6 +70,11 @@ function setup() {
 		'view engine': 'dot',
 		'custom engine': dotEngine.__express,
 		'session store': 'connect-redis',
+		'session store options': {
+			'port': process.env.REDIS_PORT || 6379,
+			'host': process.env.REDIS_HOST || 'localhost',
+			'pass': process.env.REDIS_PRIMARY_KEY || process.env.REDIS_SECONDARY_KEY|| null
+		},
 		'auto update': false,
 		'user model': 'User',
 		'auth' : true,

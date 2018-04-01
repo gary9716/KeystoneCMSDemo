@@ -433,8 +433,10 @@ angular.module('mainApp')
       notEmptyOrUndefThenAdd(data, 'comment', vm.setFreeze.comment);
 
       var fd = new FormData();
+      /*
       if(vm.setFreeze.unfreezeSheet)
         fd.append('relatedFile', vm.setFreeze.unfreezeSheet);
+      */
 
       fd.append('opData', angular.toJson(data)); //convert it into json string
 

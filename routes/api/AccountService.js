@@ -205,7 +205,7 @@ exports.setFreeze = function(req, res) {
     account._req_user = req.user;
     
     var recPromiseFunc = function() {
-
+      /*
       var relatedFile = req.files.relatedFile;
       if(relatedFile) {
         return new Promise(function(resolve, reject) {
@@ -231,7 +231,9 @@ exports.setFreeze = function(req, res) {
       else {
         return newRec.save();
       }
+      */
 
+      return newRec.save();
     };
     
     var dbRecTask = new DBRecTask('freezeAccount');
