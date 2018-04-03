@@ -460,6 +460,44 @@ exports.checkPermissions = function (next) {
 
 };
 
+
+exports.roleExclude = function(req, res, next) {
+  var roleList = keystone.list(Constants.RoleListName);
+
+  var user = req.user;
+  var excludedRoles = null;
+  var userRoles = user.roles;
+
+  if(userRoles && userRoles.length > 0) {
+    roleList.model.find({
+      name: { '$in': this.roles }
+    })
+    .select('_id')
+    .then(function(roles) {
+      excludedRoles = new Set(roles.map((role) => {
+        return role._id.toString();
+      }));
+
+      var filteredRoles = [];
+      userRoles.forEach(function(role) {
+        var roleStr = role.toString();
+        if(!excludedRoles.has(roleStr)) {
+          filteredRoles.push(role);
+        }
+      });
+
+      user.roles = filteredRoles;
+      
+      next();
+    });
+
+  }
+  else {
+    next();
+  }
+  
+}
+
 exports.permissionCheck = function(req, res, next) {
   //console.log("body:-----");
   //console.log(req.body);

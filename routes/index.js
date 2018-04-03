@@ -357,6 +357,9 @@ exports = module.exports = function (app) {
   );
 
   app.post('/api/account/close',
+    middleware.roleExclude.bind({
+      roles: ['兌領交易員']
+    }),
     middleware.permissionCheck.bind([
       {
         opName: updateOp,
@@ -371,6 +374,9 @@ exports = module.exports = function (app) {
   );
 
   app.post('/api/account/set-freeze',
+    middleware.roleExclude.bind({
+      roles: ['兌領交易員']
+    }),
     middleware.permissionCheck.bind([
       {
         opName: updateOp,
@@ -385,6 +391,9 @@ exports = module.exports = function (app) {
   );
 
   app.post('/api/account/deposit',
+    middleware.roleExclude.bind({
+      roles: ['兌領交易員']
+    }),
     middleware.permissionCheck.bind([
       {
         opName: updateOp,
@@ -399,6 +408,9 @@ exports = module.exports = function (app) {
   );
 
   app.post('/api/account/withdraw',
+    middleware.roleExclude.bind({
+      roles: ['兌領交易員']
+    }),
     middleware.permissionCheck.bind([
       {
         opName: updateOp,
@@ -413,6 +425,9 @@ exports = module.exports = function (app) {
   );
 
   app.post('/api/account/change-acc-user',
+    middleware.roleExclude.bind({
+      roles: ['兌領交易員']
+    }),
     middleware.permissionCheck.bind([
       {
         opName: updateOp,
