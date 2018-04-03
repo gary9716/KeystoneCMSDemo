@@ -98,12 +98,12 @@ angular.module('mainApp')
           return myValidation.checkPermission([
               {
                 listName: 'Farmer',
-                opName: [readOp,updateOp]
+                opName: readOp
               },
 
               {
                 listName: 'Account',
-                opName: [readOp,updateOp]
+                opName: readOp
               },
               
               {
