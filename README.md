@@ -10,3 +10,10 @@ Backend is built with an NodeJS CMS called KeystoneJS and this CMS use MongoDB a
 Frontend is mainly built with Angular1 and bootstrap3.  
 
 If you have any question, please feel free to contact me.  
+
+There are the following features implemented:
+1. Use document-based MongoDB to manage farmers' profile and their accounts containing the amount of money that came from selling their rice to Farmer Association.  
+2. Facilitate accounting aggregation by calculating the sales information from database.(MongoDB Aggregation)  
+3. Output pdf file and fill in part of information based on data coming from database.  
+
+![Image of Homepage](https://github.com/gary9716/KeystoneCMSDemo/blob/master/homepage.png)
