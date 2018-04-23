@@ -1,6 +1,7 @@
 var isWin = process.platform === "win32";
 const Mongod = require('mongod');
 const RedisServer = require('redis-server');
+const MONGO_CONFIG_PATH = process.env.MONGO_CONFIG_PATH? process.env.MONGO_CONFIG_PATH : (isWin? '.\\mongod-win.conf' : './mongod.conf');
 const mongoServer = new Mongod({
 	conf: isWin? '.\\mongod-win.conf' : './mongod.conf'
 });
