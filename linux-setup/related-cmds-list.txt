@@ -21,3 +21,6 @@ sudo systemctl enable redis-server
 
 #view db configuration
 cat /etc/mongod.conf
+
+#download .env from google drive
+curl -L -o .env "https://drive.google.com/uc?export=download&id=XXXXXXXX"
