@@ -1,7 +1,6 @@
 #!/bin/sh
 chmod u+x *.sh
 
-sudo su
 ./mongodb-install.sh
 ./redis-server-install.sh
 ./nvm-install.sh
