@@ -1,0 +1,23 @@
+#start mongodb server, config is located at "/etc/mongod.conf"
+sudo service mongod start
+
+#stop mongodb
+sudo service mongod stop
+
+#restart mongodb
+sudo service mongod restart
+
+#test whether mongodb can be connected at port 27017 of localhost
+mongo --host 127.0.0.1:27017
+
+#start redis server
+sudo systemctl start redis-server
+
+#stop redis server
+sudo systemctl stop redis-server
+
+#start redis as a service
+sudo systemctl enable redis-server
+
+#view db configuration
+cat /etc/mongod.conf
