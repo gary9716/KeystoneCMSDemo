@@ -1,3 +1,5 @@
+#!/bin/sh
+
 sudo cp ./stunnel.conf /etc/stunnel/
 
 #generate stunnel.pem
