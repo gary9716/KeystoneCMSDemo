@@ -132,34 +132,50 @@ exports.search = function(req, res) {
     return res.ktSendRes(400, '條件未指定');
     
   var filters = {};
+  filters["$or"] = [];
+
+  var unionConditionSet = filters["$or"];
+
   if(form.hasOwnProperty("pid")) {
     form.pid = form.pid.toUpperCase();
-    filters["pid"] = middleware.getRegExp(form.pid, 'substr');
+    unionConditionSet.push({
+      "pid" : middleware.getRegExp(form.pid, 'substr')
+    });
   }
 
   if(form.hasOwnProperty("name")) {
-    filters["name"] = middleware.getRegExp(form.name, 'substr');
+    unionConditionSet.push({
+      "name" : middleware.getRegExp(form.name, 'substr')
+    });
   }
 
   if(form.hasOwnProperty("tele")) {
     form.tele = middleware.getPureNumStr(form.tele, 'substr');
-    filters["$or"] = [
-      { teleNum1: form.tele },
-      { teleNum2: form.tele }
-    ];
+    unionConditionSet.push({
+      teleNum1 : form.tele
+    }, {
+      teleNum2 : form.tele
+    });
   }
 
   if(form.hasOwnProperty("city")) {
-    filters["city"] = form.city;
+    unionConditionSet.push({
+      "city" : form.city
+    });
   }
 
   if(form.hasOwnProperty("dist")) {
-    filters["dist"] = form.dist;
+    unionConditionSet.push({
+      "dist" : form.dist
+    });
   }
 
   if(form.hasOwnProperty("village")) {
-    filters["village"] = form.village;
+    unionConditionSet.push({
+      "village" : form.village
+    });
   }
+  
   if(form.hasOwnProperty("_limit")) {
     farmerList.paginate({
         page: 1,

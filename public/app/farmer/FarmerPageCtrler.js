@@ -144,13 +144,10 @@ angular.module('mainApp')
     vm.getCities = function() {
       vm.selectOnChange('cities', null)
       .then(function(data) {
-        /*
+        
         if($state.current.name === 'farmerRegister')
           setRestOfDefaultValues();
-        else
-          setRestOfDefaultValues('city');
-        */
-        setRestOfDefaultValues();
+        
       });
     }
 
