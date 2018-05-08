@@ -17,7 +17,7 @@ if(filename) {
     filename = path.resolve(filename);
     if(!fs.existsSync(filename)) {
         console.log('file doesnt exist');
-        return;
+        process.exit(-1);
     }
 }
 
@@ -106,9 +106,6 @@ function mongoRestore() {
         console.log(err);
     });
 }
-
-//TODO: add upload to google cloud store logic
-
 
 if(filename) {
 

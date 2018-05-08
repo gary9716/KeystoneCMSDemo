@@ -21,7 +21,8 @@ https://www.googleapis.com/auth/drive.scripts Allows access to Apps Script files
   return {
     clientSecret: path.resolve(__dirname, './client_secret.json'),
     scopes: ['https://www.googleapis.com/auth/drive.file'],
-    tokenPath: TOKEN_PATH
+		tokenPath: TOKEN_PATH,
+		tokenDir: (__dirname + "/.credentials/")
   };
 
 })();

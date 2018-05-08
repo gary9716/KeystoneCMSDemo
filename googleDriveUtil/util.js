@@ -74,14 +74,14 @@ function getNewToken(oauth2Client, callback) {
  */
 function storeToken(token) {
   try {
-    fs.mkdirSync(TOKEN_DIR);
+    fs.mkdirSync(config.tokenDir);
   } catch (err) {
     if (err.code != 'EEXIST') {
       throw err;
     }
   }
-  fs.writeFile(TOKEN_PATH, JSON.stringify(token));
-  console.log('Token stored to ' + TOKEN_PATH);
+  fs.writeFile(config.tokenPath, JSON.stringify(token));
+  console.log('Token stored to ' + config.tokenPath);
 }
 
 function authWithSecretFile() {
