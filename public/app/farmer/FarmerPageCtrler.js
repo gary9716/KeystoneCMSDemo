@@ -151,7 +151,17 @@ angular.module('mainApp')
       });
     }
 
-    vm.maxCanDisplay = 50;
+		vm.maxCanDisplay = 50;
+		
+		var resetFields = function() {
+			vm.farmerName = "";
+			vm.pid = "";
+			vm.tele = "";
+			vm.citySelect = undefined;
+			vm.distSelect = undefined;
+			vm.villageSelect = undefined;
+		}
+
     vm.search = function() {
       var farmerData = {
         name: vm.farmerName && vm.farmerName.length ? vm.farmerName : undefined,
@@ -177,7 +187,8 @@ angular.module('mainApp')
         else {
           vm.farmers = [];
           $rootScope.pubWarningMsg(data.message);
-        }
+				}
+				resetFields();
       })
       .catch(function(err) {
         var msg = err && err.data? err.data.toString():(err? err.toString(): '');
@@ -185,7 +196,7 @@ angular.module('mainApp')
         console.log(err);
       })
       .finally(function() {
-        vm.isSearching = false;
+				vm.isSearching = false;
       });
 
     }

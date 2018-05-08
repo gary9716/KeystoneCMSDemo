@@ -132,46 +132,51 @@ exports.search = function(req, res) {
     return res.ktSendRes(400, '條件未指定');
     
   var filters = {};
-  filters["$or"] = [];
+  filters["$and"] = [];
 
-  var unionConditionSet = filters["$or"];
+  var conditionSet = filters["$and"];
 
   if(form.hasOwnProperty("pid")) {
     form.pid = form.pid.toUpperCase();
-    unionConditionSet.push({
+    conditionSet.push({
       "pid" : middleware.getRegExp(form.pid, 'substr')
     });
   }
 
   if(form.hasOwnProperty("name")) {
-    unionConditionSet.push({
+    conditionSet.push({
       "name" : middleware.getRegExp(form.name, 'substr')
     });
   }
 
   if(form.hasOwnProperty("tele")) {
     form.tele = middleware.getPureNumStr(form.tele, 'substr');
-    unionConditionSet.push({
-      teleNum1 : form.tele
-    }, {
-      teleNum2 : form.tele
-    });
+    conditionSet.push({
+			"$or": [
+				{
+					teleNum1 : form.tele
+				}, 
+				{
+					teleNum2 : form.tele
+				}
+			]
+		});
   }
 
   if(form.hasOwnProperty("city")) {
-    unionConditionSet.push({
+    conditionSet.push({
       "city" : form.city
     });
   }
 
   if(form.hasOwnProperty("dist")) {
-    unionConditionSet.push({
+    conditionSet.push({
       "dist" : form.dist
     });
   }
 
   if(form.hasOwnProperty("village")) {
-    unionConditionSet.push({
+    conditionSet.push({
       "village" : form.village
     });
   }
@@ -220,7 +225,8 @@ exports.search = function(req, res) {
           });
         }
 
-      });
+			});
+			
   }
   
 
