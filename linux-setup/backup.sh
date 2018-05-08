@@ -1,3 +1,4 @@
 #!/bin/sh
 PARENT_DIR=$(dirname $(readlink -f $0))/../
-node $PARENT_DIR/backup.js
+cd $PARENT_DIR
+node ./linux-setup/backup.js
