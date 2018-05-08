@@ -150,7 +150,7 @@ exports.search = function(req, res) {
   }
 
   if(form.hasOwnProperty("tele")) {
-    form.tele = middleware.getPureNumStr(form.tele, 'substr');
+    form.tele = middleware.getRegExp(middleware.getPureNumStr(form.tele), 'substr');
     conditionSet.push({
 			"$or": [
 				{
