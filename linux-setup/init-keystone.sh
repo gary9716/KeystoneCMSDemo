@@ -9,6 +9,9 @@
 # logfile: /var/log/initd-example.log
 #
 
+# Source function library.
+. /lib/lsb/init-functions
+
 (/etc/init.d/mongod restart && /etc/init.d/redis restart) || exit -1
 
 export PATH="$PATH:/home/riceserver001/.nvm/versions/node/v8.11.1/bin"
@@ -39,7 +42,8 @@ start() {
         chown $user $pidfile
 
         # Launch the application
-        $forever start -p $forever_dir --pidFile $pidfile --append -l $logfile --sourceDir $INSTANCE_DIR --workingDir $INSTANCE_DIR -c $COMMAND $SOURCE_NAME
+		start_daemon
+        	$forever start -p $forever_dir --pidFile $pidfile --append -l $logfile --sourceDir $INSTANCE_DIR --workingDir $INSTANCE_DIR -c $COMMAND $SOURCE_NAME
         RETVAL=$?
     else
         echo "Instance already running"
