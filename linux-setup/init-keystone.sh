@@ -1,4 +1,13 @@
 #!/bin/bash
+### BEGIN INIT INFO
+# Provides:          keystone
+# Required-Start:    $syslog $network
+# Required-Stop:     $syslog $network
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: starts keystone rice server
+# Description:       starts keystone rice server
+### END INIT INFO
 #
 # initd-example      Node init.d 
 #
