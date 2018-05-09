@@ -24,6 +24,7 @@ INSTANCE_DIR="/home/riceserver001/KeystoneCMSDemo"  # Location of the applicatio
 COMMAND="node"                      # Command to run
 SOURCE_NAME="keystone.js"             # Name os the applcation entry point script
 
+NODE_ENVIROMENT=production               # Node environment
 user=riceserver001
 pidfile=/var/run/$NAME.pid
 logfile=/var/log/$NAME.log
@@ -35,6 +36,7 @@ awk=awk
 sed=sed
 
 start() {
+	export NODE_ENV=$NODE_ENVIROMENT
     echo "Starting $NAME node instance: "
 
     if [ "$id" = "" ]; then
