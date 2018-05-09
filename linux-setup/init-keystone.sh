@@ -1,13 +1,14 @@
 #!/bin/bash
 ### BEGIN INIT INFO
 # Provides:          keystone
-# Required-Start:    $syslog $network
+# Required-Start:    $mongod $redis-server $syslog $network
 # Required-Stop:     $syslog $network
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
 # Short-Description: starts keystone rice server
 # Description:       starts keystone rice server
 ### END INIT INFO
+
 #
 # initd-example      Node init.d 
 #
@@ -21,7 +22,7 @@
 # Source function library.
 . /lib/lsb/init-functions
 
-(/etc/init.d/mongod restart && /etc/init.d/redis restart) || exit -1
+#(/etc/init.d/mongod restart && /etc/init.d/redis-server restart) || exit -1
 
 export PATH="$PATH:/home/riceserver001/.nvm/versions/node/v8.11.1/bin"
 NAME=keystone                  # Unique name for the application
