@@ -10,7 +10,7 @@
 ### END INIT INFO
 
 dir="/home/riceserver001/KeystoneCMSDemo"
-cmd="node keystone.js"
+cmd="/etc/init.d/mongod restart && /etc/init.d/redis restart && node keystone.js"
 user=""
 
 name=`basename $0`
