@@ -9,7 +9,7 @@
 # logfile: /var/log/initd-example.log
 #
 # Source function library.
-. /lib/lsb/init-functions
+#. /lib/lsb/init-functions
 
 # Load init.d functions
 #. /etc/init.d/functions
