@@ -12,6 +12,7 @@
 dir="/home/riceserver001/KeystoneCMSDemo"
 script="keystone.js"
 alias forever="/home/riceserver001/.nvm/versions/node/v8.11.1/bin/forever"
+alias node="/home/riceserver001/.nvm/versions/node/v8.11.1/bin/node"
 cmd="forever restart $script"
 user=""
 
