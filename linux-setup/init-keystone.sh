@@ -12,7 +12,7 @@
 dir="/home/riceserver001/KeystoneCMSDemo"
 script="keystone.js"
 cmd="forever restart $script"
-user=""
+user="riceserver001"
 
 name=`basename $0`
 pid_file="/var/run/$name.pid"
@@ -35,7 +35,16 @@ case "$1" in
 		/etc/init.d/mongod restart && /etc/init.d/redis restart
         echo "Starting $name"
         cd "$dir"
-        forever restart $script
+        if [ -z "$user" ]; then
+            sudo $cmd >> "$stdout_log" 2>> "$stderr_log" &
+        else
+            sudo -u "$user" $cmd >> "$stdout_log" 2>> "$stderr_log" &
+        fi
+        echo $! > "$pid_file"
+        if ! is_running; then
+            echo "Unable to start, see $stdout_log and $stderr_log"
+            exit 1
+        fi
     fi
     ;;
     stop)
