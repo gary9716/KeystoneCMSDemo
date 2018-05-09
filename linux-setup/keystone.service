@@ -1,0 +1,11 @@
+[Unit]
+Description=keystone_service
+After=syslog.target network.target
+
+[Service]
+ExecStart=/etc/init.d/keystone start
+ExecStop=/etc/init.d/keystone stop
+Type=forking
+
+[Install]
+WantedBy=default.target

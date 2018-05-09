@@ -11,3 +11,6 @@ sudo chmod +x /etc/init.d/redis
 
 sudo cp ./linux-setup/init-keystone.sh /etc/init.d/keystone
 sudo chmod +x /etc/init.d/keystone
+
+sudo cp ./linux-setup/keystone.service /etc/systemd/system/keystone.service
+sudo chmod 664 /etc/systemd/system/keystone.service
