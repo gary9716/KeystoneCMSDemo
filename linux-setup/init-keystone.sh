@@ -68,7 +68,7 @@ stop() {
 }
 
 getForeverId() {
-    local pid=`cat $pidfile`
+    local pid=`[ -f $pidfile ] && cat $pidfile`
     #$forever list -p $forever_dir | $sed -e 's/\x1b\[[0-9; ]*m//g' | $awk "\$6 && \$6 == \"$pid\" { gsub(/[\[\]]/, \"\", \$2); print \$2; }";
 	echo $pid
 }
