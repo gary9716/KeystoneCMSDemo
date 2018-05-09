@@ -8,11 +8,6 @@
 # pidfile: /var/run/initd-example.pid
 # logfile: /var/log/initd-example.log
 #
-# Source function library.
-#. /lib/lsb/init-functions
-
-# Load init.d functions
-#. /etc/init.d/functions
 
 (/etc/init.d/mongod restart && /etc/init.d/redis restart) || exit -1
 
@@ -44,8 +39,7 @@ start() {
         chown $user $pidfile
 
         # Launch the application
-        start_daemon
-            $forever start -p $forever_dir --pidFile $pidfile --append -l $logfile --sourceDir $INSTANCE_DIR --workingDir $INSTANCE_DIR -c $COMMAND $SOURCE_NAME
+        $forever start -p $forever_dir --pidFile $pidfile --append -l $logfile --sourceDir $INSTANCE_DIR --workingDir $INSTANCE_DIR -c $COMMAND $SOURCE_NAME
         RETVAL=$?
     else
         echo "Instance already running"
@@ -74,7 +68,7 @@ stop() {
 }
 
 getForeverId() {
-    local pid=$(pidofproc -p $pidfile)
+    local pid=`cat $pidfile`
     $forever list -p $forever_dir | $sed -e 's/\x1b\[[0-9; ]*m//g' | $awk "\$6 && \$6 == \"$pid\" { gsub(/[\[\]]/, \"\", \$2); print \$2; }";
 }
 id=$(getForeverId)
