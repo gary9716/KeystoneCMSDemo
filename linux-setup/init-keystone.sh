@@ -10,7 +10,8 @@
 ### END INIT INFO
 
 dir="/home/riceserver001/KeystoneCMSDemo"
-cmd="/etc/init.d/mongod restart && /etc/init.d/redis restart && node keystone.js"
+script="keystone.js"
+cmd="forever start $script"
 user=""
 
 name=`basename $0`
@@ -31,6 +32,7 @@ case "$1" in
     if is_running; then
         echo "Already started"
     else
+		/etc/init.d/mongod restart && /etc/init.d/redis restart
         echo "Starting $name"
         cd "$dir"
         if [ -z "$user" ]; then
@@ -48,28 +50,7 @@ case "$1" in
     stop)
     if is_running; then
         echo -n "Stopping $name.."
-        kill `get_pid`
-        for i in 1 2 3 4 5 6 7 8 9 10
-        # for i in `seq 10`
-        do
-            if ! is_running; then
-                break
-            fi
-
-            echo -n "."
-            sleep 1
-        done
-        echo
-
-        if is_running; then
-            echo "Not stopped; may still be shutting down or shutdown may have failed"
-            exit 1
-        else
-            echo "Stopped"
-            if [ -f "$pid_file" ]; then
-                rm "$pid_file"
-            fi
-        fi
+        sudo forever stop $script
     else
         echo "Not running"
     fi
