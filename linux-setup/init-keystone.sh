@@ -9,7 +9,7 @@
 # logfile: /var/log/initd-example.log
 #
 # Source function library.
-. /lib/lsb/init-functions
+#. /lib/lsb/init-functions
 
 (/etc/init.d/mongod restart && /etc/init.d/redis restart) || exit -1
 
