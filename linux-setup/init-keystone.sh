@@ -9,12 +9,10 @@
 # logfile: /var/log/initd-example.log
 #
 # Source function library.
-#. /lib/lsb/init-functions
+. /lib/lsb/init-functions
 
 # Load init.d functions
 #. /etc/init.d/functions
-
-set -e
 
 (/etc/init.d/mongod restart && /etc/init.d/redis restart) || exit -1
 
@@ -24,7 +22,6 @@ INSTANCE_DIR="/home/riceserver001/KeystoneCMSDemo"  # Location of the applicatio
 COMMAND="node"                      # Command to run
 SOURCE_NAME="keystone.js"             # Name os the applcation entry point script
 
-NODE_ENVIROMENT=production               # Node environment
 user=riceserver001
 pidfile=/var/run/$NAME.pid
 logfile=/var/log/$NAME.log
@@ -36,7 +33,6 @@ awk=awk
 sed=sed
 
 start() {
-	export NODE_ENV=$NODE_ENVIROMENT
     echo "Starting $NAME node instance: "
 
     if [ "$id" = "" ]; then
@@ -48,7 +44,8 @@ start() {
         chown $user $pidfile
 
         # Launch the application
-        sudo -H -u $user $forever start -p $forever_dir --pidFile $pidfile --append -l $logfile --sourceDir $INSTANCE_DIR --workingDir $INSTANCE_DIR -c $COMMAND $SOURCE_NAME
+        start_daemon
+            $forever start -p $forever_dir --pidFile $pidfile --append -l $logfile --sourceDir $INSTANCE_DIR --workingDir $INSTANCE_DIR -c $COMMAND $SOURCE_NAME
         RETVAL=$?
     else
         echo "Instance already running"
