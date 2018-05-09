@@ -11,6 +11,11 @@
 # Source function library.
 #. /lib/lsb/init-functions
 
+# Load init.d functions
+#. /etc/init.d/functions
+
+set -e
+
 (/etc/init.d/mongod restart && /etc/init.d/redis restart) || exit -1
 
 export PATH="$PATH:/home/riceserver001/.nvm/versions/node/v8.11.1/bin"
@@ -20,7 +25,6 @@ COMMAND="node"                      # Command to run
 SOURCE_NAME="keystone.js"             # Name os the applcation entry point script
 
 cd $INSTANCE_DIR
-
 user=riceserver001
 pidfile=/var/run/$NAME.pid
 logfile=/var/log/$NAME.log
@@ -44,7 +48,7 @@ start() {
 
         # Launch the application
         start_daemon
-            $forever start -p $forever_dir --pidFile $pidfile -l $logfile -a -d $INSTANCE_DIR -c $COMMAND $SOURCE_NAME
+            $forever start -p $forever_dir --pidFile $pidfile --append -l $logfile --debug -c $COMMAND $SOURCE_NAME
         RETVAL=$?
     else
         echo "Instance already running"
