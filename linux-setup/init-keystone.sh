@@ -8,17 +8,18 @@
 # pidfile: /var/run/initd-example.pid
 # logfile: /var/log/initd-example.log
 #
-
 # Source function library.
-. 
+. /lib/lsb/init-functions
 
 (/etc/init.d/mongod restart && /etc/init.d/redis restart) || exit -1
 
 export PATH="$PATH:/home/riceserver001/.nvm/versions/node/v8.11.1/bin"
 NAME=keystone-app                  # Unique name for the application
-INSTANCE_DIR=/home/riceserver001/KeystoneCMSDemo  # Location of the application source
+INSTANCE_DIR="/home/riceserver001/KeystoneCMSDemo/"  # Location of the application source
 COMMAND="node"                      # Command to run
 SOURCE_NAME="keystone.js"             # Name os the applcation entry point script
+
+cd $INSTANCE_DIR
 
 user=riceserver001
 pidfile=/var/run/$NAME.pid
