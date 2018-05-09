@@ -1,9 +1,20 @@
+
 var isWin = process.platform === "win32";
 const Mongod = require('mongod');
 const RedisServer = require('redis-server');
-const MONGO_CONFIG_PATH = process.env.MONGO_CONFIG_PATH? process.env.MONGO_CONFIG_PATH : (isWin? '.\\mongod-win.conf' : './mongod.conf');
+var MONGO_CONFIG_PATH = process.env.MONGO_CONFIG_PATH? process.env.MONGO_CONFIG_PATH : null;
+if(process.platform === "win32") {
+	MONGO_CONFIG_PATH = '.\\mongod-win.conf';
+}
+else if(process.platform === "darwin"){
+	MONGO_CONFIG_PATH = './mongod.conf';
+}
+else {
+	MONGO_CONFIG_PATH = './mongod-linux.conf';
+}
+
 const mongoServer = new Mongod({
-	conf: isWin? '.\\mongod-win.conf' : './mongod.conf'
+	conf: MONGO_CONFIG_PATH
 });
 const redisServer = new RedisServer(6379); //default port
  
@@ -34,4 +45,3 @@ function startMongod(err) {
 }
 
 redisServer.open().then(startMongod).catch(startMongod);
-
