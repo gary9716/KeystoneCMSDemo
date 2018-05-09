@@ -1,80 +1,98 @@
-#!/bin/sh
-### BEGIN INIT INFO
-# Provides:
-# Required-Start:    $remote_fs $syslog
-# Required-Stop:     $remote_fs $syslog
-# Default-Start:     2 3 4 5
-# Default-Stop:      0 1 6
-# Short-Description: Start daemon at boot time
-# Description:       Enable service provided by daemon.
-### END INIT INFO
+#!/bin/bash
+#
+# initd-example      Node init.d 
+#
+# chkconfig: 345 80 20
+# description: Node init.d example
+# processname: node
+# pidfile: /var/run/initd-example.pid
+# logfile: /var/log/initd-example.log
+#
+
+# Source function library.
+. /home/riceserver001/KeystoneCMSDemo
+
+(/etc/init.d/mongod restart && /etc/init.d/redis restart) || exit -1
+
 export PATH="$PATH:/home/riceserver001/.nvm/versions/node/v8.11.1/bin"
-dir="/home/riceserver001/KeystoneCMSDemo"
-script="keystone.js"
-cmd="forever restart $script"
-user="riceserver001"
+NAME=keystone-app                  # Unique name for the application
+INSTANCE_DIR=/var/www/$NAME         # Location of the application source
+COMMAND="node"                      # Command to run
+SOURCE_NAME="keystone.js"             # Name os the applcation entry point script
 
-name=`basename $0`
-pid_file="/var/run/$name.pid"
-stdout_log="/var/log/$name.log"
-stderr_log="/var/log/$name.err"
+user=riceserver001
+pidfile=/var/run/$NAME.pid
+logfile=/var/log/$NAME.log
+forever_dir=/var/run/forever        # Forever root directory.
 
-get_pid() {
-    cat "$pid_file"
+node="/home/riceserver001/.nvm/versions/node/v8.11.1/bin/node"
+forever="/home/riceserver001/.nvm/versions/node/v8.11.1/bin/forever"
+awk=awk
+sed=sed
+
+start() {
+    echo "Starting $NAME node instance: "
+
+    if [ "$id" = "" ]; then
+        # Create the log and pid files, making sure that the target use has access to them
+        touch $logfile
+        chown $user $logfile
+
+        touch $pidfile
+        chown $user $pidfile
+
+        # Launch the application
+        start_daemon
+            $forever start -p $forever_dir --pidFile $pidfile -l $logfile -a -d $INSTANCE_DIR -c $COMMAND $SOURCE_NAME
+        RETVAL=$?
+    else
+        echo "Instance already running"
+        RETVAL=0
+    fi
 }
 
-is_running() {
-    [ -f "$pid_file" ] && ps -p `get_pid` > /dev/null 2>&1
+restart() {
+    echo -n "Restarting $NAME node instance : "
+    if [ "$id" != "" ]; then
+        $forever restart -p $forever_dir $id
+        RETVAL=$?
+    else
+        start
+    fi
 }
+
+stop() {
+    echo -n "Shutting down $NAME node instance : "
+    if [ "$id" != "" ]; then
+        $forever stop -p $forever_dir $id
+    else
+        echo "Instance is not running";
+    fi
+    RETVAL=$?
+}
+
+getForeverId() {
+    local pid=$(pidofproc -p $pidfile)
+    $forever list -p $forever_dir | $sed -e 's/\x1b\[[0-9; ]*m//g' | $awk "\$6 && \$6 == \"$pid\" { gsub(/[\[\]]/, \"\", \$2); print \$2; }";
+}
+id=$(getForeverId)
 
 case "$1" in
     start)
-    if is_running; then
-        echo "Already started"
-    else
-		/etc/init.d/mongod restart && /etc/init.d/redis restart
-        echo "Starting $name"
-        cd "$dir"
-        if [ -z "$user" ]; then
-            sudo $cmd >> "$stdout_log" 2>> "$stderr_log" &
-        else
-            sudo -u "$user" $cmd >> "$stdout_log" 2>> "$stderr_log" &
-        fi
-        echo $! > "$pid_file"
-        if ! is_running; then
-            echo "Unable to start, see $stdout_log and $stderr_log"
-            exit 1
-        fi
-    fi
-    ;;
+        start
+        ;;
     stop)
-    if is_running; then
-        echo -n "Stopping $name.."
-        sudo forever stop $script
-    else
-        echo "Not running"
-    fi
-    ;;
-    restart)
-    $0 stop
-    if is_running; then
-        echo "Unable to stop, will not attempt to start"
-        exit 1
-    fi
-    $0 start
-    ;;
+        stop
+        ;;
     status)
-    if is_running; then
-        echo "Running"
-    else
-        echo "Stopped"
-        exit 1
-    fi
-    ;;
+        status -p ${pidfile}
+        ;;
+    restart)
+        restart
+        ;;
     *)
-    echo "Usage: $0 {start|stop|restart|status}"
-    exit 1
-    ;;
+        echo "Usage:  {start|stop|status|restart}"
+        exit 1
+        ;;
 esac
-
-exit 0
+exit $RETVAL
