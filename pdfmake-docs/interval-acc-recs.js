@@ -120,7 +120,7 @@ module.exports = function(req, res) {
             var rowOfData = [ 
                 dateStr, 
                 opTypeMap[accRec.opType], 
-                accRec.amount, 
+                numberWithCommas(accRec.amount), 
                 accRec.ioAccount? accRec.ioAccount : '', 
                 accRec.period? accRec.period.name : '', 
                 accRec.operator? accRec.operator.name : ''
@@ -129,11 +129,19 @@ module.exports = function(req, res) {
             tableBody.push(rowOfData);
         });
 
+        tableBody.forEach(function(textArray) {
+            //make 金額 align right
+            textArray[2] = {
+                text: textArray[2],
+                alignment: 'right'
+            }
+        });
+
         var tableContent = {
             // headers are automatically repeated if the table spans over multiple pages
             // you can declare how many rows should be treated as headers
             headerRows: 1,
-            widths: [ 70, 60, 90, '*', 80, 60],
+            widths: [ 70, 60, 90, '*', 70, 60],
             body: tableBody? tableBody : [['']]
         };
 
