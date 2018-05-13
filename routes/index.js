@@ -147,6 +147,22 @@ exports = module.exports = function (app) {
 
   //
 
+  app.post('/pdf/account-rec',
+    compression(),
+    middleware.permissionCheck.bind([
+      {
+        listName: Constants.AccountRecordListName,
+        opName: readOp
+      },
+      {
+        opName: readOp,
+        listName: Constants.FarmerListName
+      }
+    ]),
+    middleware.doPDFGenViaPDFMake.bind({
+      doc: 'interval-acc-recs'
+    })
+  );
 
   app.post('/pdf/deposit-withdraw-sheet',
     compression(),

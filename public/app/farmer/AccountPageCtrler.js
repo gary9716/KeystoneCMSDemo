@@ -531,6 +531,33 @@ angular.module('mainApp')
       });
     }
 
+    vm.downloadAccountRecOp = function() {
+      vm.isProcessing = true;
+      var data = {
+        _id: vm.account._id,
+        farmer: vm.account.farmer,
+        startDate: vm.startDateFilter,
+        endDate: vm.endDateFilter
+      };
+
+      $http.post('/pdf/account-rec', data)
+      .then(function(res) {
+        var filename = res.data.filename;
+        var file = new Blob([new Uint8Array(res.data.content.data)],{type: 'application/pdf'});
+        saveAs(file, filename);
+
+        vm.pubSuccessMsg('下載存摺紀錄成功');
+      })
+      .catch(function(err) {
+        var msg = err && err.data? err.data.toString():(err? err.toString(): '');
+        vm.pubErrorMsg('下載存摺紀錄失敗,' + msg);
+      })
+      .finally(function() {
+        vm.isProcessing = false;
+      });
+
+    }
+
     vm.cancel = function () {
       $uibModalInstance.dismiss('cancel');
     };

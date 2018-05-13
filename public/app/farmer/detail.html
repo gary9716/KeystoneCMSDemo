@@ -230,6 +230,7 @@
       <label class="radio-item"><input type="radio" class="opt-radio" value="accUserChange" ng-model="ctrler.accountOp">過戶</label>
       <label class="radio-item"><input type="radio" class="opt-radio" value="downloadUnfreezeSheet" ng-model="ctrler.accountOp">下載掛失止付書</label>
       <label class="radio-item"><input type="radio" class="opt-radio" value="update-rec" ng-model="ctrler.accountOp">修改記錄</label>
+      <label class="radio-item"><input type="radio" class="opt-radio" value="download-account-rec" ng-model="ctrler.accountOp">下載記錄</label>
     </div>
   
 
@@ -428,7 +429,8 @@
       <button ng-click="ctrler.accUserChangeOp()" class="btn btn-success col-md-offset-4" ng-disabled="ctrler.isProcessing" ng-show="ctrler.accountOp==='accUserChange'">過戶</button>
       <button ng-click="ctrler.downloadUnfreezeSheetOp()" class="btn btn-success col-md-offset-4" ng-disabled="ctrler.isProcessing" ng-show="ctrler.accountOp==='downloadUnfreezeSheet'">下載</button>
       <button ng-click="ctrler.updateRecOp()" class="btn btn-success col-md-offset-4" ng-disabled="ctrler.isUpdateRecButtonDisabled()" ng-show="ctrler.accountOp==='update-rec'">修改</button>
-      
+      <button ng-click="ctrler.downloadAccountRecOp()" class="btn btn-success col-md-offset-4" ng-disabled="ctrler.isProcessing" ng-show="ctrler.accountOp==='download-account-rec'">下載</button>
+
       <button class="btn" ng-class="{ 'btn-warning': (ctrler.accountOp && ctrler.accountOp.length > 0), 'btn-primary': (!ctrler.accountOp || ctrler.accountOp.length === 0) }" type="button" ng-click="ctrler.cancel()">{{(ctrler.accountOp && ctrler.accountOp.length > 0)? '取消' : '關閉'}}</button>
     </div>
 </div>
