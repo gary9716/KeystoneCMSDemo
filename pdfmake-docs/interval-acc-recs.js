@@ -106,6 +106,7 @@ module.exports = function(req, res) {
 
     return accountRecList.model.find(filters)
     .populate('operator period')
+    .sort('-date')
     .lean()
     .exec()
     .then(function(accRecs) {
