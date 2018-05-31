@@ -27,3 +27,9 @@ curl -L -o .env "https://drive.google.com/uc?export=download&id=XXXXXXXX"
 
 #start stunnel service(https://www.digitalocean.com/community/tutorials/how-to-set-up-an-ssl-tunnel-using-stunnel-on-ubuntu)
 /etc/init.d/stunnel4 restart
+
+#start keystone service
+sudo service keystone start
+
+#restart keystone service
+sudo service keystone restart
