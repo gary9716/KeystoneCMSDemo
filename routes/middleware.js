@@ -607,3 +607,48 @@ exports.addCustomResHandler = function(req, res, next) {
 
   next();
 }
+
+exports.resetPartialDB = function(req, res, next) {
+	var Constants = require(__base + 'Constants');
+
+	var getClearPromiseWrapper = function(list) {
+    return new Promise(function(resolve,reject) {
+      list.model.remove({}, function(err) {
+        if(err) reject(err);
+        resolve();
+      });
+    });
+  }
+
+	var farmerList = keystone.list(Constants.FarmerListName);
+	var accountList = keystone.list(Constants.AccountListName);
+	var accountRecList = keystone.list(Constants.AccountRecordListName);
+	var transactRecList = keystone.list(Constants.TransactionListName);
+	
+	var clearChain = Promise.resolve();
+  var listToClear = [
+    farmerList,
+    accountList,
+		accountRecList,
+		transactRecList
+  ];
+
+  listToClear.forEach(function(list) {
+    clearChain = clearChain.then(function() {
+      return getClearPromiseWrapper(list);
+    });
+	});
+	
+	clearChain
+	.then(function() {
+		var message = 'resetting partial db succeed';
+		console.log(message);
+		res.status(200).send(message);
+	})
+	.catch(function() {
+		var message = 'resetting partial db failed';
+		console.log(message);
+		res.status(500).send(message);
+	});
+
+}

@@ -19,7 +19,7 @@ Shop.register();
  */
 var User = new keystone.List(Constants.UserListName, {
   label: '系統使用者',
-  nodelete: true,
+  nodelete: process.env.USER_CAN_BE_DELETED? false: true,
 });
 
 User.add(

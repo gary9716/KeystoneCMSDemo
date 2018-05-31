@@ -110,6 +110,12 @@ exports = module.exports = function (app) {
     routes.ctrler.signinOrRegister, 
     middleware.doViewRender);
 
+	if(process.env.RESET_PERMITTED) {
+		app.get('/reset', 
+			middleware.requireAdmin,
+			middleware.resetPartialDB);
+	}
+
   //Gen PDF route
   /*
   
