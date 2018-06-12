@@ -4,7 +4,7 @@ var Types = keystone.Field.Types;
 
 var Farmer = new keystone.List(Constants.FarmerListName, {
   label: '農民',
-  nodelete: true,
+  nodelete: process.env.USER_CAN_BE_DELETE? false : true,
 });
 
 Farmer.add({
