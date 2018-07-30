@@ -7,7 +7,7 @@ var Period = new keystone.List(Constants.PeriodListName, {
   track: {
     createdAt: true
   },
-  nodelete: true,
+  //nodelete: true,
 });
 
 Period.add({

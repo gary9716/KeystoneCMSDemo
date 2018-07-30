@@ -9,7 +9,7 @@ var Account = new keystone.List(Constants.AccountListName, {
     name: 'accountID'
   },
   //noedit: true,
-  nodelete: true,
+  //nodelete: true,
   nocreate: true,
 });
 
