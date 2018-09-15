@@ -152,7 +152,8 @@ div#acc-rec-edit-modal input[type=number] {
                             </td>
                             
                             <td style="width: 18%;" class="text-center">
-                            <strong>{{::item.price}}</strong>
+                                <strong ng-show="ctrler.edittingRec.readOnly">{{item.price}}</strong>
+                                <input style="width: 100%;" type="number" ng-hide="ctrler.edittingRec.readOnly" ng-model="item.price">
                             </td>
                             
                             <td style="width: 20%;" class="text-center">

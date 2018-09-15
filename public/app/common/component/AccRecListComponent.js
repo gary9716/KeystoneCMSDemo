@@ -346,7 +346,6 @@ angular.module('mainApp')
         var vm = this;
         vm.edittingRec = accRec;
         vm.isModalMode = true;
-
         vm.getPeriods = function(keyword) {
             return $http.post('/api/read', {
               listName: 'Period',
