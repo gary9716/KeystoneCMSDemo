@@ -110,6 +110,13 @@ exports = module.exports = function (app) {
     routes.ctrler.signinOrRegister, 
     middleware.doViewRender);
 
+	app.get('/customer-survey',
+	compression(),
+    routes.ctrler.defaultViewCtrler.bind({
+    viewPath: 'customerApp',
+    state: 'register'
+  }), middleware.doViewRender);
+
 	if(process.env.RESET_PERMITTED) {
 		app.get('/reset', 
 			middleware.requireAdmin,
@@ -193,7 +200,20 @@ exports = module.exports = function (app) {
     middleware.permissionCheck.bind({ //listName would be passed in request
       opName: readOp
     }),
+		routes.api.CRUDOp.read);
+		
+	app.post('/api/read/city',
+    compression(),
+		routes.api.CRUDOp.read);
+		
+	app.post('/api/read/village',
+    compression(),
+		routes.api.CRUDOp.read);
+		
+	app.post('/api/read/dist',
+    compression(),
     routes.api.CRUDOp.read);
+
 
   app.get('/api/sys/refresh',middleware.refreshSysInfo,middleware.okResponse);
 

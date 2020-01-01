@@ -3,7 +3,8 @@
 // Define the `mainApp` module
 angular.module('mainApp', [
   // ...which depends on the modules below  
-  'ngAnimate',
+	'ngAnimate',
+	'ngLodash',
   'ui.router',
   //'angular.filter',
   'ui.bootstrap',

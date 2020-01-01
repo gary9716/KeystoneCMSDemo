@@ -67,12 +67,12 @@ function setup() {
 		'views': 'templates/views',
 		'view engine': 'dot',
 		'custom engine': dotEngine.__express,
-		'session store': 'connect-redis',
+		'session store': 'mongo',
 		'auto update': false,
 		'user model': 'User',
 		'auth' : true,
 		'frame guard': true,
-		'compress': false //controle the compress middleware myself
+		'compress': false, //controle the compress middleware myself
 	});
 
 

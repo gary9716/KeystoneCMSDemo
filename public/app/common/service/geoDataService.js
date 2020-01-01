@@ -13,7 +13,13 @@ angular.module('mainApp')
       cities: "City",
       dists: "AddrPrefix",
       villages: "Village"
-    }
+		}
+		
+		var routeNames = {
+			cities: "city",
+			dists: "dist",
+			villages: "village"
+		};
 
     model.fetch = function(targetName, selectVal) {
       
@@ -40,7 +46,7 @@ angular.module('mainApp')
         }
       }
       
-      return $http.post('/api/read',queryData)
+      return $http.post('/api/read/' + routeNames[targetName],queryData)
       .then(function(res) {
         var data = res.data;
         if(data.success) {

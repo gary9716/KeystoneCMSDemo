@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html ng-app="mainApp">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>顧客訪查系統</title>
+    <link rel="stylesheet" href="/customer-app/assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/customer-app/assets/css/Contact-Form-Clean.css">
+    <link rel="stylesheet" href="/customer-app/assets/css/Login-Form-Clean.css">
+    <link rel="stylesheet" href="/customer-app/assets/css/Navigation-with-Button.css">
+    <link rel="stylesheet" href="/customer-app/assets/css/styles.css"> 
+		<link href="/styles/site.min.css" rel="stylesheet">
+		<style>
+    html, body {
+      height:100%;
+			padding: 0px;
+    }
+    </style>
+    <script>
+      <!--get helper functions-->
+      [[var helpers = model.helpers;]] 
+      <!-- expose locals -->
+      [[var locals = JSON.stringify(model._locals);]]
+      var locals = [[=locals]];
+    </script> 
+		<!-- This file provides the default styling for the KeystoneJS Content Editor
+      - only renders when user is logged in and admin-->
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries
+    //- Safely remove this block if you are not targeting IE8 -->
+    <!--[if lt IE 9]>
+      <script src="//cdn.jsdelivr.net/html5shiv/3.7.3/html5shiv.js"></script>
+      <script src="//cdn.jsdelivr.net/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <!--
+      //- jQuery 1.11.3 is included by default, and required by both Bootstrap
+      //- and the KeystoneJS Content Editor. If you are not targeting IE8,
+      //- you can upgrade to 2.1.4 (also bundled) for better performance.
+    -->
+		<script src="/js/jquery/jquery-3.2.1.min.js"></script>
+		<script src="/js/bootstrap/bootstrap-3.3.5.min.js"></script>
+		<script src="/js/jquery/jquery.form.min.js"></script>
+		<script src="/js/bootstrap/validator.min.js"></script>
+		<script src="/js/all-lib.js"></script>
+
+    <!-- admin JS and CSS code, needs to be placed behind lib code-->
+    [[var code = helpers.isAdminEditorCSS(model.user);]]
+    [[=code]]
+    [[var code = helpers.isAdminEditorJS(model.user);]]
+    [[=code]]
+
+		<script src="/customer-app/app.js" defer></script>
+		<script src="/customer-app/register/RegisterCtrler.js" defer></script>
+
+    <script src="/app/common/filter/orFilter.js" defer></script>
+    <script src="/app/common/filter/listTo2DMat.js" defer></script>
+    <script src="/app/common/service/myValidation.js" defer></script>
+    <script src="/app/common/service/geoDataService.js" defer></script>
+  </head>
+  <body>
+		<div class="container">
+    			<div uib-alert ng-repeat="alert in alerts track by $index" ng-class="'alert-' + (alert.type || 'warning')" dismiss-on-timeout="3000" close="alerts.splice(alerts.indexOf(alert),1);" ng-bind="alert.msg || ''"></div>
+    </div>
+		<nav class="navbar navbar-default navigation-clean-button">
+          <div class="container">
+								<div class="navbar-header"><a class="navbar-brand" href="#">顧客訪查表單</a>
+										<button data-toggle="collapse" class="navbar-toggle collapsed" data-target="#navcol-1">
+										<span class="sr-only">Toggle navigation</span>
+										<span class="icon-bar"></span>
+										<span class="icon-bar"></span><span class="icon-bar"></span>
+										</button>
+								</div>
+                <div class="collapse navbar-collapse" id="navcol-1">
+                    <ul class="nav navbar-nav navbar-left">
+                        <li class="active" role="presentation"><a href="#">查詢</a></li>
+                        <li role="presentation"><a href="#">歸檔</a></li>
+                    </ul>
+										<ul class="nav navbar-nav navbar-right">
+												[[?model.user]]
+												[[var result= helpers.getKeystoneAttr('signout url');]]
+												<li><a href=[[=result]]>登出</a></li>
+												[[?? true]]
+												[[var result= helpers.getKeystoneAttr('signin url') + "?from=/customer-survey";]]
+												<li><a href=[[=result]]>登入</a></li>
+												[[?]]
+										</ul>
+            		</div>
+    			</div>
+    </nav>
+    <section ui-view>
+    </section>
+
+    <div class="container">
+      <!-- Footer -->
+      <footer style="margin:10px;">
+				<p>Copyright &copy; 2017 by KT Chou</p>
+				<div>Icons made by <a href="http://www.freepik.com" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>
+		
+      </footer>
+    </div>
+
+  </body>
+</html>
