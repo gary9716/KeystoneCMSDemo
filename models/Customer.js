@@ -14,10 +14,9 @@ var CustomerSurvey = new keystone.List(Constants.CustomerSurveyListName, {
   
 CustomerSurvey.add({
 	formDate: { type: Types.Datetime, format: 'YYYY-MM-DD', label: '表單時間', default: Date.now, initial: true, noedit: true },
-	formID: { type:String, label: '表單編號', index: true, unique: true, required: true, initial: true, trim: true },
 	name: { type:String, label: '姓名', index: true, required: true, initial: true, trim: true },
-	job: { type:String, label: '職業', required: true, initial: true, trim: true },
-	bank: { type:String, label: '往來銀行', required: true, initial: true, trim: true },
+	job: { type:String, label: '職業', initial: true, trim: true },
+	bank: { type:String, label: '往來銀行', initial: true, trim: true },
 	age : { type: Number, label: '年齡', default: 0, required: true, initial: true },
 	sex : { type: Types.Select, label: '性別', options: [ 
 		{ value: 'male', label: '男性' },
@@ -46,7 +45,7 @@ CustomerSurvey.add({
 	village: { type:Types.Relationship, label:'里別', ref:Constants.VillageListName, required: true, index: true, initial: true },
 	addrRest: { type:String, label:'路名細節', initial: true, trim: true },
 	addr : { type:String, initial: true, trim: true, label:'住址' },
-	
+
 	need : { type: Types.Textarea, label: '客戶需求', trim: true, initial: true },
 	comment: { type: Types.Textarea, label: '會相關部門', trim: true, initial: true },
 
@@ -54,8 +53,8 @@ CustomerSurvey.add({
 		{ value: 'editting', label: '編修' },
 		{ value: 'reviewing', label: '審核' },
 		{ value: 'filed', label: '歸檔' }
-	], required: true, trim: true, initial: true }
+	], required: true, trim: true, initial: true, default: 'editting' }
 });
-CustomerSurvey.defaultColumns = 'formID, formDate, name, age, sex';
+CustomerSurvey.defaultColumns = 'formDate, name, age, sex';
 CustomerSurvey.register();
   

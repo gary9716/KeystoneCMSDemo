@@ -267,6 +267,39 @@ exports = module.exports = function (app) {
     routes.api.FarmerService.getAndPopulate
   );
 
+	app.post('/api/customer-survey/upsert',
+		compression(),
+		routes.api.CustomerService.upsert
+	);
+
+	
+	app.post('/api/customer-survey/sync',
+		compression(),
+		routes.api.CustomerService.sync
+	);
+
+	app.post('/api/customer-survey/search',
+		compression(),
+		middleware.permissionCheck.bind([
+      {
+        opName: readOp,
+        listName: Constants.CustomerSurveyListName
+      }
+    ]),
+		routes.api.CustomerService.search
+	);
+
+	app.post('/api/customer-survey/changeState',
+		compression(),
+		middleware.permissionCheck.bind([
+      {
+        opName: updateOp,
+        listName: Constants.CustomerSurveyListName
+      }
+    ]),
+		routes.api.CustomerService.changeState
+	);
+
 
   app.post('/api/account-rec/delete',
     middleware.permissionCheck.bind([
