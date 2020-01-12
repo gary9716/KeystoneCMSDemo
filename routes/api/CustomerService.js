@@ -51,11 +51,12 @@ exports.upsert = (req, res) => {
 		job: form.job? form.job:"",
 		bank: form.bank? form.bank:"",
 		age: form.age? form.age:0,
-		sex: form.sex? form.sex:"",
+		sex: form.sex? form.sex:"male",
 		finance: form.finance? form.finance:"",
-		isCustomer: form.isCustomer? form.isCustomer:"",
-		lineGroup: form.lineGroup? form.lineGroup:"",
-		customerType: form.customerType? form.customerType:"",
+		interviewer: form.interviewer? form.interviewer:"",
+		isCustomer: form.isCustomer? form.isCustomer:false,
+		lineGroup: form.lineGroup? form.lineGroup:'3',
+		customerType: form.customerType? form.customerType:'0',
 		teleNum1: form.tele1? form.tele1:"",
 		teleNum2: form.tele2? form.tele2:"",
 		city: form.city? form.city:"",
@@ -64,8 +65,11 @@ exports.upsert = (req, res) => {
 		addrRest: form.addrRest? form.addrRest:"",
 		addr: form.addr? form.addr:"",
 		need: form.need? form.need:"",
-		comment: form.comment? form.comment:""
+		comment: form.comment? form.comment:"",
+		rating: form.rating? form.rating:"2"
 	};
+
+	console.log(data);
 
 	var getUpdateQuery = function() {
 		return customerSurveyList.model
@@ -82,7 +86,6 @@ exports.upsert = (req, res) => {
 			  }
 			}
 			else {
-			  console.log(data);
 			  var newCustomer = new customerSurveyList.model(data);
 			  return newCustomer.save();
 			}
@@ -105,6 +108,10 @@ exports.upsert = (req, res) => {
 exports.sync = (req, res) => {
 	var form = req.body;
 	var orCondition = [];
+
+	if(form.hasOwnProperty("_id")) {
+		orCondition.push({ '_id': form._id });
+	}
 
 	if(form.hasOwnProperty("customerName")) {
 		orCondition.push({ 'name': form.customerName });
@@ -195,4 +202,78 @@ exports.changeState = (req, res) => {
 //
 exports.search = (req, res) => {
 	var form = req.body;
+
+	if(!_.isEmpty(form)) { //filter with state
+		let filter = [];
+		if(form.hasOwnProperty("state")) 
+			filter.push( {
+				state : form.state 
+			});
+		if(form.hasOwnProperty("startDate") || form.hasOwnProperty("endDate")) {
+			let formDateFilter = {};
+			formDateFilter.formDate = {};
+			if(form.hasOwnProperty("startDate")) formDateFilter.formDate.$gte = new Date(form.startDate);
+			if(form.hasOwnProperty("endDate")) {
+				let endDate = new Date(form.endDate);
+				endDate.setTime(endDate.getTime() + 24 * 3600 * 1000);
+				formDateFilter.formDate.$lt = endDate;
+			}
+
+			filter.push(formDateFilter);
+		}
+		
+		if(form.hasOwnProperty("lineGroup")) 
+			filter.push({
+				lineGroup: form.lineGroup
+			});
+
+		if(form.hasOwnProperty("customerType")) 
+			filter.push({
+				customerType: form.customerType
+			});
+		
+		customerSurveyList.model
+		.find({
+			$and: filter
+		})
+		.lean()
+		.exec()
+		.then((customers) => {
+			if(customers && customers.length > 0) {
+				res.json({
+					success: true,
+					result: customers
+				});
+			}
+			else {
+				res.json({
+					success: false
+				});
+			}
+		});
+
+		return;
+	}
+	else {
+		//no filter
+		customerSurveyList.model
+		.find()
+		.lean()
+		.exec()
+		.then((customers) => {
+			if(customers && customers.length > 0) {
+				res.json({
+					success: true,
+					result: customers
+				});
+			}
+			else {
+				res.json({
+					success: false
+				});
+			}
+		});
+
+		return;
+	}
 };

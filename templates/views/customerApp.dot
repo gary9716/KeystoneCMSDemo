@@ -10,7 +10,9 @@
     <link rel="stylesheet" href="/customer-app/assets/css/Login-Form-Clean.css">
     <link rel="stylesheet" href="/customer-app/assets/css/Navigation-with-Button.css">
     <link rel="stylesheet" href="/customer-app/assets/css/styles.css"> 
-		<link href="/styles/site.min.css" rel="stylesheet">
+		<!--<link href="/styles/site.min.css" rel="stylesheet">-->
+		<link href="/styles/hover/hover.css" rel="stylesheet">
+		<link href="/styles/fontawesome-free-5.12.0-web/css/all.min.css" rel="stylesheet">
 		<style>
     html, body {
       height:100%;
@@ -51,6 +53,7 @@
 
 		<script src="/customer-app/app.js" defer></script>
 		<script src="/customer-app/register/RegisterCtrler.js" defer></script>
+		<script src="/customer-app/search/SearchPageCtrler.js" defer></script>
 
     <script src="/app/common/filter/orFilter.js" defer></script>
     <script src="/app/common/filter/listTo2DMat.js" defer></script>
@@ -58,9 +61,6 @@
     <script src="/app/common/service/geoDataService.js" defer></script>
   </head>
   <body>
-		<div class="container">
-    			<div uib-alert ng-repeat="alert in alerts track by $index" ng-class="'alert-' + (alert.type || 'warning')" dismiss-on-timeout="3000" close="alerts.splice(alerts.indexOf(alert),1);" ng-bind="alert.msg || ''"></div>
-    </div>
 		<nav class="navbar navbar-default navigation-clean-button">
           <div class="container">
 								<div class="navbar-header"><a class="navbar-brand" href="#">顧客訪查表單</a>
@@ -72,8 +72,8 @@
 								</div>
                 <div class="collapse navbar-collapse" id="navcol-1">
                     <ul class="nav navbar-nav navbar-left">
-                        <li class="active" role="presentation"><a href="#">查詢</a></li>
-                        <li role="presentation"><a href="#">歸檔</a></li>
+                        <li role="presentation"><a ui-sref="register" ui-sref-active="active">個別註冊編修</a></li>
+                        <li role="presentation"><a ui-sref="search" ui-sref-active="active">列表呈核歸檔</a></li>
                     </ul>
 										<ul class="nav navbar-nav navbar-right">
 												[[?model.user]]
@@ -87,6 +87,11 @@
             		</div>
     			</div>
     </nav>
+		
+		<div class="container">
+    			<div uib-alert ng-repeat="alert in alerts track by $index" ng-class="'alert-' + (alert.type || 'warning')" dismiss-on-timeout="3000" close="alerts.splice(alerts.indexOf(alert),1);" ng-bind="alert.msg || ''"></div>
+    </div>
+
     <section ui-view>
     </section>
 

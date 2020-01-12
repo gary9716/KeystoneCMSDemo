@@ -29,9 +29,15 @@ angular.module('mainApp', [
 	  $stateProvider
 	  .state({
 		name: 'register',
-		templateUrl: appRootPath + 'register/index.html',
+		templateUrl: appRootPath + 'register/register.html',
 		controller: 'RegisterCtrler as ctrler',
 		url: '/',
+	  })
+	  .state({
+		name: 'search',
+		templateUrl: appRootPath + 'search/search-list.html',
+		controller: 'SearchPageCtrler as ctrler',
+		url: '/search',
 	  })
 	  .state({
 		name: '403',

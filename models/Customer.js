@@ -7,7 +7,7 @@ var mongoose = keystone.get('mongoose');
 
 var CustomerSurvey = new keystone.List(Constants.CustomerSurveyListName, {
 	label: '客戶訪談',
-	noedit: true,
+	//noedit: true,
 	//nodelete: true,
 	nocreate: true,
 });
@@ -17,32 +17,40 @@ CustomerSurvey.add({
 	name: { type:String, label: '姓名', index: true, required: true, initial: true, trim: true },
 	job: { type:String, label: '職業', initial: true, trim: true },
 	bank: { type:String, label: '往來銀行', initial: true, trim: true },
-	age : { type: Number, label: '年齡', default: 0, required: true, initial: true },
+	age : { type: Number, label: '年齡', default: 0, initial: true },
 	sex : { type: Types.Select, label: '性別', options: [ 
 		{ value: 'male', label: '男性' },
 		{ value: 'female', label: '女性' }
-	], required: true, trim: true, initial: true },
+	], trim: true, initial: true },
 	finance: { type:String, label:'經濟狀況', initial: true, trim: true },
 	isCustomer: { type: Boolean, label: '是否為本會客戶', initial: true, index: true, default: false },
-	
+	interviewer: { type:String, label: '訪查員', initial: true, trim: true },
+	rating: { type: Types.Select, label: '訪查評分', options: [
+		{ value: '0', label: '很好' },
+		{ value: '1', label: '好' },
+		{ value: '2', label: '普通' },
+		{ value: '3', label: '差' },
+		{ value: '4', label: '很差' },
+	], initial: true, default:'2' },
 	lineGroup: { type: Types.Select, label: '是否已加入本會Line@生活圈', options: [ 
-		{ value: 1, label: '已加入' },
-		{ value: 2, label: '已邀請' },
-		{ value: 3, label: '未邀請' },
-	], required: true, initial: true },
+		{ value: '1', label: '已加入' },
+		{ value: '2', label: '已邀請' },
+		{ value: '3', label: '未邀請' },
+	], initial: true },
 	customerType: { type: Types.Select, label: '往來狀況', options: [
-		{ value: 1, label: '資金往來戶' },
-		{ value: 2, label: '農保戶' },
-		{ value: 3, label: '農業資材運用戶' },
-		{ value: 4, label: '家用雜貨使用戶' },
-	], required: true, initial: true },
+		{ value: '0', label: '非本會客戶' },
+		{ value: '1', label: '資金往來戶' },
+		{ value: '2', label: '農保戶' },
+		{ value: '3', label: '農業資材運用戶' },
+		{ value: '4', label: '家用雜貨使用戶' },
+	], initial: true, default:'0' },
 	
 	teleNum1: { type:String, label:'住家電話', index: true, initial: true, trim: true },
 	teleNum2: { type:String, label:'行動電話', index: true, initial: true, trim: true },
 
-	city : { type:Types.Relationship, label:'直轄縣市', ref:Constants.CityListName, required: true, index: true, initial: true },
-	dist : { type:Types.Relationship, label:'縣市鄉鎮', ref:Constants.AddrPrefixListName, required: true, index: true, initial: true },
-	village: { type:Types.Relationship, label:'里別', ref:Constants.VillageListName, required: true, index: true, initial: true },
+	city : { type:Types.Relationship, label:'直轄縣市', ref:Constants.CityListName, index: true, initial: true },
+	dist : { type:Types.Relationship, label:'縣市鄉鎮', ref:Constants.AddrPrefixListName, index: true, initial: true },
+	village: { type:Types.Relationship, label:'里別', ref:Constants.VillageListName, index: true, initial: true },
 	addrRest: { type:String, label:'路名細節', initial: true, trim: true },
 	addr : { type:String, initial: true, trim: true, label:'住址' },
 
@@ -53,7 +61,7 @@ CustomerSurvey.add({
 		{ value: 'editting', label: '編修' },
 		{ value: 'reviewing', label: '審核' },
 		{ value: 'filed', label: '歸檔' }
-	], required: true, trim: true, initial: true, default: 'editting' }
+	], trim: true, initial: true, default: 'editting' }
 });
 CustomerSurvey.defaultColumns = 'formDate, name, age, sex';
 CustomerSurvey.register();

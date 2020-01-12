@@ -1,0 +1,298 @@
+<div class="container text-center">
+	<div class="col-lg-2 col-md-2 col-sm-2 col-xs-3 text-left" style="height: 20px;"><label>過濾條件</label></div>
+	<div class="col-lg-3 col-md-3 col-sm-8 col-xs-9 text-left">
+		<input type="checkbox" ng-model="ctrler.useFormState">
+		<label>表格狀態</label>
+		<select ng-model="ctrler.state" ng-options="s as s.name for s in ctrler.stateLabels track by s.value"></select>
+	</div>
+</div>
+<div class="container text-center">
+	<div class="col-lg-3 col-md-3 col-sm-6 col-xs-6 text-left">
+		<input type="checkbox" ng-model="ctrler.useStartDate">
+		<label>起</label>
+		<div class="input-group">
+			<input type="text" class="form-control input-md" uib-datepicker-popup="yyyy/MM/dd" ng-model="ctrler.startDate" is-open="ctrler.startDateSelOpened" required close-text="關閉" clear-text="清除" current-text="今天"/>
+			<span class="input-group-btn">
+			<button type="button" class="btn btn-default" ng-click="ctrler.startDateSelOpened=true;"><i class="fa fa-calendar"></i></button>
+			</span>
+		</div>
+	</div>
+	<div class="col-lg-3 col-md-3 col-sm-6 col-xs-6 text-left">
+		<input type="checkbox" ng-model="ctrler.useEndDate">
+		<label>迄</label>
+		<div class="input-group">
+			<input type="text" class="form-control input-md" uib-datepicker-popup="yyyy/MM/dd" ng-model="ctrler.endDate" is-open="ctrler.endDateSelOpened" required close-text="關閉" clear-text="清除" current-text="今天"/>
+			<span class="input-group-btn">
+			<button type="button" class="btn btn-default" ng-click="ctrler.endDateSelOpened=true;"><i class="fa fa-calendar"></i></button>
+			</span>
+		</div>
+	</div>
+</div>
+<div class="container text-center">
+	<div class="col-lg-3 col-md-3 col-sm-6 col-xs-6 text-left">
+		<input type="checkbox" ng-model="ctrler.useIsCustomer">
+		<label>本會客戶</label>
+		<select class="form-control" style="margin-bottom: 10px;" name="isCustomer" ng-model="ctrler.isCustomer" ng-model-options="{ debounce: 150 }" ng-options="l as l.name for l in ctrler.isCustomerLabels track by l.value"></select>
+	</div>
+	<div class="col-lg-3 col-md-3 col-sm-6 col-xs-6 text-left">
+		<input type="checkbox" ng-model="ctrler.useCustomerType">
+		<label>客戶類型</label>
+		<select class="form-control" style="margin-bottom: 10px;" name="customerType" ng-model="ctrler.customerType" ng-model-options="{ debounce: 150 }" ng-options="ct as ct.name for ct in ctrler.customerTypes track by ct.value"></select>
+	</div>
+</div>
+<div class="container text-center">
+	<div class="col-lg-3 col-md-3 col-sm-6 col-xs-6 text-left">
+		<input type="checkbox" ng-model="ctrler.useLineGroup">
+		<label>line群組</label>
+		<select class="form-control" style="margin-bottom: 10px;" name="lineGroup" ng-model="ctrler.lineGroup" ng-model-options="{ debounce: 150 }" ng-options="lgs as lgs.name for lgs in ctrler.lineGroupStates track by lgs.value"></select>
+	</div>
+</div>
+<div class="container text-center" style="margin-top: 10px;margin-bottom: 10px;">
+	<button class="btn btn-default" type="button" ng-click="ctrler.search()">搜尋</button>
+</div>
+<div class="container" ng-show="ctrler.totalCustomers && ctrler.totalCustomers.length > 0">
+	<div class="table-responsive">
+		<table class="table">
+			<thead>
+				<tr>
+					<th style="width: 8%;">姓名</th>
+					<th class="hidden-xs" style="width: 3%;">性別</th>
+					<th class="hidden-xs" style="width: 3%;">年齡</th>
+					<th class="hidden-xs hidden-sm" style="width: 8%;">電話</th>
+					<th class="hidden-xs" style="width: 8%;">往來銀行</th>
+					<th style="width: 6%;">本會客戶</th>
+					<th style="width: 10%;">客戶類型</th>
+					<th style="width: 6%;">line群組</th>
+					<th class="hidden-xs" style="width: 6%;">表格狀態</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr ng-repeat="customer in ctrler.totalCustomers track by customer._id" ng-click="ctrler.openCustomerDetail(customer)">
+					<td>{{customer.name}}</td>
+					<td class="hidden-xs">{{ctrler.findWithValue(ctrler.sexLabels, customer.sex).name}}</td>
+					<td class="hidden-xs">{{customer.age}}</td>
+					<td class="hidden-xs hidden-sm">{{customer.teleNum1}}</td>
+					<td class="hidden-xs">{{customer.bank}}</td>
+					<td >{{ctrler.findWithValue(ctrler.isCustomerLabels, customer.isCustomer).name}}</td>
+					<td >{{ctrler.findWithValue(ctrler.customerTypes, customer.customerType).name}}</td>
+					<td>{{ctrler.findWithValue(ctrler.lineGroupStates, customer.lineGroup).name}}</td>
+					<td class="hidden-xs">{{ctrler.findWithValue(ctrler.stateLabels, customer.state).name}}</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	<div class="container text-center">
+		<ul class="pagination-sm" style="margin-left: 10px;" uib-pagination total-items="ctrler.totalCustomers" ng-model="ctrler.curPage" items-per-page="ctrler.perPage" boundary-links="true" num-pages="ctrler.numPages" next-text="下一頁" previous-text="上一頁" last-text="最終頁" first-text="最初頁" ></ul>
+	</div>
+</div>
+
+
+<script type="text/ng-template" id="customer-detail.html">
+<form name="AdminForm" ng-init="ctrler.init()">
+	<div class="container-fluid">
+		<div class="col-md-12 text-right row">
+			<i class="fas fa-times" style="padding-top:10px; padding-bottom:10px; padding-left:10px; padding-right:10px;" ng-click="ctrler.closeModal()"></i>
+		</div>
+	</div>
+	<div class="modal-body" ng-show="ctrler.isEditting">
+		<div class="container-fluid">
+			<div class="col-md-6 col-xs-6">
+				<span class="text-left" style="opacity: 1;">日期:<label style="margin-left:5px;">{{ctrler.formDate | date:'yyyy/MM/dd'}}</label></span>
+				
+				<!--
+				<div class="input-group">
+					<input type="text" class="form-control input-md" uib-datepicker-popup="yyyy/MM/dd" ng-model="ctrler.formDate" is-open="ctrler.formDateSelOpened" required close-text="關閉" clear-text="清除" current-text="今天"/>
+					<span class="input-group-btn">
+					<button type="button" class="btn btn-default" ng-click="ctrler.formDateSelOpened=true;"><i class="fa fa-calendar"></i></button>
+					</span>
+				</div>
+				-->
+			</div>
+			<div class="col-md-6 col-xs-6">
+				<span class="text-left" style="opacity: 1;">狀態:<label style="margin-left:5px;">{{ctrler.formStateMap[ctrler.state]}}</label></span>
+			</div>
+		</div>
+		<div class="container-fluid">
+			<div class="col-md-6 col-xs-6">
+				<p class="text-left" style="opacity: 1;">顧客姓名</p><input class="form-control" type="text" style="margin-bottom: 10px;" name="customerName" ng-model="ctrler.customerName" required>
+			</div>
+			<div class="col-md-6 col-xs-6">
+				<p class="text-left" style="opacity: 1;">訪查員</p><input class="form-control" type="text" style="margin-bottom: 10px;" name="interviewer" ng-model="ctrler.interviewer" required>
+			</div>
+		</div>
+		<div class="container-fluid">
+			<div class="col-md-3 col-xs-6">
+				<p class="text-left" style="opacity: 1;">電話</p><input name="tele1" ng-model="ctrler.tele1" ng-model-options="{ debounce: 150 }" class="form-control" type="text" style="margin-bottom: 10px;" required>
+			</div>
+			<div class="col-md-3 col-xs-6">
+				<p class="text-left" style="opacity: 1;">傳真</p><input name="tele2" ng-model="ctrler.tele2" ng-model-options="{ debounce: 150 }" class="form-control" type="text" style="margin-bottom: 10px;">
+			</div>
+			<div class="col-md-3 col-xs-6">
+				<p class="text-left" style="opacity: 1;">性別</p><select name="sex" ng-model="ctrler.sex" ng-model-options="{ debounce: 150 }" class="form-control" style="margin-bottom: 10px;" required ng-options="s as s.name for s in ctrler.sexLabels track by s.value"></select>
+			</div>
+			<div class="col-md-3 col-xs-6">
+				<p class="text-left" style="opacity: 1;">年齡</p><input name="age" ng-model="ctrler.age" ng-model-options="{ debounce: 150 }" class="form-control" type="text" style="margin-bottom: 10px;" required>
+			</div>
+		</div>
+		<div class="container-fluid">
+			<div class="col-md-1">
+				<p>住址</p>
+			</div>
+			<div class="col-md-2 col-xs-4">
+				<p class="text-left">直轄市</p>
+			</div>
+			<div class="col-md-3 col-xs-5" style="padding-bottom: 10px;padding-top: 10px;">
+				<select class="form-control" name="city" ng-options="city as city.name for city in ctrler.cities track by city._id" ng-model="ctrler.citySelect" ng-model-options="{ debounce: 150 }" ng-change="ctrler.selectOnChange('dists',ctrler.citySelect._id)" required></select>
+			</div>
+			<div class="col-md-2 col-xs-4">
+				<p class="text-left">鄉鎮市區</p>
+			</div>
+			<div class="col-md-3 col-xs-5" style="padding-bottom: 10px;padding-top: 10px;">
+				<select class="form-control" name="dist" ng-options="dist as dist.dist for dist in ctrler.dists track by dist._id" ng-model="ctrler.distSelect" ng-model-options="{ debounce: 150 }" ng-change="ctrler.selectOnChange('villages',ctrler.distSelect._id)" required></select>
+			</div>
+			<div class="col-md-2 col-xs-4">
+				<p class="text-left">村里</p>
+			</div>
+			<div class="col-md-3 col-xs-5" style="padding-bottom: 10px;padding-top: 10px;">
+				<select class="form-control" name="village" ng-options="village as village.name for village in ctrler.villages track by village._id" ng-model="ctrler.villageSelect" ng-model-options="{ debounce: 150 }" required></select>
+			</div>
+			<div class="col-md-8 col-xs-10">
+				<p class="text-left" style="opacity: 1;">縣市鄉鎮以下的細節（路名,牌號等等）<br></p>
+			</div>
+			<div class="col-md-12 col-sm-12 col-xs-12" style="padding-bottom: 10px;padding-top: 10px;"><input class="form-control" type="text" style="margin-bottom: 0;" name="addrRest" ng-model="ctrler.addrRest" ng-model-options="{ debounce: 150 }" required></div>
+		</div>
+		<div class="container-fluid">
+			<div class="col-xs-6">
+				<p class="text-left" style="opacity: 1;">從事行業</p><input class="form-control" type="text" style="margin-bottom: 10px;" name="job" ng-model="ctrler.job" ng-model-options="{ debounce: 150 }" required></div>
+			<div class="col-xs-6">
+				<p class="text-left" style="opacity: 1;">往來銀行</p><input class="form-control" type="text" style="margin-bottom: 10px;" name="bank" ng-model="ctrler.bank" ng-model-options="{ debounce: 150 }"></div>
+		</div>
+		<div class="container-fluid">
+			<div class="col-md-3 col-xs-6">
+				<p class="text-left" style="opacity: 1;">經濟狀況</p><input class="form-control" type="text" style="margin-bottom: 10px;" name="finance" ng-model="ctrler.finance" ng-model-options="{ debounce: 150 }"></div>
+			<div class="col-md-3 col-xs-6">
+				<p class="text-left" style="opacity: 1;">為本會客戶?</p><select class="form-control" style="margin-bottom: 10px;" name="isCustomer" ng-model="ctrler.isCustomer" ng-model-options="{ debounce: 150 }" ng-options="l as l.name for l in ctrler.isCustomerLabels track by l.value" required></select></div>
+			<div class="col-md-3 col-xs-6">
+				<p class="text-left" style="opacity: 1;">是否已加入Line群組</p><select class="form-control" style="margin-bottom: 10px;" name="lineGroup" ng-model="ctrler.lineGroup" ng-model-options="{ debounce: 150 }" ng-options="lgs as lgs.name for lgs in ctrler.lineGroupStates track by lgs.value" required></select></div>
+			<div class="col-md-3 col-xs-6">
+				<p class="text-left" style="opacity: 1;">與本會往來狀況</p><select class="form-control" style="margin-bottom: 10px;" name="customerType" ng-model="ctrler.customerType" ng-model-options="{ debounce: 150 }" ng-options="ct as ct.name for ct in ctrler.customerTypes track by ct.value" required></select></div>
+		</div>
+		<div class="container-fluid" style="padding-bottom: 0;">
+			<div class="col-md-12" style="padding-bottom: 10px;">
+				<p class="text-left" style="opacity: 1;">客戶需求</p>
+				<textarea class="form-control" name="need" ng-model="ctrler.need" ng-model-options="{ debounce: 150 }"></textarea>
+			</div>
+		</div>
+		<div class="container-fluid" style="padding-bottom: 0;">
+			<div class="col-md-12">
+				<p class="text-left" style="opacity: 1;">對本會滿意度</p>
+				<select class="form-control" name="evaluation" ng-options="r as r.name for r in ctrler.ratingList track by r.value" ng-model="ctrler.evaluation" ng-model-options="{ debounce: 150 }" required></select>
+			</div>
+		</div>
+		<div class="container-fluid">
+			<div class="col-md-12 text-center">
+				<button class="btn btn-success" type="button" style="margin: 10px;" ng-click="ctrler.submit()" ng-disabled="RegisterForm.$invalid">更新</button>
+				<button class="btn btn-danger" type="button" ng-click="ctrler.cancel()">取消</button>
+			</div>
+		</div>
+	</div>
+
+	<div class="container-fluid" ng-hide="ctrler.isEditting">
+		<div class="table-responsive">
+			<table class="table">
+				<thead>
+					<tr>
+						<th style="width: 30%;">欄位</th>
+						<th>值</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>日期</td>
+						<td>{{ctrler.formDate | date:'yyyy/MM/dd'}}</td>
+					</tr>
+					<tr>
+						<td>狀態</td>
+						<td>{{ctrler.formStateMap[ctrler.state]}}</td>
+					</tr>
+					<tr>
+						<td>訪查員</td>
+						<td>{{ctrler.interviewer}}</td>
+					</tr>
+					<tr>
+						<td>顧客姓名</td>
+						<td>{{ctrler.customerName}}</td>
+					</tr>
+					<tr>
+						<td>性別</td>
+						<td>{{ctrler.sex.name}}</td>
+					</tr>
+					<tr>
+						<td>年齡</td>
+						<td>{{ctrler.age}}</td>
+					</tr>
+					<tr>
+						<td>電話</td>
+						<td>{{ctrler.tele1}}</td>
+					</tr>
+					<tr>
+						<td>傳真</td>
+						<td>{{ctrler.tele2}}</td>
+					</tr>
+					<tr></tr>
+					<tr>
+						<td>地址</td>
+						<td>{{ctrler.fullAddr}}</td>
+					</tr>
+					<tr>
+						<td>從事行業</td>
+						<td>{{ctrler.job}}</td>
+					</tr>
+					<tr>
+						<td>往來銀行</td>
+						<td>{{ctrler.bank}}</td>
+					</tr>
+					<tr>
+						<td>經濟狀況</td>
+						<td>{{ctrler.finance}}</td>
+					</tr>
+					<tr>
+						<td>為本會客戶?</td>
+						<td>{{ctrler.isCustomer.name}}</td>
+					</tr>
+					<tr>
+						<td>是否加入Line群組?</td>
+						<td>{{ctrler.lineGroup.name}}</td>
+					</tr>
+					<tr>
+						<td>與本會來往狀況</td>
+						<td>{{ctrler.customerType.name}}</td>
+					</tr>
+					<tr>
+						<td>客戶需求</td>
+						<td>{{ctrler.need}}</td>
+					</tr>
+					<tr>
+						<td>對本會滿意度</td>
+						<td>{{ctrler.evaluation.name}}</td>
+					</tr>
+					<tr ng-show="ctrler.isState('reviewing')">
+						<td>與會相關部門</td>
+						<td><textarea class="form-control" name="need" ng-model="ctrler.comment" ng-model-options="{ debounce: 150 }"></textarea></td>
+					</tr>
+				</tbody>
+			</table>
+		</div>	
+
+		<div class="container-fluid">
+			<div class="col-md-12 text-center">
+				<button class="btn btn-success" type="button" style="margin: 10px;" ng-show="ctrler.isState('reviewing')" ng-click="ctrler.saveIntoFile()">歸檔</button>
+				<button class="btn btn-primary" type="button" style="margin: 10px;" ng-click="ctrler.print()">{{ctrler.state === 'editting'?"印表呈核":"重新印表"}}</button>
+				<button class="btn btn-secondary" type="button" style="margin: 10px;" ng-show="ctrler.isState('editting')" ng-click="ctrler.revise()">修改</button>
+			</div>
+		</div>
+
+	</div>
+</form>
+</script>
+

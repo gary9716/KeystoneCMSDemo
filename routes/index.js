@@ -158,6 +158,19 @@ exports = module.exports = function (app) {
     })
   );
 
+	app.post('/pdf/customer-survey',
+		compression(),
+		middleware.permissionCheck.bind([
+			{
+				listName: Constants.CustomerSurveyListName,
+				opName: readOp
+			}
+		]),
+		middleware.doPDFGenViaPDFMake.bind({
+			doc: 'customer-survey'
+		})
+	);
+
   //
 
   app.post('/pdf/account-rec',
