@@ -313,6 +313,10 @@ exports = module.exports = function (app) {
 		routes.api.CustomerService.changeState
 	);
 
+	app.post('/api/customer-survey/update-comment',
+		compression(),
+		routes.api.CustomerService.updateComment
+	);
 
   app.post('/api/account-rec/delete',
     middleware.permissionCheck.bind([

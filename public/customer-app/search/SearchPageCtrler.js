@@ -84,9 +84,38 @@ angular.module('mainApp')
 		},
 	];
 
+	vm.ratingList = [
+		{
+			value: '0',
+			name: '很好'
+		},
+		{
+			value: '1',
+			name: '好'
+		},
+		{
+			value: '2',
+			name: '普通'
+		},
+		{
+			value: '3',
+			name: '差'
+		},
+		{
+			value: '4',
+			name: '很差'
+		},
+	];
+
 	vm.findWithValue = (dataArray, val) => {
 		return _.find(dataArray, (elem) => {
 			return elem.value === val;
+		});
+	};
+
+	vm.findWithID = (dataArray, id) => {
+		return _.find(dataArray, (elem) => {
+			return elem._id === id;
 		});
 	};
 
@@ -114,6 +143,20 @@ angular.module('mainApp')
 		if(vm.useLineGroup && vm.lineGroup) {
 			filter.lineGroup = vm.lineGroup.value;
 		}
+		if(vm.useSex && vm.sex) {
+			filter.sex = vm.sex.value;
+		}
+		if(vm.useRating && vm.rating) {
+			filter.rating = vm.rating.value;
+		}
+		if(vm.useStartAge && vm.startAge) {
+			filter.startAge = vm.startAge;
+		}
+		if(vm.useEndAge && vm.endAge) {
+			filter.endAge = vm.endAge;
+		}
+
+		//console.log(filter);
 
 		$http.post('/api/customer-survey/search', filter)
 		.then((res) => {
@@ -137,6 +180,7 @@ angular.module('mainApp')
 	};
 
 	let updateCustomer = (customer) => {
+		customer.populateFields = 'city dist village';
 		$http.post('/api/customer-survey/sync', customer)
 		.then((res) => {
 			var data = res.data;
@@ -342,17 +386,17 @@ function($uibModalInstance, _, customer, $http, $rootScope, geoDataService) {
 
 		vm.selectOnChange('cities',null)
 		.then(() => {
-			vm.citySelect = findWithID(vm.cities, data.city);
+			vm.citySelect = findWithID(vm.cities, data.city._id);
 			vm.selectOnChange('dists',vm.citySelect._id)
 			.then(function(dists) {
 				vm.distSelect = _.find(dists, function(dist) {
-					return dist._id === data.dist;
+					return dist._id === data.dist._id;
 				});
 				return vm.selectOnChange('villages',vm.distSelect._id);
 			})
 			.then(function(villages) {
 				vm.villages = villages;
-				vm.villageSelect = findWithID(villages, data.village);
+				vm.villageSelect = findWithID(villages, data.village._id);
 			});
 
 			data.isCustomer = findWithValue(vm.isCustomerLabels, data.isCustomer);
@@ -379,10 +423,6 @@ function($uibModalInstance, _, customer, $http, $rootScope, geoDataService) {
 		return vm.state === stateName;
 	};
 
-	vm.saveIntoFile = function() {
-
-	};
-
 	var printBlob = (data) => {
 		let blobAnchorElem = null;
 		var fileURL = URL.createObjectURL(data);
@@ -391,7 +431,6 @@ function($uibModalInstance, _, customer, $http, $rootScope, geoDataService) {
 		blobAnchorElem.target = '_blank';
 		//document.body.appendChild(blobAnchorElem);
 		blobAnchorElem.click();
-		window.print();
 		//document.body.removeChild(blobAnchorElem);
 	}
 
@@ -434,10 +473,29 @@ function($uibModalInstance, _, customer, $http, $rootScope, geoDataService) {
 			$rootScope.pubErrorMsg('印表失敗,' + msg);
 		});
 
-		
-		
-		
 	};
+
+	vm.updateComment = () => {
+		let data = {
+			_id: vm._id,
+			comment: vm.comment
+		};
+		//console.log(data);
+		$http.post('/api/customer-survey/update-comment', data)
+		.then((res) => {
+			let data = res.data;
+			if(data.success) {
+				$rootScope.pubSuccessMsg('更新成功');
+			}
+			else {
+				return Promise.reject(''); 
+			}
+		})
+		.catch((err) => {
+			var msg = err && err.data? err.data.toString():(err? err.toString(): '');
+			$rootScope.pubErrorMsg('更新或上傳失敗,' + msg);
+		});
+	}
 
 	vm.submit = function() {
 		vm.refreshData();
@@ -471,12 +529,15 @@ function($uibModalInstance, _, customer, $http, $rootScope, geoDataService) {
 		if(vm.customerType) customerData['customerType'] = vm.customerType.value;
 		if(vm.evaluation) customerData['rating'] = vm.evaluation.value;
 
-		$http.post('/api/customer-survey/upsert', customerData)
+		return $http.post('/api/customer-survey/upsert', customerData)
 		.then((res) => {
 			let data = res.data;
 			if(data.success) {
 				$rootScope.pubSuccessMsg('更新成功');
-				extractData(data.result);
+				return extractData(data.result);
+			}
+			else {
+				return Promise.reject(''); 
 			}
 		})
 		.catch((err) => {
@@ -485,6 +546,27 @@ function($uibModalInstance, _, customer, $http, $rootScope, geoDataService) {
 		});
 
 	};
+
+	
+	vm.saveIntoFile = function() {
+		let customerData = {
+			state: 'filed',
+			_id: vm._id
+		};
+
+		$http.post('/api/customer-survey/changeState', customerData)
+		.then((res) => {
+			let data = res.data;
+			if(data.success) {
+				vm.state = 'filed';
+			}
+			else {
+				return Promise.reject('改變表格狀態失敗');
+			}
+		});
+
+	};
+
 
 	vm.cancel = function() {
 		vm.isEditting = false;

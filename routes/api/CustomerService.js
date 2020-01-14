@@ -9,6 +9,37 @@ var labelMap = {
 };
 var customerSurveyList = keystone.list(Constants.CustomerSurveyListName);
 
+exports.updateComment = (req, res) => {
+	var form = req.body;
+	customerSurveyList.model
+		.findById(form._id)
+		.exec()
+		.then(function(customer) {
+			if (customer) {
+				if(customer.state !== 'filed') {
+					customer.comment = form.comment;
+					return customer.save();
+				}
+				else {
+					return Promise.reject('此件已進入' + labelMap[customer.state] + '狀態');
+				}
+			}
+			else {
+				return Promise.reject('新建客戶無法進行此動作');
+			}
+		})
+		.then((savCustomer) => {
+			return res.json({
+				success: true,
+				result: savCustomer
+			});
+		})
+		.catch((err) => {
+			return res.ktSendRes(400, err);
+		});
+
+};
+
 exports.upsert = (req, res) => {
 	var form = req.body;
 	var orCondition = [];
@@ -46,7 +77,6 @@ exports.upsert = (req, res) => {
 
 	var data = {
 		formDate: form.formDate? form.formDate:Date.now(),
-		
 		name: form.customerName? form.customerName:"",
 		job: form.job? form.job:"",
 		bank: form.bank? form.bank:"",
@@ -68,41 +98,44 @@ exports.upsert = (req, res) => {
 		comment: form.comment? form.comment:"",
 		rating: form.rating? form.rating:"2"
 	};
-
-	console.log(data);
-
-	var getUpdateQuery = function() {
+	
+	var getQuery = function() {
 		return customerSurveyList.model
-		  .findOne({ $or: orCondition })
-		  .exec()
-		  .then(function(customer) {
+			.findOne({ $or: orCondition })
+			.exec()
+			.then(function(customer) {
 			if(customer) {
-			  if(customer.state === 'editting') {
-				  _.assign(customer, data);
-				  return customer.save();
-			  }
-			  else {
-				  return Promise.reject('此件已進入' + labelMap[customer.state] + '狀態');
-			  }
+				if(customer.state === 'editting') {
+					_.assign(customer, data);
+					return customer.save();
+				}
+				else if(customer.state === 'reviewing') {
+					customer.comment = form.comment? form.comment:"";
+					return customer.save();
+				}
+				else {
+					return Promise.reject('此件已進入' + labelMap[customer.state] + '狀態');
+				}
 			}
 			else {
-			  var newCustomer = new customerSurveyList.model(data);
-			  return newCustomer.save();
+				var newCustomer = new customerSurveyList.model(data);
+				return newCustomer.save();
 			}
-		  });
-	  }
+			});
+	}
 
-	  getUpdateQuery()
-	  .then((savCustomer) => {
+	getQuery()
+	.then((savCustomer) => {
 		return res.json({
 			success: true,
 			result: savCustomer
 		});
-	  })
-	  .catch(function(err) {
+	})
+	.catch(function(err) {
 		return res.ktSendRes(400, err);
-	  });
+	});
 
+	
 };
 
 exports.sync = (req, res) => {
@@ -127,11 +160,15 @@ exports.sync = (req, res) => {
 		orCondition.push({ 'teleNum2': form.tele2 });
 	}
 
-	customerSurveyList.model
-	.findOne({ 
+	let q = customerSurveyList.model.findOne({ 
 		$or: orCondition
-	})
-	.lean()
+	});
+
+	if(form.hasOwnProperty("populateFields")) {
+		q = q.populate(form.populateFields);
+	}
+
+	q.lean()
 	.exec()
 	.then((customer) => {
 		if(customer) {
@@ -222,6 +259,27 @@ exports.search = (req, res) => {
 			filter.push(formDateFilter);
 		}
 		
+		if(form.hasOwnProperty("startAge") || form.hasOwnProperty("endAge")) {
+			let ageFilter = {};
+			ageFilter.age = {};
+			if(form.hasOwnProperty("startAge")) ageFilter.age.$gte = parseInt(form.startAge);
+			if(form.hasOwnProperty("endAge")) ageFilter.age.$lte = parseInt(form.endAge);
+			filter.push(ageFilter);
+			console.log(ageFilter);
+		}
+		
+		if(form.hasOwnProperty("sex")) {
+			filter.push({
+				sex: form.sex
+			});
+		}
+
+		if(form.hasOwnProperty("rating")) {
+			filter.push({
+				rating: form.rating
+			});
+		}
+
 		if(form.hasOwnProperty("lineGroup")) 
 			filter.push({
 				lineGroup: form.lineGroup
@@ -232,10 +290,17 @@ exports.search = (req, res) => {
 				customerType: form.customerType
 			});
 		
+		if(form.hasOwnProperty("isCustomer")) {
+			filter.push({
+				isCustomer: form.isCustomer
+			});
+		}
+		
 		customerSurveyList.model
 		.find({
 			$and: filter
 		})
+		.populate('city dist village')
 		.lean()
 		.exec()
 		.then((customers) => {
@@ -258,6 +323,7 @@ exports.search = (req, res) => {
 		//no filter
 		customerSurveyList.model
 		.find()
+		.populate('city dist village')
 		.lean()
 		.exec()
 		.then((customers) => {
