@@ -79,12 +79,13 @@
 </div>
 
 <div class="container text-center" style="margin-top: 10px;margin-bottom: 10px;">
-	<button class="btn btn-default" type="button" ng-click="ctrler.search()">搜尋</button>
+	<button class="btn-primary btn" type="button" ng-click="ctrler.search()">搜尋</button>
 </div>
 <div class="container" ng-show="ctrler.totalCustomers && ctrler.totalCustomers.length > 0">
 	<hr size="8px" width="100%">
 	<div class="container text-left">
 		<label>搜尋結果: 共有{{ctrler.totalCustomers.length}}筆</label>
+		<button type="button" class="btn-primary btn" style="margin-left: 10px;" ng-click="ctrler.printCustomerList()">印出客戶列表</button>
 	</div>
 	
 	<div class="table-responsive">

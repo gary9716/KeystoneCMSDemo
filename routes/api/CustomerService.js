@@ -255,7 +255,6 @@ exports.search = (req, res) => {
 				endDate.setTime(endDate.getTime() + 24 * 3600 * 1000);
 				formDateFilter.formDate.$lt = endDate;
 			}
-
 			filter.push(formDateFilter);
 		}
 		
@@ -265,7 +264,6 @@ exports.search = (req, res) => {
 			if(form.hasOwnProperty("startAge")) ageFilter.age.$gte = parseInt(form.startAge);
 			if(form.hasOwnProperty("endAge")) ageFilter.age.$lte = parseInt(form.endAge);
 			filter.push(ageFilter);
-			console.log(ageFilter);
 		}
 		
 		if(form.hasOwnProperty("sex")) {

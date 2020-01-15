@@ -1,3 +1,14 @@
+var printBlob = (data) => {
+	let blobAnchorElem = null;
+	var fileURL = URL.createObjectURL(data);
+	blobAnchorElem = document.createElement('a');
+	blobAnchorElem.href = fileURL;
+	blobAnchorElem.target = '_blank';
+	//document.body.appendChild(blobAnchorElem);
+	blobAnchorElem.click();
+	//document.body.removeChild(blobAnchorElem);
+}
+
 angular.module('mainApp')
 .controller('SearchPageCtrler', 
   ['$http', '$window', '$state', '$rootScope', '$uibModal', 'lodash','localStorageService', 'appRootPath',
@@ -157,6 +168,7 @@ angular.module('mainApp')
 		}
 
 		//console.log(filter);
+		vm.lastFilter = filter;
 
 		$http.post('/api/customer-survey/search', filter)
 		.then((res) => {
@@ -218,7 +230,30 @@ angular.module('mainApp')
 			//console.log('update customer');
 			updateCustomer(customer);
 		  });
-    }
+	}
+	
+	vm.printCustomerList = () => {
+		$http.post('/pdf/customer-list',
+		{
+			customerList: vm.totalCustomers,
+			filter: vm.lastFilter
+		})
+		.then((res) => {
+			let data = res.data;
+			if(data.filename) {
+				var file = new Blob([new Uint8Array(data.content.data)],{type: 'application/pdf'});
+				printBlob(file);
+				$rootScope.pubSuccessMsg('下載成功');
+			}
+			else {
+				return Promise.reject('');
+			}
+		})
+		.catch((err) => {
+			var msg = err && err.data? err.data.toString():(err? err.toString(): '');
+			$rootScope.pubErrorMsg('下載失敗,' + msg);
+		});
+	};
 
 }])
 .controller('CustomerDetailCtrler',
@@ -319,12 +354,12 @@ function($uibModalInstance, _, customer, $http, $rootScope, geoDataService) {
 	];
 
 	vm.selectOnChange = function(targetName, selectVal) {
-      if(targetName === 'dists') {
-        vm.distSelect = null;
-        vm.villages = null;
-      }
+		if(targetName === 'dists') {
+			vm.distSelect = null;
+			vm.villages = null;
+		}
 
-      return geoDataService.fetch(targetName, selectVal)
+      	return geoDataService.fetch(targetName, selectVal)
               .then(function(data) {
                 vm[targetName] = data;
                 return data;
@@ -337,34 +372,36 @@ function($uibModalInstance, _, customer, $http, $rootScope, geoDataService) {
     }
 
 	var setRestOfDefaultValues = function(level) {
-      if($rootScope.locals) {
-        var sysParams = $rootScope.locals.sys;
-        vm.citySelect = _.find(vm.cities, function(city) {
-          return city._id === sysParams.cityDist.city;
-        });
-
-        return vm.selectOnChange('dists',vm.citySelect._id)
-          .then(function(dists) {
-            
-          if(level === 'city')
-            return;
-            
-            vm.distSelect = _.find(vm.dists, function(dist) {
-              return dist._id === sysParams.cityDist._id;
+		  
+		if($rootScope.locals) {
+			var sysParams = $rootScope.locals.sys;
+			vm.citySelect = _.find(vm.cities, function(city) {
+			return city._id === sysParams.cityDist.city;
 			});
-			
-            return vm.selectOnChange('villages',vm.distSelect._id);
-          }); 
-      }
+
+			return vm.selectOnChange('dists',vm.citySelect._id)
+				 .then(function(dists) {
+					
+					if(level === 'city')
+						return;
+						
+						vm.distSelect = _.find(vm.dists, function(dist) {
+						return dist._id === sysParams.cityDist._id;
+						});
+						
+						return vm.selectOnChange('villages',vm.distSelect._id);
+					}); 
+		}
+
     }
 		
     var setAddr = function() {
-      if(vm.citySelect && vm.distSelect) {
-		vm.fullAddr = (vm.citySelect.name + vm.distSelect.dist + vm.addrRest); 
-      }
-      else {
-        vm.fullAddr = '';
-	  }
+		if(vm.citySelect && vm.distSelect) {
+			vm.fullAddr = (vm.citySelect.name + vm.distSelect.dist + vm.addrRest); 
+		}
+		else {
+			vm.fullAddr = '';
+		}
     }
 
 	var findWithID = (dataArray, id) => {
@@ -423,17 +460,6 @@ function($uibModalInstance, _, customer, $http, $rootScope, geoDataService) {
 		return vm.state === stateName;
 	};
 
-	var printBlob = (data) => {
-		let blobAnchorElem = null;
-		var fileURL = URL.createObjectURL(data);
-		blobAnchorElem = document.createElement('a');
-		blobAnchorElem.href = fileURL;
-		blobAnchorElem.target = '_blank';
-		//document.body.appendChild(blobAnchorElem);
-		blobAnchorElem.click();
-		//document.body.removeChild(blobAnchorElem);
-	}
-
 	vm.print = function() {
 		let customerData = {
 			_id: vm._id,
@@ -441,7 +467,7 @@ function($uibModalInstance, _, customer, $http, $rootScope, geoDataService) {
 		};
 
 		let q = null;
-		if(vm.state === 'editting') 
+		if(vm.state === 'editting') {
 			q = $http.post('/api/customer-survey/changeState', customerData)
 			.then((res) => {
 				let data = res.data;
@@ -452,20 +478,24 @@ function($uibModalInstance, _, customer, $http, $rootScope, geoDataService) {
 					return Promise.reject('改變表格狀態失敗');
 				}
 			});
-		else
+		}
+		else {
 			q = $http.post('/pdf/customer-survey', customerData);
-		
+		}
+			
 		q.then((res) => {
 			let data = res.data;
 			if(data.filename) {	
-				var filename = data.filename;
 				var file = new Blob([new Uint8Array(data.content.data)],{type: 'application/pdf'});
+				
+				//var filename = data.filename;
 				//saveAs(file, filename);
+				
 				printBlob(file);
 				$rootScope.pubSuccessMsg('下載成功');
 			}
 			else {
-				$rootScope.pubErrorMsg('下載失敗');
+				return Promise.reject('');
 			}
 		})
 		.catch((err) => {
@@ -546,7 +576,6 @@ function($uibModalInstance, _, customer, $http, $rootScope, geoDataService) {
 		});
 
 	};
-
 	
 	vm.saveIntoFile = function() {
 		let customerData = {
@@ -567,11 +596,10 @@ function($uibModalInstance, _, customer, $http, $rootScope, geoDataService) {
 
 	};
 
-
 	vm.cancel = function() {
 		vm.isEditting = false;
-	}
-	
+	};
+
 	vm.init = function() {
 		let newCustomer = _.cloneDeep(customer);
 		extractData(newCustomer);
@@ -580,4 +608,5 @@ function($uibModalInstance, _, customer, $http, $rootScope, geoDataService) {
 	vm.closeModal = () => {
 		$uibModalInstance.dismiss();
 	};
+
 }]);

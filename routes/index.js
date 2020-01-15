@@ -171,6 +171,13 @@ exports = module.exports = function (app) {
 		})
 	);
 
+	app.post('/pdf/customer-list',
+		compression(),
+		middleware.doPDFGenViaPDFMake.bind({
+			doc: 'customer-list'
+		})
+	);
+
   //
 
   app.post('/pdf/account-rec',
