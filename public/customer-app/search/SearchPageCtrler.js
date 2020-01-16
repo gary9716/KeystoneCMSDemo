@@ -67,6 +67,10 @@ angular.module('mainApp')
 			value: 'female',
 			name: '女'
 		},
+		{
+			value: 'none',
+			name: '無'
+		}
 	];
 
 	vm.lineGroupStates = [
@@ -278,6 +282,10 @@ function($uibModalInstance, _, customer, $http, $rootScope, geoDataService) {
 			value: 'female',
 			name: '女性'
 		},
+		{
+			value: 'none',
+			name: '無'
+		}
 	];
 
 	vm.customerTypes = [

@@ -42,24 +42,24 @@ exports.updateComment = (req, res) => {
 
 exports.upsert = (req, res) => {
 	var form = req.body;
-	var orCondition = [];
+	var andCondition = [];
 
 	if(form.hasOwnProperty("_id")) {
-		orCondition.push({ "_id": form._id });
+		andCondition.push({ "_id": form._id });
 	}
 
 	if(form.hasOwnProperty("customerName")) {
-		orCondition.push({ 'name': form.customerName });
+		andCondition.push({ 'name': form.customerName });
 	}
 
 	if(form.hasOwnProperty("tele1")) {
 		form.tele1 = middleware.getPureNumStr(form.tele1);
-		orCondition.push({ 'teleNum1': form.tele1 });
+		andCondition.push({ 'teleNum1': form.tele1 });
 	}
 
 	if(form.hasOwnProperty("tele2")) {
 		form.tele2 = middleware.getPureNumStr(form.tele2);
-		orCondition.push({ 'teleNum2': form.tele2 });
+		andCondition.push({ 'teleNum2': form.tele2 });
 	}
 
 	let age = parseInt(form.age);
@@ -81,7 +81,7 @@ exports.upsert = (req, res) => {
 		job: form.job? form.job:"",
 		bank: form.bank? form.bank:"",
 		age: form.age? form.age:0,
-		sex: form.sex? form.sex:"male",
+		sex: form.sex? form.sex:"none",
 		finance: form.finance? form.finance:"",
 		interviewer: form.interviewer? form.interviewer:"",
 		isCustomer: form.isCustomer? form.isCustomer:false,
@@ -101,7 +101,7 @@ exports.upsert = (req, res) => {
 	
 	var getQuery = function() {
 		return customerSurveyList.model
-			.findOne({ $or: orCondition })
+			.findOne({ $and: andCondition })
 			.exec()
 			.then(function(customer) {
 			if(customer) {
@@ -140,28 +140,28 @@ exports.upsert = (req, res) => {
 
 exports.sync = (req, res) => {
 	var form = req.body;
-	var orCondition = [];
+	var andCondition = [];
 
 	if(form.hasOwnProperty("_id")) {
-		orCondition.push({ '_id': form._id });
+		andCondition.push({ '_id': form._id });
 	}
 
 	if(form.hasOwnProperty("customerName")) {
-		orCondition.push({ 'name': form.customerName });
+		andCondition.push({ 'name': form.customerName });
 	}
 
 	if(form.hasOwnProperty("tele1")) {
 		form.tele1 = middleware.getPureNumStr(form.tele1);
-		orCondition.push({ 'teleNum1': form.tele1 });
+		andCondition.push({ 'teleNum1': form.tele1 });
 	}
 
 	if(form.hasOwnProperty("tele2")) {
 		form.tele2 = middleware.getPureNumStr(form.tele2);
-		orCondition.push({ 'teleNum2': form.tele2 });
+		andCondition.push({ 'teleNum2': form.tele2 });
 	}
 
 	let q = customerSurveyList.model.findOne({ 
-		$or: orCondition
+		$and: andCondition
 	});
 
 	if(form.hasOwnProperty("populateFields")) {
@@ -191,7 +191,7 @@ exports.sync = (req, res) => {
 
 exports.changeState = (req, res) => {
 	var form = req.body;
-	var orCondition = [];
+	var andCondition = [];
 
 	if(!form.hasOwnProperty("state")) {
 		res.ktSendRes(400, 'no state');
@@ -199,26 +199,26 @@ exports.changeState = (req, res) => {
 	}
 
 	if(form.hasOwnProperty("_id")) {
-		orCondition.push({ "_id": form._id });
+		andCondition.push({ "_id": form._id });
 	}
 
 	if(form.hasOwnProperty("customerName")) {
-		orCondition.push({ 'name': form.customerName });
+		andCondition.push({ 'name': form.customerName });
 	}
 
 	if(form.hasOwnProperty("tele1")) {
 		form.tele1 = middleware.getPureNumStr(form.tele1);
-		orCondition.push({ 'teleNum1': form.tele1 });
+		andCondition.push({ 'teleNum1': form.tele1 });
 	}
 
 	if(form.hasOwnProperty("tele2")) {
 		form.tele2 = middleware.getPureNumStr(form.tele2);
-		orCondition.push({ 'teleNum2': form.tele2 });
+		andCondition.push({ 'teleNum2': form.tele2 });
 	}
 
 	customerSurveyList.model
 	.findOne({ 
-		$or: orCondition
+		$and: andCondition
 	})
 	.exec()
 	.then((customer) => {

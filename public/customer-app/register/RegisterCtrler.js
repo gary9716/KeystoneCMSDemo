@@ -24,6 +24,10 @@ angular.module('mainApp')
 			value: 'female',
 			name: '女性'
 		},
+		{
+			value: 'none',
+			name: '無'
+		}
 	];
 
 	vm.customerTypes = [

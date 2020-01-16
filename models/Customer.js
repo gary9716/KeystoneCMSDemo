@@ -20,7 +20,8 @@ CustomerSurvey.add({
 	age : { type: Number, label: '年齡', default: 0, initial: true },
 	sex : { type: Types.Select, label: '性別', options: [ 
 		{ value: 'male', label: '男性' },
-		{ value: 'female', label: '女性' }
+		{ value: 'female', label: '女性' },
+		{ value: 'none', label: '無' }
 	], trim: true, initial: true },
 	finance: { type:String, label:'經濟狀況', initial: true, trim: true },
 	isCustomer: { type: Boolean, label: '是否為本會客戶', initial: true, index: true, default: false },
