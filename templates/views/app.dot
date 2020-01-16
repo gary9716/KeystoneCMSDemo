@@ -47,7 +47,7 @@
                 <li class="clickable" ng-show="isLogin() && isPage('productManage')"><a ng-click="openProductEdit()"><i class="fa fa-cloud-upload" aria-hidden="true"></i> 增加商品</a></li>
 
                 <li class="clickable" ng-show="isLogin() && isPage('productManage')"><a ng-click="openProductTypeEdit()"><i class="fa fa-cloud-upload" aria-hidden="true"></i> 增加類型</a></li>
-
+								<li class="clickable"><a href="/customer-survey">客戶訪查表</a></li>
                 [[?model.user]]
                 [[var result= helpers.getKeystoneAttr('signout url');]]
                 <li><a href=[[=result]]>登出</a></li>
