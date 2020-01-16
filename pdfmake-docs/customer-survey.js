@@ -80,30 +80,8 @@ module.exports = (req, res) => {
 		.then((customer) => {
 			if(customer) {
 				let customerName = customer.name;
-				filename = customerName + "的訪查表.pdf";
+				filename = customerName + "的訪問表.pdf";
 				res.locals.filename = filename;
-
-				var fourColumnContent = {
-					widths: [100, '*', 100, '*'], //width can be [number, *, auto]
-					body: [
-						['姓名', customer.name, '年齡', customer.age],
-						['性別', sexLabelMap[customer.sex], '職業', customer.job],
-						['電話', customer.teleNum1,'傳真', customer.teleNum2],
-						['往來銀行', customer.bank, '經濟狀況', customer.finance],
-						['是否為本會客戶', customer.isCustomer? "是":"否", 'Line群組加入狀況', lineGroupStatesMap[customer.lineGroup]],
-						['往來狀況', customerTypeMap[customer.customerType], '地址', customer.addr],
-						['訪查員', customer.interviewer,'對本會滿意度', ratingList[customer.rating]]
-					] 
-				};
-
-				var twoColumnContent = {
-					widths: [100, '*'],
-					heights: ['auto', 200],
-					body: [
-						['客戶需求', customer.need],
-						['會相關部門', customer.comment]
-					]
-				};
 
 				var doc = {
 					// a string or { width: number, height: number }
@@ -119,18 +97,51 @@ module.exports = (req, res) => {
 						font: 'msjh'
 					},
 					content: [
-						{ text: '顧客訪查表', fontSize: 18, alignment: 'center' },
+						{ text: '大甲農會客戶訪問表', fontSize: 18, alignment: 'center' },
 						timeInfo,
 						{
-							margin: [0, 5, 0, 0],
-							table: fourColumnContent
+							margin: [0, 5, 0, -1],
+							table: {
+								widths: [60, 145, 60, '*', 60, '*'], //width can be [number, *, auto]
+								body: [
+									['姓名', customer.name, '性別', sexLabelMap[customer.sex], '年齡', customer.age],
+									['住址', customer.addr, '經濟狀況', customer.finance, '電話', customer.teleNum1],
+									['職業', customer.job, '往來銀行', customer.bank, '傳真', customer.teleNum2],
+									['本會客戶', customer.isCustomer? "是":"否", '往來狀況', customerTypeMap[customer.customerType], 'Line群組', lineGroupStatesMap[customer.lineGroup]]
+								] 
+							}
+						},
+						{
+							margin: [0, 0, 0, -1],
+							table: {
+								widths: [60, '*'],
+								body: [
+									['客戶需求', customer.need]
+								]
+							}
+						},
+						{
+							margin: [0, 0, 0, -1],
+							table: {
+								widths: [60, 145, 60, '*'],
+								body: [
+									['訪查員', customer.interviewer, '對本會滿意度', ratingList[customer.rating]]
+								]
+							}
 						},
 						{
 							margin: [0, 0, 0, 5],
-							table: twoColumnContent
+							table: 
+							{
+								widths: [60, '*'],
+								heights: [200],
+								body: [
+									['會相關部門', customer.comment]
+								]
+							}
 						},
 						divisionInfo
-					],
+					]
 				};
 			
 				return doc;

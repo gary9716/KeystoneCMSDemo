@@ -160,7 +160,15 @@ exports.sync = (req, res) => {
 		andCondition.push({ 'teleNum2': form.tele2 });
 	}
 
-	let q = customerSurveyList.model.findOne({ 
+	if(form.hasOwnProperty("interviewer")) {
+		andCondition.push({ 'interviewer': form.interviewer });
+	}
+
+	if(form.hasOwnProperty("state")) {
+		andCondition.push({ 'state': form.state });
+	}
+
+	let q = customerSurveyList.model.find({ 
 		$and: andCondition
 	});
 
@@ -170,11 +178,11 @@ exports.sync = (req, res) => {
 
 	q.lean()
 	.exec()
-	.then((customer) => {
-		if(customer) {
+	.then((customers) => {
+		if(customers && customers.length > 0) {
 			res.json({
 				success: true,
-				result: customer
+				result: customers.length === 1? customers[0]: customers
 			});
 		}
 		else {
@@ -294,6 +302,18 @@ exports.search = (req, res) => {
 			});
 		}
 		
+		if(form.hasOwnProperty("interviewer")) {
+			filter.push({
+				interviewer: form.interviewer
+			});
+		}
+
+		if(form.hasOwnProperty("customerName")) {
+			filter.push({
+				name: form.customerName
+			});
+		}
+
 		customerSurveyList.model
 		.find({
 			$and: filter

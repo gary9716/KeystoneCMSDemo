@@ -91,6 +91,12 @@ module.exports = (req, res) => {
 	let getDateStr = (d) => {
 		return d.getFullYear() + "/" + (d.getMonth() + 1) + "/" + d.getDate();
 	}
+	if(filter.hasOwnProperty("customerName")) {
+		filterInfo += ("客戶名稱:" + filter.customerName + "\n");
+	}
+	if(filter.hasOwnProperty("interviewer")) {
+		filterInfo += ("訪查員:" + filter.interviewer + "\n");
+	}
 	if(filter.hasOwnProperty("startDate")) 
 		filterInfo += ("日期起點:" + getDateStr(new Date(filter["startDate"])) + "\n");
 	if(filter.hasOwnProperty("endDate")) 
@@ -146,7 +152,7 @@ module.exports = (req, res) => {
 			font: 'msjh'
 		},
 		content: [
-			{ text: '顧客清單', fontSize: 18, alignment: 'center' },
+			{ text: '大甲農會客戶訪查清單', fontSize: 18, alignment: 'center' },
 			timeInfo,
 			{ text: '過濾條件:', style: 'Bold', alignment: 'left' },
 			{ text: filterInfo, alignment: 'left' },
@@ -158,7 +164,7 @@ module.exports = (req, res) => {
 		],
 	};
 
-	filename = "顧客清單.pdf";
+	filename = "大甲農會客戶訪查清單.pdf";
 	res.locals.filename = filename;
 
 	return doc;

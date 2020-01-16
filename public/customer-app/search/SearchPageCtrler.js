@@ -170,6 +170,12 @@ angular.module('mainApp')
 		if(vm.useEndAge && vm.endAge) {
 			filter.endAge = vm.endAge;
 		}
+		if(vm.useCustomerName && vm.customerName) {
+			filter.customerName = vm.customerName;
+		}
+		if(vm.useInterviewer && vm.interviewer) {
+			filter.interviewer = vm.interviewer;
+		}
 
 		//console.log(filter);
 		vm.lastFilter = filter;

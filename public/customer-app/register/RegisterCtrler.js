@@ -177,10 +177,11 @@ angular.module('mainApp')
 	}
 
 	var extractData = function(data) {
-		data.tele1 = data.teleNum1;
-		data.tele2 = data.teleNum2;
-		data.customerName = data.name;
-
+		//console.log(data);
+		_.assign(vm, data);
+		vm.tele1 = data.teleNum1;
+		vm.tele2 = data.teleNum2;
+		vm.customerName = data.name;
 		vm.citySelect = findWithID(vm.cities, data.city);
 		vm.selectOnChange('dists',vm.citySelect._id)
 		.then(function(dists) {
@@ -193,40 +194,97 @@ angular.module('mainApp')
 			vm.villageSelect = findWithID(villages, data.village);
 		});
 
-		data.isCustomer = findWithValue(vm.isCustomerLabels, data.isCustomer);
-		data.lineGroup = findWithValue(vm.lineGroupStates, data.lineGroup);
-		data.customerType = findWithValue(vm.customerTypes, data.customerType);
-		data.sex = findWithValue(vm.sexLabels, data.sex);
-		data.evaluation = findWithValue(vm.ratingList, data.rating);
+		vm.isCustomer = findWithValue(vm.isCustomerLabels, data.isCustomer);
+		vm.lineGroup = findWithValue(vm.lineGroupStates, data.lineGroup);
+		vm.customerType = findWithValue(vm.customerTypes, data.customerType);
+		vm.sex = findWithValue(vm.sexLabels, data.sex);
+		vm.evaluation = findWithValue(vm.ratingList, data.rating);
 
-		_.assign(vm, data);
 	};
 
+	var emptyForm = () => {
+		vm._id = undefined;
+		vm.customerName = undefined;
+		vm.interviewer = undefined;
+		vm.sex = undefined;
+		vm.age = undefined;
+		vm.bank = undefined;
+		vm.job = undefined;
+		vm.tele1 = undefined;
+		vm.tele2 = undefined;
+		vm.teleNum1 = undefined;
+		vm.teleNum2 = undefined;
+		vm.name = undefined;
+		vm.city = undefined;
+		vm.dist = undefined;
+		vm.village = undefined;
+		vm.addrRest = undefined;
+		vm.fullAddr = undefined;
+		vm.finance = undefined;
+		vm.isCustomer = undefined;
+		vm.lineGroup = undefined;
+		vm.customerType = undefined;
+		vm.need = undefined;
+		vm.comment = undefined;
+		vm.evaluation = undefined;
+		vm.formDate = Date.now();
+		vm.state = "editting";
+	}
+
+	vm.nextCustomer = () => {
+		vm.customerIndex = (vm.customerIndex + 1) % vm.candidates.length;
+		extractData(vm.candidates[vm.customerIndex]);
+	}
+
+	vm.candidates = [];
+	vm.customerIndex = 0;
+	vm.onlyReturnEdittable = true;
+
 	vm.syncData = function() {
+		if(!vm.interviewer && !vm.customerName) {
+			$rootScope.pubWarningMsg('訪查者名或客戶名至少得有一者不為空');
+			return;
+		}
+
 		if(vm.isSearching) return;
 		vm.isSearching = true;
-
+		vm.candidates = [];
+		vm.customerIndex = 0;
+	
 		//search with customer name and tele1 or tele2
 		let customerData = {
 			customerName: vm.customerName,
 			tele1: vm.tele1,
-			tele2: vm.tele2
+			tele2: vm.tele2,
+			interviewer: vm.interviewer,
 		};
+
+		if(vm.onlyReturnEdittable)
+			customerData.state = 'editting';
+
+		console.log(customerData);
 
 		$http.post('/api/customer-survey/sync', customerData)
 		.then((res) => {
 			var data = res.data;
 				if(data.success) {
 					$rootScope.pubSuccessMsg('同步成功');
-					extractData(data.result);
+					if(_.isArray(data.result)) {
+						vm.candidates = data.result;
+						extractData(vm.candidates[vm.customerIndex]);
+					}
+					else
+						extractData(data.result);
 				}
 				else {
 					$rootScope.pubWarningMsg('沒找到');
+					emptyForm();
 				}
 		})
 		.catch((err) => {
 			var msg = err && err.data? err.data.toString():(err? err.toString(): '');
-       		$rootScope.pubErrorMsg('同步失敗,' + msg);
+			$rootScope.pubErrorMsg('同步失敗,' + msg);
+			emptyForm();   
 		})
 		.finally(() => {
 			vm.isSearching = false;
@@ -289,6 +347,10 @@ angular.module('mainApp')
 			var msg = err && err.data? err.data.toString():(err? err.toString(): '');
 			$rootScope.pubErrorMsg('更新或上傳失敗,' + msg);
 		});
+	}
+
+	vm.openNewForm = () => {
+		$state.reload();
 	}
 
 }]);

@@ -15,8 +15,13 @@
 			<div class="col-md-2 col-xs-4">
 				<span class="text-left" style="opacity: 1;">狀態<label style="margin-left:5px;">{{ctrler.formStateMap[ctrler.state]}}</label></span>
 			</div>
-			<div class="col-md-2 col-xs-4 text-center">
-				<button class="btn btn-default text-left" type="button" ng-click="ctrler.syncData()">同步</button>
+		</div>
+		<div class="container">
+			<div class="col-md-12 col-xs-12 text-left">
+				<span><input type="checkbox" ng-model="ctrler.onlyReturnEdittable" style="margin: 10px;">只回傳可編修的</span>
+				<button class="btn btn-default text-left" style="margin: 10px;" type="button" ng-click="ctrler.syncData()">同步</button>
+				<button class="btn btn-default text-left" style="margin: 10px;" type="button" ng-click="ctrler.nextCustomer()" ng-show="ctrler.candidates.length > 0">下一個</button>
+				<button class="btn btn-default text-left" style="margin: 10px;" type="button" ng-click="ctrler.openNewForm()">開新表單</button>
 			</div>
 		</div>
 		<div class="container">
@@ -29,7 +34,7 @@
 		</div>
 		<div class="container">
 			<div class="col-md-3 col-xs-6">
-				<p class="text-left" style="opacity: 1;">電話</p><input name="tele1" ng-model="ctrler.tele1" ng-model-options="{ debounce: 150 }" class="form-control" type="text" style="margin-bottom: 10px;" required></div>
+				<p class="text-left" style="opacity: 1;">電話</p><input name="tele1" ng-model="ctrler.tele1" ng-model-options="{ debounce: 150 }" class="form-control" type="text" style="margin-bottom: 10px;"></div>
 			<div class="col-md-3 col-xs-6">
 				<p class="text-left" style="opacity: 1;">傳真</p><input name="tele2" ng-model="ctrler.tele2" ng-model-options="{ debounce: 150 }" class="form-control" type="text" style="margin-bottom: 10px;"></div>
 			<div class="col-md-3 col-xs-6">

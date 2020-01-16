@@ -39,6 +39,22 @@
 </div>
 <div class="container text-center">
 	<div class="col-lg-3 col-md-3 col-sm-6 col-xs-6 text-left">
+		<input type="checkbox" ng-model="ctrler.useCustomerName" style="margin: 10px;">
+		<label>客戶名稱</label>
+		<div class="input-group">
+			<input name="customerName" ng-model="ctrler.customerName" ng-model-options="{ debounce: 150 }" class="form-control" type="text" style="margin-bottom: 10px;">
+		</div>
+	</div>
+	<div class="col-lg-3 col-md-3 col-sm-6 col-xs-6 text-left">
+		<input type="checkbox" ng-model="ctrler.useInterviewer" style="margin: 10px;">
+		<label>訪查員</label>
+		<div class="input-group">
+			<input name="interviewer" ng-model="ctrler.interviewer" ng-model-options="{ debounce: 150 }" class="form-control" type="text" style="margin-bottom: 10px;">
+		</div>
+	</div>
+</div>
+<div class="container text-center">
+	<div class="col-lg-3 col-md-3 col-sm-6 col-xs-6 text-left">
 		<input type="checkbox" ng-model="ctrler.useStartAge" style="margin: 10px;">
 		<label>年齡起點</label>
 		<div class="input-group">
@@ -85,7 +101,7 @@
 	<hr size="8px" width="100%">
 	<div class="container text-left">
 		<label>搜尋結果: 共有{{ctrler.totalCustomers.length}}筆</label>
-		<button type="button" class="btn-primary btn" style="margin-left: 10px;" ng-click="ctrler.printCustomerList()">印出客戶列表</button>
+		<button type="button" class="btn-primary btn" style="margin: 10px;" ng-click="ctrler.printCustomerList()">印出客戶列表</button>
 	</div>
 	
 	<div class="table-responsive">
