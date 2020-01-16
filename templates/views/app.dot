@@ -33,6 +33,7 @@
             </div>
             <div class="collapse navbar-collapse">
               <ul class="nav navbar-nav navbar-left">
+									<li class="clickable"><a href="/customer-survey">客戶訪查表</a></li>
                   [[~ model.navLinks:link]]
                   <li>
                     <a ui-sref=[[=link.state]]>[[=link.label]]</a>
@@ -47,7 +48,7 @@
                 <li class="clickable" ng-show="isLogin() && isPage('productManage')"><a ng-click="openProductEdit()"><i class="fa fa-cloud-upload" aria-hidden="true"></i> 增加商品</a></li>
 
                 <li class="clickable" ng-show="isLogin() && isPage('productManage')"><a ng-click="openProductTypeEdit()"><i class="fa fa-cloud-upload" aria-hidden="true"></i> 增加類型</a></li>
-								<li class="clickable"><a href="/customer-survey">客戶訪查表</a></li>
+								
                 [[?model.user]]
                 [[var result= helpers.getKeystoneAttr('signout url');]]
                 <li><a href=[[=result]]>登出</a></li>
