@@ -97,7 +97,7 @@ module.exports = (req, res) => {
 						font: 'msjh'
 					},
 					content: [
-						{ text: '大甲農會客戶訪問表', fontSize: 18, alignment: 'center' },
+						{ text: '大甲區農會客戶訪問表', fontSize: 18, alignment: 'center' },
 						timeInfo,
 						{
 							margin: [0, 5, 0, -1],
@@ -125,7 +125,7 @@ module.exports = (req, res) => {
 							table: {
 								widths: [60, 145, 60, '*'],
 								body: [
-									['訪查員', customer.interviewer, '對本會滿意度', ratingList[customer.rating]]
+									['訪查員', customer.interviewer, '對本會評價', ratingList[customer.rating]]
 								]
 							}
 						},
