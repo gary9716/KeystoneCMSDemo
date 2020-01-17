@@ -395,15 +395,15 @@ function($uibModalInstance, _, customer, $http, $rootScope, geoDataService) {
 			vm.citySelect = _.find(vm.cities, function(city) {
 			return city._id === sysParams.cityDist.city;
 			});
-
+			
 			return vm.selectOnChange('dists',vm.citySelect._id)
 				 .then(function(dists) {
 					
-					if(level === 'city')
-						return;
+						if(level === 'city')
+							return;
 						
 						vm.distSelect = _.find(vm.dists, function(dist) {
-						return dist._id === sysParams.cityDist._id;
+							return dist._id === sysParams.cityDist._id;
 						});
 						
 						return vm.selectOnChange('villages',vm.distSelect._id);
@@ -440,19 +440,23 @@ function($uibModalInstance, _, customer, $http, $rootScope, geoDataService) {
 
 		vm.selectOnChange('cities',null)
 		.then(() => {
-			vm.citySelect = findWithID(vm.cities, data.city._id);
-			vm.selectOnChange('dists',vm.citySelect._id)
-			.then(function(dists) {
-				vm.distSelect = _.find(dists, function(dist) {
-					return dist._id === data.dist._id;
-				});
-				return vm.selectOnChange('villages',vm.distSelect._id);
-			})
-			.then(function(villages) {
-				vm.villages = villages;
-				vm.villageSelect = findWithID(villages, data.village._id);
-			});
-
+			if(data.city) {
+				vm.citySelect = findWithID(vm.cities, data.city._id);
+				if(vm.citySelect && data.dist) {
+					vm.selectOnChange('dists',vm.citySelect._id)
+					.then(function(dists) {
+						vm.distSelect = _.find(dists, function(dist) {
+							return dist._id === data.dist._id;
+						});
+						if(vm.distSelect && data.village)
+							return vm.selectOnChange('villages',vm.distSelect._id)
+								.then(function(villages) {
+									vm.villageSelect = findWithID(villages, data.village._id);
+								});
+					});
+				}	
+			}
+			
 			data.isCustomer = findWithValue(vm.isCustomerLabels, data.isCustomer);
 			data.lineGroup = findWithValue(vm.lineGroupStates, data.lineGroup);
 			data.customerType = findWithValue(vm.customerTypes, data.customerType);
