@@ -138,6 +138,8 @@ module.exports = (req, res) => {
 		customerListContent.body.push(rowData);
 	}
 
+	console.log(customerListContent);
+
 	var doc = {
 		// a string or { width: number, height: number }
 		pageSize: 'A4',
