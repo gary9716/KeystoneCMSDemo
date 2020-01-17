@@ -17,14 +17,14 @@ CustomerSurvey.add({
 	name: { type:String, label: '姓名', index: true, required: true, initial: true, trim: true },
 	job: { type:String, label: '職業', initial: true, trim: true },
 	bank: { type:String, label: '往來銀行', initial: true, trim: true },
-	age : { type: Number, label: '年齡', default: 0, initial: true },
+	age : { type: Number, label: '年齡', initial: true },
 	sex : { type: Types.Select, label: '性別', options: [ 
 		{ value: 'male', label: '男性' },
 		{ value: 'female', label: '女性' },
 		{ value: 'none', label: '無' }
 	], trim: true, initial: true },
 	finance: { type:String, label:'經濟狀況', initial: true, trim: true },
-	isCustomer: { type: Boolean, label: '是否為本會客戶', initial: true, index: true, default: false },
+	isCustomer: { type: Boolean, label: '是否為本會客戶', initial: true, index: true},
 	interviewer: { type:String, label: '訪查員', initial: true, trim: true },
 	rating: { type: Types.Select, label: '訪查評分', options: [
 		{ value: '0', label: '很好' },
@@ -32,7 +32,7 @@ CustomerSurvey.add({
 		{ value: '2', label: '普通' },
 		{ value: '3', label: '差' },
 		{ value: '4', label: '很差' },
-	], initial: true, default:'2' },
+	], initial: true },
 	lineGroup: { type: Types.Select, label: '是否已加入本會Line@生活圈', options: [ 
 		{ value: '1', label: '已加入' },
 		{ value: '2', label: '已邀請' },
@@ -44,7 +44,7 @@ CustomerSurvey.add({
 		{ value: '2', label: '農保戶' },
 		{ value: '3', label: '農業資材運用戶' },
 		{ value: '4', label: '家用雜貨使用戶' },
-	], initial: true, default:'0' },
+	], initial: true},
 	
 	teleNum1: { type:String, label:'住家電話', index: true, initial: true, trim: true },
 	teleNum2: { type:String, label:'行動電話', index: true, initial: true, trim: true },
