@@ -15,7 +15,8 @@ module.exports = (req, res) => {
 
 	let sexLabelMap = {
 		male: '男性',
-		female: '女性'
+		female: '女性',
+		none: '無'
 	};
 
 	let customerTypeMap = {
@@ -138,7 +139,7 @@ module.exports = (req, res) => {
 		customerListContent.body.push(rowData);
 	}
 
-	console.log(customerListContent);
+	//console.log(customerListContent);
 
 	var doc = {
 		// a string or { width: number, height: number }
