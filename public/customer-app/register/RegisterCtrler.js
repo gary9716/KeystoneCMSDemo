@@ -309,23 +309,23 @@ angular.module('mainApp')
 		let customerData = {
 			formDate: vm.formDate,
 			customerName: vm.customerName,
-			age: vm.age,
-			job: vm.job,
-			bank: vm.bank,
-			finance: vm.finance,
+			age: vm.age? vm.age:undefined,
+			job: vm.job? vm.job:undefined,
+			bank: vm.bank? vm.bank:undefined,
+			finance: vm.finance? vm.finance:undefined,
 			interviewer: vm.interviewer,
 			
-			tele1: vm.tele1,
-			tele2: vm.tele2,
+			tele1: vm.tele1?vm.tele1:undefined,
+			tele2: vm.tele2?vm.tele2:undefined,
 			
-			addr: vm.fullAddr,
-			addrRest: vm.addrRest,
-			city: vm.citySelect._id,
-			dist: vm.distSelect._id,
-			village: vm.villageSelect._id,
+			addr: vm.fullAddr?vm.fullAddr:undefined,
+			addrRest: vm.addrRest?vm.addrRest:undefined,
+			city: vm.citySelect?vm.citySelect._id:undefined,
+			dist: vm.distSelect?vm.distSelect._id:undefined,
+			village: vm.villageSelect?vm.villageSelect._id:undefined,
 
-			need: vm.need,
-			comment: vm.comment
+			need: vm.need?vm.need:undefined,
+			comment: vm.comment?vm.comment:undefined
 		};
 		if(vm.sex) customerData['sex'] = vm.sex.value;
 		if(vm.isCustomer) customerData['isCustomer'] = vm.isCustomer.value;

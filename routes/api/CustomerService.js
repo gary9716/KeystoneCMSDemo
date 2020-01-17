@@ -43,30 +43,20 @@ exports.updateComment = (req, res) => {
 exports.upsert = (req, res) => {
 	var form = req.body;
 	var andCondition = [];
+	var id = undefined;
+	var age = 0;
 
 	if(form.hasOwnProperty("_id")) {
-		andCondition.push({ "_id": form._id });
+		id = form._id;
 	}
 
-	if(form.hasOwnProperty("customerName")) {
-		andCondition.push({ 'name': form.customerName });
+	if(form.hasOwnProperty("age")) {
+		age = parseInt(form.age);
+		if(isNaN(age)) {
+			return res.ktSendRes(400, "年齡不是數字");
+		}
+		form.age = age;
 	}
-
-	if(form.hasOwnProperty("tele1")) {
-		form.tele1 = middleware.getPureNumStr(form.tele1);
-		andCondition.push({ 'teleNum1': form.tele1 });
-	}
-
-	if(form.hasOwnProperty("tele2")) {
-		form.tele2 = middleware.getPureNumStr(form.tele2);
-		andCondition.push({ 'teleNum2': form.tele2 });
-	}
-
-	let age = parseInt(form.age);
-	if(isNaN(age)) {
-		return res.ktSendRes(400, "年齡不是數字");
-	}
-	form.age = age;
 
 	try {
 		form.formDate = new Date(form.formDate);
@@ -75,52 +65,58 @@ exports.upsert = (req, res) => {
 		return res.ktSendRes(400, "表單日期出現問題");
 	}
 
+	if(!form.hasOwnProperty("customerName")) {
+		return res.ktSendRes(400, "顧客名為空");
+	}
+	
+	if(!form.hasOwnProperty("interviewer")) {
+		return res.ktSendRes(400, "訪查員為空");
+	}
+
 	var data = {
 		formDate: form.formDate? form.formDate:Date.now(),
-		name: form.customerName? form.customerName:"",
-		job: form.job? form.job:"",
-		bank: form.bank? form.bank:"",
-		age: form.age? form.age:0,
-		sex: form.sex? form.sex:"none",
-		finance: form.finance? form.finance:"",
-		interviewer: form.interviewer? form.interviewer:"",
-		isCustomer: form.isCustomer? form.isCustomer:false,
-		lineGroup: form.lineGroup? form.lineGroup:'3',
-		customerType: form.customerType? form.customerType:'0',
-		teleNum1: form.tele1? form.tele1:"",
-		teleNum2: form.tele2? form.tele2:"",
-		city: form.city? form.city:"",
-		dist: form.dist? form.dist:"",
-		village: form.village? form.village:"",
-		addrRest: form.addrRest? form.addrRest:"",
-		addr: form.addr? form.addr:"",
-		need: form.need? form.need:"",
-		comment: form.comment? form.comment:"",
-		rating: form.rating? form.rating:"2"
+		name: form.customerName,
+		job: form.job? form.job:undefined,
+		bank: form.bank? form.bank:undefined,
+		age: form.age? form.age:undefined,
+		sex: form.sex? form.sex:undefined,
+		finance: form.finance? form.finance:undefined,
+		interviewer: form.interviewer,
+		isCustomer: form.isCustomer? form.isCustomer:undefined,
+		lineGroup: form.lineGroup? form.lineGroup:undefined,
+		customerType: form.customerType? form.customerType:undefined,
+		teleNum1: form.tele1? form.tele1:undefined,
+		teleNum2: form.tele2? form.tele2:undefined,
+		city: form.city? form.city:undefined,
+		dist: form.dist? form.dist:undefined,
+		village: form.village? form.village:undefined,
+		addrRest: form.addrRest? form.addrRest:undefined,
+		addr: form.addr? form.addr:undefined,
+		need: form.need? form.need:undefined,
+		comment: form.comment? form.comment:undefined,
+		rating: form.rating? form.rating:undefined
 	};
 	
 	var getQuery = function() {
-		return customerSurveyList.model
-			.findOne({ $and: andCondition })
-			.exec()
-			.then(function(customer) {
-			if(customer) {
-				if(customer.state === 'editting') {
-					_.assign(customer, data);
-					return customer.save();
-				}
-				else if(customer.state === 'reviewing') {
-					customer.comment = form.comment? form.comment:"";
-					return customer.save();
+		let q = id? (customerSurveyList.model.findById(id).exec()):(Promise.resolve());
+		return q.then(function(customer) {
+				if(customer) {
+					if(customer.state === 'editting') {
+						_.assign(customer, data);
+						return customer.save();
+					}
+					else if(customer.state === 'reviewing') {
+						customer.comment = form.comment? form.comment:"";
+						return customer.save();
+					}
+					else {
+						return Promise.reject('此件已進入' + labelMap[customer.state] + '狀態');
+					}
 				}
 				else {
-					return Promise.reject('此件已進入' + labelMap[customer.state] + '狀態');
+					var newCustomer = new customerSurveyList.model(data);
+					return newCustomer.save();
 				}
-			}
-			else {
-				var newCustomer = new customerSurveyList.model(data);
-				return newCustomer.save();
-			}
 			});
 	}
 
@@ -199,35 +195,14 @@ exports.sync = (req, res) => {
 
 exports.changeState = (req, res) => {
 	var form = req.body;
-	var andCondition = [];
 
 	if(!form.hasOwnProperty("state")) {
 		res.ktSendRes(400, 'no state');
 		return;
 	}
 
-	if(form.hasOwnProperty("_id")) {
-		andCondition.push({ "_id": form._id });
-	}
-
-	if(form.hasOwnProperty("customerName")) {
-		andCondition.push({ 'name': form.customerName });
-	}
-
-	if(form.hasOwnProperty("tele1")) {
-		form.tele1 = middleware.getPureNumStr(form.tele1);
-		andCondition.push({ 'teleNum1': form.tele1 });
-	}
-
-	if(form.hasOwnProperty("tele2")) {
-		form.tele2 = middleware.getPureNumStr(form.tele2);
-		andCondition.push({ 'teleNum2': form.tele2 });
-	}
-
 	customerSurveyList.model
-	.findOne({ 
-		$and: andCondition
-	})
+	.findById(form._id)
 	.exec()
 	.then((customer) => {
 		customer.state = form.state;
