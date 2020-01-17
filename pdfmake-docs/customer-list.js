@@ -125,16 +125,16 @@ module.exports = (req, res) => {
 
 	for(let customer of customerList) {
 		let rowData = [];
-		rowData.push(customer.name);
-		rowData.push(sexLabelMap[customer.sex]);
-		rowData.push(customer.age);
-		rowData.push(customer.city.name);
-		rowData.push(customer.dist.dist);
-		rowData.push(customer.village.name);
-		rowData.push(lineGroupStatesMap[customer.lineGroup]);
-		rowData.push(customerTypeMap[customer.customerType]);
-		rowData.push(ratingList[customer.rating]);
-		rowData.push(stateLabelMap[customer.state]);
+		rowData.push(customer.name?customer.name:"");
+		rowData.push(customer.sex?sexLabelMap[customer.sex]:"");
+		rowData.push(customer.age?customer.age:"");
+		rowData.push(customer.city?customer.city.name:"");
+		rowData.push(customer.dist?customer.dist.dist:"");
+		rowData.push(customer.village?customer.village.name:"");
+		rowData.push(customer.lineGroup?lineGroupStatesMap[customer.lineGroup]:"");
+		rowData.push(customer.customerType?customerTypeMap[customer.customerType]:"");
+		rowData.push(customer.rating?ratingList[customer.rating]:"");
+		rowData.push(customer.state?stateLabelMap[customer.state]:"");
 		customerListContent.body.push(rowData);
 	}
 
