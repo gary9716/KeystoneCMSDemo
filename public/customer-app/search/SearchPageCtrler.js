@@ -252,7 +252,10 @@ angular.module('mainApp')
 			let data = res.data;
 			if(data.filename) {
 				var file = new Blob([new Uint8Array(data.content.data)],{type: 'application/pdf'});
-				printBlob(file);
+				
+				var filename = data.filename;
+				saveAs(file, filename);
+				
 				$rootScope.pubSuccessMsg('下載成功');
 			}
 			else {
@@ -502,10 +505,9 @@ function($uibModalInstance, _, customer, $http, $rootScope, geoDataService) {
 			if(data.filename) {	
 				var file = new Blob([new Uint8Array(data.content.data)],{type: 'application/pdf'});
 				
-				//var filename = data.filename;
-				//saveAs(file, filename);
-				
-				printBlob(file);
+				var filename = data.filename;
+				saveAs(file, filename);
+
 				$rootScope.pubSuccessMsg('下載成功');
 			}
 			else {
