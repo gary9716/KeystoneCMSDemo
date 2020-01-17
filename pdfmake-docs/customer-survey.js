@@ -104,10 +104,10 @@ module.exports = (req, res) => {
 							table: {
 								widths: [60, 145, 60, '*', 60, '*'], //width can be [number, *, auto]
 								body: [
-									['姓名', customer.name, '性別', sexLabelMap[customer.sex], '年齡', customer.age],
-									['住址', customer.addr, '經濟狀況', customer.finance, '電話', customer.teleNum1],
-									['職業', customer.job, '往來銀行', customer.bank, '傳真', customer.teleNum2],
-									['本會客戶', customer.isCustomer? "是":"否", '往來狀況', customerTypeMap[customer.customerType], 'Line群組', lineGroupStatesMap[customer.lineGroup]]
+									['姓名', customer.name?customer.name:"", '性別', customer.sex?sexLabelMap[customer.sex]:"", '年齡', customer.age?customer.age:""],
+									['住址', customer.addr?customer.addr:"", '經濟狀況', customer.finance?customer.finance:"", '電話', customer.teleNum1?customer.teleNum1:""],
+									['職業', customer.job?customer.job:"", '往來銀行', customer.bank?customer.bank:"", '傳真', customer.teleNum2?customer.teleNum2:""],
+									['本會客戶', customer.isCustomer? "是":"否", '往來狀況', customer.customerType?customerTypeMap[customer.customerType]:"", 'Line群組', customer.lineGroup?lineGroupStatesMap[customer.lineGroup]:""]
 								] 
 							}
 						},
@@ -116,7 +116,7 @@ module.exports = (req, res) => {
 							table: {
 								widths: [60, '*'],
 								body: [
-									['客戶需求', customer.need]
+									['客戶需求', customer.need?customer.need:""]
 								]
 							}
 						},
@@ -125,7 +125,7 @@ module.exports = (req, res) => {
 							table: {
 								widths: [60, 145, 60, '*'],
 								body: [
-									['訪查員', customer.interviewer, '對本會評價', ratingList[customer.rating]]
+									['訪查員', customer.interviewer?customer.interviewer:"", '對本會評價', customer.rating?ratingList[customer.rating]:""]
 								]
 							}
 						},
@@ -136,7 +136,7 @@ module.exports = (req, res) => {
 								widths: [60, '*'],
 								heights: [200],
 								body: [
-									['會相關部門', customer.comment]
+									['會相關部門', customer.comment?customer.comment:""]
 								]
 							}
 						},
