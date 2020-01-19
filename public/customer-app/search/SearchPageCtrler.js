@@ -227,18 +227,24 @@ angular.module('mainApp')
 			},
 			size: 'lg'
           });
-    
+	
+		  let dontUpdate = false;
 		  modalInstance.result
-		  .then(function (newCustomer) {
+		  .then(function () {
 			//callback from $uibModalInstance.close()
 		  })
-          .catch(function () {
-			//callback from $uibModalInstance.dismiss()
-            modalInstance.close(); 
+          .catch(function (res) {
+			if(res === 'deleteCustomer') {
+				//callback from $uibModalInstance.dismiss()
+				dontUpdate = true;
+				_.remove(vm.totalCustomers, (c) => {
+					return c._id === customer._id;
+				});
+			}
 		  })
 		  .finally(() => {
-			//console.log('update customer');
-			updateCustomer(customer);
+			modalInstance.close();
+			if(!dontUpdate) updateCustomer(customer);
 		  });
 	}
 	
@@ -625,8 +631,8 @@ function($uibModalInstance, _, customer, $http, $rootScope, geoDataService) {
 		extractData(newCustomer);
 	};
 
-	vm.closeModal = () => {
-		$uibModalInstance.dismiss();
+	vm.closeModal = (res) => {
+		$uibModalInstance.dismiss(res);
 	};
 
 	vm.delete = () => {
@@ -635,7 +641,7 @@ function($uibModalInstance, _, customer, $http, $rootScope, geoDataService) {
 			let data = res.data;
 			if(data.success) {
 				$rootScope.pubSuccessMsg('刪除成功');
-				vm.closeModal();
+				vm.closeModal('deleteCustomer');
 			}
 			else {
 				return Promise.reject('');
