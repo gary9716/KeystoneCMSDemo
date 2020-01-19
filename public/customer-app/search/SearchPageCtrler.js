@@ -629,4 +629,22 @@ function($uibModalInstance, _, customer, $http, $rootScope, geoDataService) {
 		$uibModalInstance.dismiss();
 	};
 
+	vm.delete = () => {
+		$http.post('/api/customer-survey/delete', { _id: vm._id })
+		.then((res) => {
+			let data = res.data;
+			if(data.success) {
+				$rootScope.pubSuccessMsg('刪除成功');
+				vm.closeModal();
+			}
+			else {
+				return Promise.reject('');
+			}
+		})
+		.catch((err) => {
+			var msg = err && err.data? err.data.toString():(err? err.toString(): '');
+			$rootScope.pubErrorMsg('刪除失敗,' + msg);
+		});
+	};
+
 }]);

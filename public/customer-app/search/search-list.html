@@ -351,6 +351,8 @@
 				<button class="btn btn-primary" type="button" style="margin: 10px;" ng-show="ctrler.isState('reviewing')" ng-click="ctrler.updateComment()">更新備註</button>
 				<button class="btn btn-primary" type="button" style="margin: 10px;" ng-click="ctrler.print()">{{ctrler.state === 'editting'?"印表呈核":"重新印表"}}</button>
 				<button class="btn btn-secondary" type="button" style="margin: 10px;" ng-show="ctrler.isState('editting')" ng-click="ctrler.revise()">修改</button>
+				<button class="btn btn-danger" type="button" style="margin: 10px;" ng-click="ctrler.delete()">刪除</button>
+				
 			</div>
 		</div>
 

@@ -219,6 +219,29 @@ exports.changeState = (req, res) => {
 	});
 };
 
+exports.delete = (req, res) => {
+	var form = req.body;
+	customerSurveyList.model
+	.findByIdAndRemove(form._id)
+	.exec()
+	.then((customer) => {
+		if(customer) {
+			res.json({
+				success: true,
+				result: customer
+			});
+		}
+		else {
+			res.json({
+				success: false
+			});
+		}
+	})
+	.catch(function(err) {
+		return res.ktSendRes(400, err);
+	});
+};
+
 //
 exports.search = (req, res) => {
 	var form = req.body;

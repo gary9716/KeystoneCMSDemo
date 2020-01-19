@@ -305,6 +305,10 @@ angular.module('mainApp')
 		vm.isEditting = true;
 	}
 
+	vm.openNewForm = () => {
+		$state.reload();
+	}
+
 	vm.submit = function() {
 		let customerData = {
 			formDate: vm.formDate,
@@ -338,6 +342,9 @@ angular.module('mainApp')
 			let data = res.data;
 			if(data.success) {
 				$rootScope.pubSuccessMsg('更新成功');
+				setTimeout(() => {
+					vm.openNewForm();
+				}, 500);
 			}
 			else {
 				$rootScope.pubErrorMsg('更新失敗');
@@ -349,8 +356,5 @@ angular.module('mainApp')
 		});
 	}
 
-	vm.openNewForm = () => {
-		$state.reload();
-	}
 
 }]);

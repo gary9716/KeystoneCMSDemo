@@ -325,6 +325,12 @@ exports = module.exports = function (app) {
 		routes.api.CustomerService.updateComment
 	);
 
+	app.post('/api/customer-survey/delete',
+		compression(),
+		routes.api.CustomerService.delete
+	);
+
+	//
   app.post('/api/account-rec/delete',
     middleware.permissionCheck.bind([
       {
