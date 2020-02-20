@@ -1,6 +1,7 @@
 var middleware = require('../middleware');
 var Constants = require(__base + 'Constants');
 var keystone = require('keystone');
+var moment = require('moment');
 var _ = require('lodash');
 var labelMap = {
 	editting: '編修',
@@ -8,6 +9,7 @@ var labelMap = {
 	filed: '歸檔'
 };
 var customerSurveyList = keystone.list(Constants.CustomerSurveyListName);
+var formDataList = keystone.list(Constants.FormDataListName);
 
 exports.updateComment = (req, res) => {
 	var form = req.body;
@@ -94,7 +96,31 @@ exports.upsert = (req, res) => {
 		addr: form.addr? form.addr:undefined,
 		need: form.need? form.need:undefined,
 		comment: form.comment? form.comment:undefined,
-		rating: form.rating? form.rating:undefined
+		rating: form.rating? form.rating:undefined,
+
+		interviewDate: form.interviewDate? form.interviewDate:undefined,
+		lastInterviewDate: form.lastInterviewDate? form.lastInterviewDate:undefined,
+		companyWin: form.companyWin? form.companyWin:undefined,
+		contactNum: form.contactNum? form.contactNum:undefined,
+		
+		//sale form fields
+		recommendedProduct: form.recommendedProduct? form.recommendedProduct:undefined,
+		alreadySale: form.alreadySale? form.alreadySale:undefined,
+		thisTimeSale: form.thisTimeSale? form.thisTimeSale:undefined,
+		exeProgressOthers: form.exeProgressOthers? form.exeProgressOthers:undefined,
+
+		receptionistRating: form.receptionistRating? form.receptionistRating:undefined,
+		onTimeRating: form.onTimeRating? form.onTimeRating:undefined,
+		qualityRating: form.qualityRating? form.qualityRating:undefined,
+		stackRating: form.stackRating? form.stackRating:undefined,
+		goodsReturnRating: form.goodsReturnRating? form.goodsReturnRating:undefined,
+		deliveryRating: form.deliveryRating? form.deliveryRating:undefined,
+		agentRating: form.agentRating? form.agentRating:undefined,
+		billProcessRating: form.billProcessRating? form.billProcessRating:undefined,
+
+		exeProgress: form.exeProgress? form.exeProgress:undefined,
+		customerRank: form.customerRank? form.customerRank:undefined,
+		formType: form.formType? form.formType:undefined
 	};
 	
 	var getQuery = function() {
@@ -120,14 +146,58 @@ exports.upsert = (req, res) => {
 			});
 	}
 
+	let padZero = (num, size) => {
+		var s = num + "";
+		while (s.length < size) s = "0" + s;
+		return s;
+	};
+
+	var genFormID = (curCustomer) => {
+		let curMoment = moment();
+		if (curCustomer.formType) {
+			return formDataList.model.findOne({ formType: curCustomer.formType }).exec()
+			.then((fd) => {
+				if (fd) {
+					let lastDateMoment = new moment(fd.lastDate);
+					if ((curMoment.year() - lastDateMoment.year()) !== 0 || (curMoment.month() - lastDateMoment.month()) !== 0)
+						fd.numForms = 1;
+					else
+						fd.numForms++;
+					fd.lastDate = lastDateMoment.toDate();
+					return fd.save();
+				}
+				else {
+					
+					//create new formType
+					let newFD = new formDataList.model({
+						formType: curCustomer.formType,
+						numForms: 1,
+						lastDate: curMoment.toDate()
+					});
+					return newFD.save();
+				}
+			})
+			.then((fd) => {
+				let formID = fd.formType + curMoment.rocYear() + curMoment.format('MM') + padZero(fd.numForms, 4);
+				console.log(formID);
+				curCustomer.formID = formID;
+				return curCustomer.save();
+			});
+		}
+		else {
+			return Promise.reject("no formType");
+		}
+	};
+
 	getQuery()
+	.then(genFormID)
 	.then((savCustomer) => {
 		return res.json({
 			success: true,
 			result: savCustomer
 		});
 	})
-	.catch(function(err) {
+	.catch((err) => {
 		return res.ktSendRes(400, err);
 	});
 

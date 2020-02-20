@@ -16,5 +16,6 @@ exports = module.exports = {
   CityListName: 'City',
   AddrPrefixListName: 'AddrPrefix',
 	VillageListName: 'Village',
-	CustomerSurveyListName: 'CustomerSurvey'
+	CustomerSurveyListName: 'CustomerSurvey',
+	FormDataListName: 'FormData'
 };

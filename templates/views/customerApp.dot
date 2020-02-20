@@ -74,6 +74,7 @@
                     <ul class="nav navbar-nav navbar-left">
                         <li role="presentation"><a ui-sref="register" ui-sref-active="active">個別註冊編修</a></li>
                         <li role="presentation"><a ui-sref="search" ui-sref-active="active">列表呈核歸檔</a></li>
+												<li class="clickable"><a href="/admin-back">後台</a></li>
                     </ul>
 										<ul class="nav navbar-nav navbar-right">
 												[[?model.user]]

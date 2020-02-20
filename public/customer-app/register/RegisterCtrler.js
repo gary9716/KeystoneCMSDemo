@@ -3,12 +3,6 @@ angular.module('mainApp')
   ['$http', '$window', '$state', '$rootScope', '$uibModal', 'lodash','localStorageService', 'appRootPath', 'geoDataService',
   function ($http, $window, $state, $rootScope, $uibModal, _ , localStorageService, appRootPath, geoDataService) {
     var vm = this;
-	vm.isSearching = false;
-	vm.isEditting = true;
-	vm.formDate = Date.now();
-	vm.addrRest = "";
-
-	vm.state = 'editting';
 	vm.formStateMap = {
 		editting: '可編修',
 		reviewing: '呈核中',
@@ -103,6 +97,41 @@ angular.module('mainApp')
 		},
 	];
 
+	vm.customerRankList = [
+		{ value: '0', name: 'VIP' },
+		{ value: '1', name: '潛力' },
+		{ value: '2', name: '持平' },
+		{ value: '3', name: '危機' },
+		{ value: '4', name: '憂鬱' }
+	];
+
+	vm.formTypeList = [
+		{ value: 'A', name: '信用' },
+		{ value: 'B', name: '供銷' },
+		{ value: 'C', name: '其他' }
+	];
+
+	vm.interviewTypeList = [
+		{ value: 'init', name: '初訪' },
+		{ value: 're', name: '回訪' }
+	];
+
+	vm.exeProgressList = [
+		{ value: '0', name: '報價' },
+		{ value: '1', name: '簽約' },
+		{ value: '2', name: '其他' }
+	];
+
+	vm.isSaleForm = () => {
+		let val = vm.formType && vm.formType.value === vm.formTypeList[1].value;
+		return val;
+	};
+
+	vm.isExeProgessOthers = () => {
+		let val = vm.exeProgress && vm.exeProgress.value === vm.exeProgressList[2].value;
+		return val;
+	};
+
 	vm.selectOnChange = function(targetName, selectVal) {
 		if(targetName === 'dists') {
 				vm.distSelect = null;
@@ -177,7 +206,8 @@ angular.module('mainApp')
 	}
 
 	var extractData = function(data) {
-		//console.log(data);
+		console.log('after sync');
+		console.log(data);
 		_.assign(vm, data);
 		vm.tele1 = data.teleNum1;
 		vm.tele2 = data.teleNum2;
@@ -199,7 +229,15 @@ angular.module('mainApp')
 		vm.customerType = findWithValue(vm.customerTypes, data.customerType);
 		vm.sex = findWithValue(vm.sexLabels, data.sex);
 		vm.evaluation = findWithValue(vm.ratingList, data.rating);
+		vm.exeProgress = findWithValue(vm.exeProgressList, data.exeProgress);
+		vm.customerRank = findWithValue(vm.customerRankList, data.customerRank);
+		vm.formType = findWithValue(vm.formTypeList, data.formType);
 
+		if(!vm.interviewDate) vm.interviewDate = Date.now();
+		else vm.interviewDate = new Date(vm.interviewDate);
+
+		if(!vm.lastInterviewDate) vm.lastInterviewDate = Date.now();
+		else vm.lastInterviewDate = new Date(vm.lastInterviewDate);
 	};
 
 	var emptyForm = () => {
@@ -228,17 +266,29 @@ angular.module('mainApp')
 		vm.comment = undefined;
 		vm.evaluation = undefined;
 		vm.formDate = Date.now();
+		vm.interviewDate = Date.now();
+		vm.lastInterviewDate = Date.now();
 		vm.state = "editting";
+		vm.formType = vm.formTypeList[0];
+		vm.formID = undefined;
 	}
+
+	vm.daysBetweenInterviews = () => {
+		try {
+			let d1 = new Date(vm.interviewDate);
+			let d2 = new Date(vm.lastInterviewDate);
+			return (d1.getTime() - d2.getTime())/(1000*60*60*24);
+		}
+		catch (e) {
+			console.log(e);
+			return "";
+		}
+	};
 
 	vm.nextCustomer = () => {
 		vm.customerIndex = (vm.customerIndex + 1) % vm.candidates.length;
 		extractData(vm.candidates[vm.customerIndex]);
 	}
-
-	vm.candidates = [];
-	vm.customerIndex = 0;
-	vm.onlyReturnEdittable = true;
 
 	vm.syncData = function() {
 		if(!vm.interviewer && !vm.customerName) {
@@ -261,8 +311,6 @@ angular.module('mainApp')
 
 		if(vm.onlyReturnEdittable)
 			customerData.state = 'editting';
-
-		console.log(customerData);
 
 		$http.post('/api/customer-survey/sync', customerData)
 		.then((res) => {
@@ -329,8 +377,32 @@ angular.module('mainApp')
 			village: vm.villageSelect?vm.villageSelect._id:undefined,
 
 			need: vm.need?vm.need:undefined,
-			comment: vm.comment?vm.comment:undefined
+			comment: vm.comment?vm.comment:undefined,
+
+			interviewDate: vm.interviewDate? vm.interviewDate:undefined,
+			lastInterviewDate: vm.lastInterviewDate? vm.lastInterviewDate:undefined,
+			companyWin: vm.companyWin? vm.companyWin:undefined,
+			contactNum: vm.contactNum? vm.contactNum:undefined,
+			
+			//sale form fields
+			recommendedProduct: vm.recommendedProduct? vm.recommendedProduct:undefined,
+			alreadySale: vm.alreadySale? vm.alreadySale:undefined,
+			thisTimeSale: vm.thisTimeSale? vm.thisTimeSale:undefined,
+			exeProgressOthers: vm.exeProgressOthers? vm.exeProgressOthers:undefined,
+
+			receptionistRating: vm.receptionistRating? vm.receptionistRating:undefined,
+			onTimeRating: vm.onTimeRating? vm.onTimeRating:undefined,
+			qualityRating: vm.qualityRating? vm.qualityRating:undefined,
+			stackRating: vm.stackRating? vm.stackRating:undefined,
+			goodsReturnRating: vm.goodsReturnRating? vm.goodsReturnRating:undefined,
+			deliveryRating: vm.deliveryRating? vm.deliveryRating:undefined,
+			agentRating: vm.agentRating? vm.agentRating:undefined,
+			billProcessRating: vm.billProcessRating? vm.billProcessRating:undefined
 		};
+
+		if(vm.exeProgress) customerData["exeProgress"] = vm.exeProgress.value;
+		if(vm.customerRank) customerData["customerRank"] = vm.customerRank.value;
+		if(vm.formType) customerData["formType"] = vm.formType.value;
 		if(vm.sex) customerData['sex'] = vm.sex.value;
 		if(vm.isCustomer) customerData['isCustomer'] = vm.isCustomer.value;
 		if(vm.lineGroup) customerData['lineGroup'] = vm.lineGroup.value;
@@ -356,5 +428,16 @@ angular.module('mainApp')
 		});
 	}
 
-
+	vm.candidates = [];
+	vm.customerIndex = 0;
+	vm.onlyReturnEdittable = true;
+	vm.isSearching = false;
+	vm.isEditting = true;
+	vm.formDate = Date.now();
+	vm.interviewDate = Date.now();
+	vm.lastInterviewDate = Date.now();
+	vm.addrRest = "";
+	vm.state = 'editting';
+	vm.formType = vm.formTypeList[0];
+	
 }]);

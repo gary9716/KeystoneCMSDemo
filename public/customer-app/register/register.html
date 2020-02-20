@@ -1,37 +1,66 @@
 <form name="RegisterForm">
-	<div class="container" ng-show="ctrler.isEditting">
+	<div ng-show="ctrler.isEditting">
 		<div class="container">
-			<div class="col-md-2 col-xs-4">
-				<span class="text-left" style="opacity: 1;">日期:<label style="margin-left:5px;">{{ctrler.formDate | date:'yyyy/MM/dd'}}</label></span>
-				<!--
-				<div class="input-group">
-					<input type="text" class="form-control input-md" uib-datepicker-popup="yyyy/MM/dd" ng-model="ctrler.formDate" is-open="ctrler.formDateSelOpened" required close-text="關閉" clear-text="清除" current-text="今天"/>
-					<span class="input-group-btn">
-					<button type="button" class="btn btn-default" ng-click="ctrler.formDateSelOpened=true;"><i class="fa fa-calendar"></i></button>
-					</span>
-				</div>
-				-->
-			</div>
 			<div class="col-md-2 col-xs-4">
 				<span class="text-left" style="opacity: 1;">狀態<label style="margin-left:5px;">{{ctrler.formStateMap[ctrler.state]}}</label></span>
 			</div>
+			<div class="col-md-2 col-xs-4">
+				<p class="text-left" style="opacity: 1;">日期<label style="margin-left:5px;">{{ctrler.formDate | date:'yyyy/MM/dd'}}</label></p>
+			</div>
+			<div class="col-md-2 col-xs-4">
+				<p class="text-left" style="opacity: 1;">流水號<label style="margin-left:5px;">{{ctrler.formID}}</label></p>
+			</div>
 		</div>
-		<div class="container">
+		<div class="container"  style="margin-bottom: 10px;" >
 			<div class="col-md-12 col-xs-12 text-left">
-				<span><input type="checkbox" ng-model="ctrler.onlyReturnEdittable" style="margin: 10px;">只回傳可編修的</span>
-				<button class="btn btn-default text-left" style="margin: 10px;" type="button" ng-click="ctrler.syncData()">同步</button>
-				<button class="btn btn-default text-left" style="margin: 10px;" type="button" ng-click="ctrler.nextCustomer()" ng-show="ctrler.candidates.length > 0">下一個</button>
-				<button class="btn btn-default text-left" style="margin: 10px;" type="button" ng-click="ctrler.openNewForm()">開新表單</button>
+				<span><input type="checkbox" ng-model="ctrler.onlyReturnEdittable">只回傳可編修的</span>
+				<button class="btn btn-default text-left" style="margin-left: 10px;" type="button" ng-click="ctrler.syncData()">同步</button>
+				<button class="btn btn-default text-left" style="margin-left: 10px;" type="button" ng-click="ctrler.nextCustomer()" ng-show="ctrler.candidates.length > 0">下一個</button>
+				<button class="btn btn-default text-left" style="margin-left: 10px;" type="button" ng-click="ctrler.openNewForm()">開新表單</button>
 			</div>
 		</div>
+
+		<div class="container">
+			<div class="col-md-3 col-xs-6">
+				<p class="text-left" style="opacity: 1;">拜訪項目</p>
+				
+				<select ng-hide="ctrler.formID" class="form-control" name="formType" style="margin-bottom: 10px;" ng-options="ft as ft.name for ft in ctrler.formTypeList track by ft.value" ng-model="ctrler.formType" ng-model-options="{ debounce: 150 }"></select>
+				<label ng-show="ctrler.formID">{{ctrler.formType.name}}</label>
+			</div>
+			<div class="col-md-3 col-xs-6">
+				<p class="text-left" style="opacity: 1;">拜訪日期</p>
+				<div class="input-group" style="margin-bottom: 10px;">
+					<input type="text" class="form-control input-md" uib-datepicker-popup="yyyy/MM/dd" ng-model="ctrler.interviewDate" is-open="ctrler.interviewDateSelOpened" close-text="關閉" clear-text="清除" current-text="今天"/>
+					<span class="input-group-btn">
+					<button type="button" class="btn btn-default" ng-click="ctrler.interviewDateSelOpened=true;"><i class="fa fa-calendar"></i></button>
+					</span>
+				</div>
+			</div>
+			<div class="col-md-3 col-xs-6">
+				<p class="text-left" style="opacity: 1;">前次拜訪日期</p>
+				<div class="input-group" style="margin-bottom: 10px;">
+					<input type="text" class="form-control input-md" uib-datepicker-popup="yyyy/MM/dd" ng-model="ctrler.lastInterviewDate" is-open="ctrler.lastInterviewDateSelOpened" close-text="關閉" clear-text="清除" current-text="今天"/>
+					<span class="input-group-btn">
+					<button type="button" class="btn btn-default" ng-click="ctrler.lastInterviewDateSelOpened=true;"><i class="fa fa-calendar"></i></button>
+					</span>
+				</div>
+			</div>
+			<div class="col-md-3 col-xs-6">
+				<p class="text-left" style="opacity: 1;">距離前次天數<label style="margin-left:10px;">{{ctrler.daysBetweenInterviews()}}</label></p>
+			</div>
+		</div>
+
 		<div class="container">
 			<div class="col-md-6 col-xs-6">
-				<p class="text-left" style="opacity: 1;">顧客姓名</p><input class="form-control" type="text" style="margin-bottom: 10px;" name="customerName" ng-model="ctrler.customerName" required>
+				<p class="text-left" style="opacity: 1;">顧客姓名</p>
+				<input class="form-control" type="text"name="customerName" ng-model="ctrler.customerName" style="margin-bottom: 10px;" required>
 			</div>
 			<div class="col-md-6 col-xs-6">
-				<p class="text-left" style="opacity: 1;">訪查員</p><input class="form-control" type="text" style="margin-bottom: 10px;" name="interviewer" ng-model="ctrler.interviewer" required>
+				<p class="text-left" style="opacity: 1;">訪查員</p>
+				<input class="form-control" type="text" style="margin-bottom: 10px;" name="interviewer" ng-model="ctrler.interviewer" required>
 			</div>
 		</div>
+		
 		<div class="container">
 			<div class="col-md-3 col-xs-6">
 				<p class="text-left" style="opacity: 1;">電話</p><input name="tele1" ng-model="ctrler.tele1" ng-model-options="{ debounce: 150 }" class="form-control" type="text" style="margin-bottom: 10px;"></div>
@@ -42,6 +71,24 @@
 			<div class="col-md-3 col-xs-6">
 				<p class="text-left" style="opacity: 1;">年齡</p><input name="age" ng-model="ctrler.age" ng-model-options="{ debounce: 150 }" class="form-control" type="text" style="margin-bottom: 10px;"></div>
 		</div>
+
+		<div class="container">
+			<div class="col-md-6 col-xs-6">
+				<p class="text-left" style="opacity: 1;">商號窗口</p>
+				<input class="form-control" type="text" style="margin-bottom: 10px;" name="companyWin" ng-model="ctrler.companyWin" ng-model-options="{ debounce: 150 }">
+			</div>
+			<div class="col-md-6 col-xs-6">
+				<p class="text-left" style="opacity: 1;">聯絡電話</p>
+				<input class="form-control" type="text" style="margin-bottom: 10px;" name="contactNum" ng-model="ctrler.contactNum" ng-model-options="{ debounce: 150 }">
+			</div>
+			<div class="col-xs-6">
+				<p class="text-left" style="opacity: 1;">從事行業</p><input class="form-control" type="text" style="margin-bottom: 10px;" name="job" ng-model="ctrler.job" ng-model-options="{ debounce: 150 }">
+			</div>
+			<div class="col-xs-6">
+				<p class="text-left" style="opacity: 1;">往來銀行</p><input class="form-control" type="text" style="margin-bottom: 10px;" name="bank" ng-model="ctrler.bank" ng-model-options="{ debounce: 150 }">
+			</div>
+		</div>
+		
 		<div class="container">
 			<div class="col-md-1">
 				<p>住址</p>
@@ -69,12 +116,7 @@
 			</div>
 			<div class="col-md-12 col-sm-12 col-xs-12" style="padding-bottom: 10px;padding-top: 10px;"><input class="form-control" type="text" style="margin-bottom: 0;" name="addrRest" ng-model="ctrler.addrRest" ng-model-options="{ debounce: 150 }"></div>
 		</div>
-		<div class="container">
-			<div class="col-xs-6">
-				<p class="text-left" style="opacity: 1;">從事行業</p><input class="form-control" type="text" style="margin-bottom: 10px;" name="job" ng-model="ctrler.job" ng-model-options="{ debounce: 150 }"></div>
-			<div class="col-xs-6">
-				<p class="text-left" style="opacity: 1;">往來銀行</p><input class="form-control" type="text" style="margin-bottom: 10px;" name="bank" ng-model="ctrler.bank" ng-model-options="{ debounce: 150 }"></div>
-		</div>
+
 		<div class="container">
 			<div class="col-md-3 col-xs-6">
 				<p class="text-left" style="opacity: 1;">經濟狀況</p><input class="form-control" type="text" style="margin-bottom: 10px;" name="finance" ng-model="ctrler.finance" ng-model-options="{ debounce: 150 }"></div>
@@ -85,6 +127,7 @@
 			<div class="col-md-3 col-xs-6">
 				<p class="text-left" style="opacity: 1;">與本會往來狀況</p><select class="form-control" style="margin-bottom: 10px;" name="customerType" ng-model="ctrler.customerType" ng-model-options="{ debounce: 150 }" ng-options="ct as ct.name for ct in ctrler.customerTypes track by ct.value"></select></div>
 		</div>
+
 		<div class="container">
 			<div class="col-md-12" style="margin-bottom: 10px;">
 				<p class="text-left" style="opacity: 1;">客戶需求</p>
@@ -92,20 +135,95 @@
 			</div>
 		</div>
 		<div class="container" style="margin-bottom: 10px;">
-			<div class="col-md-12">
+			<div class="col-md-6">
 				<p class="text-left" style="opacity: 1;">對本會滿意度</p>
 				<select class="form-control" name="evaluation" ng-options="r as r.name for r in ctrler.ratingList track by r.value" ng-model="ctrler.evaluation" ng-model-options="{ debounce: 150 }"></select>
 			</div>
+			<div class="col-md-6">
+				<p class="text-left" style="opacity: 1;">客戶評等</p>
+				<select class="form-control" name="customerRank" ng-options="cr as cr.name for cr in ctrler.customerRankList track by cr.value" ng-model="ctrler.customerRank" ng-model-options="{ debounce: 150 }"></select>
+			</div>
+		</div>
+		<!--
+
+		
+		<div ng-show="ctrler.isSaleForm()">
+			<div class="container">
+				<div class="col-md-6">
+					<p class="text-left" style="opacity: 1;">推薦產品</p>
+					<input class="form-control" type="text" style="margin-bottom: 10px;" name="recommendedProduct" ng-model="ctrler.recommendedProduct" ng-model-options="{ debounce: 150 }">
+				</div>
+				<div class="col-md-6">
+					<p class="text-left" style="opacity: 1;">已導入銷售</p>
+					<input class="form-control" type="text" style="margin-bottom: 10px;" name="alreadySale" ng-model="ctrler.alreadySale" ng-model-options="{ debounce: 150 }">
+				</div>
+			</div>
+			<div class="container">
+				<div class="col-md-6">
+					<p class="text-left" style="opacity: 1;">本次新增品項</p>
+					<input class="form-control" type="text" style="margin-bottom: 10px;" name="thisTimeSale" ng-model="ctrler.thisTimeSale" ng-model-options="{ debounce: 150 }">
+				</div>
+				<div class="col-md-6">
+					<p class="text-left" style="opacity: 1;">執行進度</p>
+					<select class="form-control" style="margin-bottom: 10px;" name="exeProgress" ng-options="e as e.name for e in ctrler.exeProgressList track by e.value" ng-model="ctrler.exeProgress" ng-model-options="{ debounce: 150 }"></select>
+					<input class="form-control" style="margin-bottom: 10px;" name="exeProgressOthers" ng-model="ctrler.exeProgressOthers"  ng-model-options="{ debounce: 150 }" ng-show="ctrler.isExeProgessOthers()">
+				</div>
+			</div>
+			<div class="container">
+				<label class="col-md-12">客戶滿意度: 1 ~ 5分(滿分為5分)</label>
+			</div>
+			<div class="container">
+				<div class="col-md-4">
+					<p class="text-left" style="opacity: 1;">電話接待人員</p>
+					<input class="form-control" type="number" max="5" min="1" style="margin-bottom: 10px;" name="receptionistRating" ng-model="ctrler.receptionistRating" ng-model-options="{ debounce: 150 }">
+				</div>
+				<div class="col-md-4">
+					<p class="text-left" style="opacity: 1;">產品到貨準時</p>
+					<input class="form-control" type="number" max="5" min="1" style="margin-bottom: 10px;" name="onTimeRating" ng-model="ctrler.onTimeRating" ng-model-options="{ debounce: 150 }">
+				</div>
+				<div class="col-md-4">
+					<p class="text-left" style="opacity: 1;">產品品質</p>
+					<input class="form-control" type="number" max="5" min="1" style="margin-bottom: 10px;" name="qualityRating" ng-model="ctrler.qualityRating" ng-model-options="{ debounce: 150 }">
+				</div>
+			</div>
+			<div class="container">
+				<div class="col-md-4">
+					<p class="text-left" style="opacity: 1;">堆疊翻新整齊度</p>
+					<input class="form-control" type="number" max="5" min="1" style="margin-bottom: 10px;" name="stackRating" ng-model="ctrler.stackRating" ng-model-options="{ debounce: 150 }">
+				</div>
+				<div class="col-md-4">
+					<p class="text-left" style="opacity: 1;">瑕疵退貨處理</p>
+					<input class="form-control" type="number" max="5" min="1" style="margin-bottom: 10px;" name="goodsReturnRating" ng-model="ctrler.goodsReturnRating" ng-model-options="{ debounce: 150 }">
+				</div>
+				<div class="col-md-4">
+					<p class="text-left" style="opacity: 1;">運輸人員服務態度</p>
+					<input class="form-control" type="number" max="5" min="1" style="margin-bottom: 10px;" name="deliveryRating" ng-model="ctrler.deliveryRating" ng-model-options="{ debounce: 150 }">
+				</div>
+			</div>
+			<div class="container">
+				<div class="col-md-4">
+					<p class="text-left" style="opacity: 1;">業代服務態度</p>
+					<input class="form-control" type="number" max="5" min="1" style="margin-bottom: 10px;" name="agentRating" ng-model="ctrler.agentRating" ng-model-options="{ debounce: 150 }">
+				</div>
+				<div class="col-md-4">
+					<p class="text-left" style="opacity: 1;">帳務處理</p>
+					<input class="form-control" type="number" max="5" min="1" style="margin-bottom: 10px;" name="billProcessRating" ng-model="ctrler.billProcessRating" ng-model-options="{ debounce: 150 }">
+				</div>
+			</div>
 		</div>
 
+		-->
 		<div class="container">
 			<div class="col-md-12 text-center">
 				<!--<button class="btn btn-default" type="button" style="margin: 12px;" ng-click="ctrler.confirm()" ng-disabled="RegisterForm.$invalid">確定</button>-->
-				<button class="btn btn-default" type="button" style="margin: 10px;" ng-click="ctrler.submit()">提交</button>
+				<button class="btn btn-default" type="button" style="margin: 10px;" ng-click="ctrler.submit()" ng-disabled="RegisterForm.$invalid">提交</button>
 			</div>
 		</div>
 	</div>
 
+	<!--
+
+	-->
 	<div class="container" ng-hide="ctrler.isEditting">
 		<div class="table-responsive">
 			<table class="table">
