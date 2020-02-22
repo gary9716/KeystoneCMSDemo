@@ -51,13 +51,17 @@
 		</div>
 
 		<div class="container">
-			<div class="col-md-6 col-xs-6">
+			<div class="col-md-4 col-xs-4">
 				<p class="text-left" style="opacity: 1;">顧客姓名/商號名稱</p>
 				<input class="form-control" type="text"name="customerName" ng-model="ctrler.customerName" style="margin-bottom: 10px;" required>
 			</div>
-			<div class="col-md-6 col-xs-6">
+			<div class="col-md-4 col-xs-4">
 				<p class="text-left" style="opacity: 1;">訪查員</p>
 				<input class="form-control" type="text" style="margin-bottom: 10px;" name="interviewer" ng-model="ctrler.interviewer" required>
+			</div>
+			<div class="col-md-4 col-xs-4">
+				<p class="text-left" style="opacity: 1;">訪查狀態</p>
+				<select class="form-control" style="margin-bottom: 10px;" name="interviewType" ng-model="ctrler.interviewType" ng-model-options="{ debounce: 150 }" ng-options="it as it.name for it in ctrler.interviewTypeList track by it.value"></select>
 			</div>
 		</div>
 		

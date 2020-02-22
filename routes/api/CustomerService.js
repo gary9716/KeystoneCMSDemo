@@ -120,7 +120,8 @@ exports.upsert = (req, res) => {
 
 		exeProgress: form.exeProgress? form.exeProgress:undefined,
 		customerRank: form.customerRank? form.customerRank:undefined,
-		formType: form.formType? form.formType:undefined
+		formType: form.formType? form.formType:undefined,
+		interviewType: form.interviewType? form.interviewType:undefined
 	};
 	
 	var getQuery = function() {

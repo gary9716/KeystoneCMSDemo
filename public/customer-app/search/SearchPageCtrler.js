@@ -506,6 +506,7 @@ function($uibModalInstance, _, customer, $http, $rootScope, geoDataService) {
 			data.exeProgress = findWithValue(vm.exeProgressList, data.exeProgress);
 			data.customerRank = findWithValue(vm.customerRankList, data.customerRank);
 			data.formType = findWithValue(vm.formTypeList, data.formType);
+			data.interviewType = findWithValue(vm.interviewTypeList, data.interviewType);
 	
 			_.assign(vm, data);
 	
@@ -667,6 +668,7 @@ function($uibModalInstance, _, customer, $http, $rootScope, geoDataService) {
 		if(vm.lineGroup) customerData['lineGroup'] = vm.lineGroup.value;
 		if(vm.customerType) customerData['customerType'] = vm.customerType.value;
 		if(vm.evaluation) customerData['rating'] = vm.evaluation.value;
+		if(vm.interviewType) customerData['interviewType'] = vm.interviewType.value;
 
 		return $http.post('/api/customer-survey/upsert', customerData)
 		.then((res) => {

@@ -383,6 +383,10 @@
 						<td>{{ctrler.formStateMap[ctrler.state]}}</td>
 					</tr>
 					<tr>
+						<td>訪查狀態</td>
+						<td>{{ctrler.interviewType.name}}</td>
+					</tr>
+					<tr>
 						<td>拜訪日期</td>
 						<td>{{ctrler.interviewDate | date:'yyyy/MM/dd'}}</td>
 					</tr>
@@ -518,7 +522,7 @@
 						<td>帳務處理評分</td>
 						<td>{{ctrler.billProcessRating}}</td>
 					</tr>
-					
+
 					<tr ng-show="ctrler.isState('reviewing')">
 						<td>與會相關部門</td>
 						<td><textarea class="form-control" name="need" ng-model="ctrler.comment" ng-model-options="{ debounce: 150 }"></textarea></td>

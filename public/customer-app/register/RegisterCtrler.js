@@ -232,6 +232,7 @@ angular.module('mainApp')
 		vm.exeProgress = findWithValue(vm.exeProgressList, data.exeProgress);
 		vm.customerRank = findWithValue(vm.customerRankList, data.customerRank);
 		vm.formType = findWithValue(vm.formTypeList, data.formType);
+		vm.interviewType = findWithValue(vm.interviewTypeList, data.interviewType);
 
 		if(!vm.interviewDate) vm.interviewDate = Date.now();
 		else vm.interviewDate = new Date(vm.interviewDate);
@@ -268,6 +269,7 @@ angular.module('mainApp')
 		vm.formDate = Date.now();
 		vm.interviewDate = Date.now();
 		vm.lastInterviewDate = Date.now();
+		vm.interviewType = undefined;
 		vm.state = "editting";
 		vm.formType = vm.formTypeList[0];
 		vm.formID = undefined;
@@ -409,6 +411,7 @@ angular.module('mainApp')
 		if(vm.lineGroup) customerData['lineGroup'] = vm.lineGroup.value;
 		if(vm.customerType) customerData['customerType'] = vm.customerType.value;
 		if(vm.evaluation) customerData['rating'] = vm.evaluation.value;
+		if(vm.interviewType) customerData['interviewType'] = vm.interviewType.value;
 
 		//console.log(customerData);
 		$http.post('/api/customer-survey/upsert', customerData)
@@ -440,6 +443,7 @@ angular.module('mainApp')
 	vm.lastInterviewDate = Date.now();
 	vm.addrRest = "";
 	vm.state = 'editting';
+	vm.interviewType = vm.interviewTypeList[0];
 	vm.formType = vm.formTypeList[0];
 	
 }]);
