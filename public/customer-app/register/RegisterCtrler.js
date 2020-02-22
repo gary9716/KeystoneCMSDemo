@@ -358,6 +358,7 @@ angular.module('mainApp')
 	}
 
 	vm.submit = function() {
+		vm.refreshData();
 		let customerData = {
 			formDate: vm.formDate,
 			customerName: vm.customerName,
@@ -409,22 +410,23 @@ angular.module('mainApp')
 		if(vm.customerType) customerData['customerType'] = vm.customerType.value;
 		if(vm.evaluation) customerData['rating'] = vm.evaluation.value;
 
+		//console.log(customerData);
 		$http.post('/api/customer-survey/upsert', customerData)
 		.then((res) => {
 			let data = res.data;
 			if(data.success) {
-				$rootScope.pubSuccessMsg('更新成功');
+				$rootScope.pubSuccessMsg('提交成功');
 				setTimeout(() => {
 					vm.openNewForm();
 				}, 500);
 			}
 			else {
-				$rootScope.pubErrorMsg('更新失敗');
+				$rootScope.pubErrorMsg('提交失敗');
 			}
 		})
 		.catch((err) => {
 			var msg = err && err.data? err.data.toString():(err? err.toString(): '');
-			$rootScope.pubErrorMsg('更新或上傳失敗,' + msg);
+			$rootScope.pubErrorMsg('提交失敗,' + msg);
 		});
 	}
 
