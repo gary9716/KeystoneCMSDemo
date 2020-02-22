@@ -88,7 +88,7 @@ CustomerSurvey.add({
 		{ value: '2', label: '持平' },
 		{ value: '3', label: '危機' },
 		{ value: '4', label: '憂鬱' }
-	], trim: true, initial: true, default: '2' },
+	], trim: true, initial: true },
 	
 	recommendedProduct: { type:String, label: '推薦產品', initial: true, trim: true },
 	alreadySale: { type:String, label: '已導入銷售', initial: true, trim: true },
@@ -97,17 +97,17 @@ CustomerSurvey.add({
 		{ value: '0', label: '報價' },
 		{ value: '1', label: '簽約' },
 		{ value: '2', label: '其他' }
-	], trim: true, initial: true, default: '0' },
+	], trim: true, initial: true },
 	exeProgressOthers: { type:String, label: '執行進度(其他)', initial: true, trim: true },
 	
-	receptionistRating: { type: Number, label: '電話接待人員評分', initial: true, default:-1  },
-	onTimeRating: { type: Number, label: '產品準時到貨評分', initial: true, default:-1  },
-	qualityRating: { type: Number, label: '產品品質評分', initial: true, default:-1  },
-	stackRating: { type: Number, label: '堆疊翻新整齊度', initial: true, default:-1  },
-	goodsReturnRating: { type: Number, label: '瑕疵退貨處理評分', initial: true, default:-1  },
-	deliveryRating: { type: Number, label: '運輸人員態度評分', initial: true, default:-1  },
-	agentRating: { type: Number, label: '業代服務評分', initial: true, default:-1  },
-	billProcessRating: { type: Number, label: '帳務處理評分', initial: true, default:-1  }
+	receptionistRating: { type: Number, label: '電話接待人員評分', initial: true },
+	onTimeRating: { type: Number, label: '產品準時到貨評分', initial: true  },
+	qualityRating: { type: Number, label: '產品品質評分', initial: true  },
+	stackRating: { type: Number, label: '堆疊翻新整齊度', initial: true  },
+	goodsReturnRating: { type: Number, label: '瑕疵退貨處理評分', initial: true },
+	deliveryRating: { type: Number, label: '運輸人員態度評分', initial: true },
+	agentRating: { type: Number, label: '業代服務評分', initial: true },
+	billProcessRating: { type: Number, label: '帳務處理評分', initial: true }
 });
 CustomerSurvey.defaultColumns = 'formDate, name, age, sex';
 CustomerSurvey.register();
@@ -122,7 +122,7 @@ FormData.add({
 		{ value: 'A', label: '信用' },
 		{ value: 'B', label: '供銷' },
 		{ value: 'C', label: '其他' }
-	], initial: true, default: 'A' },
+	], initial: true },
 	numForms: { type: Number, label: '表單數', initial: true, default:0 },
 	lastDate: { type: Types.Datetime, format: 'YYYY-MM-DD', label: '最後一筆日期', default: Date.now, initial: true, noedit: true },
 });

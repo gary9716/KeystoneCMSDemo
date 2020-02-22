@@ -179,7 +179,7 @@ exports.upsert = (req, res) => {
 			})
 			.then((fd) => {
 				let formID = fd.formType + curMoment.rocYear() + curMoment.format('MM') + padZero(fd.numForms, 4);
-				console.log(formID);
+				//console.log(formID);
 				curCustomer.formID = formID;
 				return curCustomer.save();
 			});

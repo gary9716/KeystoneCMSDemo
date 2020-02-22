@@ -52,7 +52,7 @@
 
 		<div class="container">
 			<div class="col-md-6 col-xs-6">
-				<p class="text-left" style="opacity: 1;">顧客姓名</p>
+				<p class="text-left" style="opacity: 1;">顧客姓名/商號名稱</p>
 				<input class="form-control" type="text"name="customerName" ng-model="ctrler.customerName" style="margin-bottom: 10px;" required>
 			</div>
 			<div class="col-md-6 col-xs-6">
@@ -144,8 +144,6 @@
 				<select class="form-control" name="customerRank" ng-options="cr as cr.name for cr in ctrler.customerRankList track by cr.value" ng-model="ctrler.customerRank" ng-model-options="{ debounce: 150 }"></select>
 			</div>
 		</div>
-		<!--
-
 		
 		<div ng-show="ctrler.isSaleForm()">
 			<div class="container">
@@ -212,7 +210,6 @@
 			</div>
 		</div>
 
-		-->
 		<div class="container">
 			<div class="col-md-12 text-center">
 				<!--<button class="btn btn-default" type="button" style="margin: 12px;" ng-click="ctrler.confirm()" ng-disabled="RegisterForm.$invalid">確定</button>-->

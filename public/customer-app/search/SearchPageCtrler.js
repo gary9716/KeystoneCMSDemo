@@ -376,6 +376,41 @@ function($uibModalInstance, _, customer, $http, $rootScope, geoDataService) {
 		},
 	];
 
+	vm.customerRankList = [
+		{ value: '0', name: 'VIP' },
+		{ value: '1', name: '潛力' },
+		{ value: '2', name: '持平' },
+		{ value: '3', name: '危機' },
+		{ value: '4', name: '憂鬱' }
+	];
+
+	vm.formTypeList = [
+		{ value: 'A', name: '信用' },
+		{ value: 'B', name: '供銷' },
+		{ value: 'C', name: '其他' }
+	];
+
+	vm.interviewTypeList = [
+		{ value: 'init', name: '初訪' },
+		{ value: 're', name: '回訪' }
+	];
+
+	vm.exeProgressList = [
+		{ value: '0', name: '報價' },
+		{ value: '1', name: '簽約' },
+		{ value: '2', name: '其他' }
+	];
+
+	vm.isSaleForm = () => {
+		let val = vm.formType && vm.formType.value === vm.formTypeList[1].value;
+		return val;
+	};
+
+	vm.isExeProgessOthers = () => {
+		let val = vm.exeProgress && vm.exeProgress.value === vm.exeProgressList[2].value;
+		return val;
+	};
+
 	vm.selectOnChange = function(targetName, selectVal) {
 		if(targetName === 'dists') {
 			vm.distSelect = null;
@@ -468,11 +503,34 @@ function($uibModalInstance, _, customer, $http, $rootScope, geoDataService) {
 			data.customerType = findWithValue(vm.customerTypes, data.customerType);
 			data.sex = findWithValue(vm.sexLabels, data.sex);
 			data.evaluation = findWithValue(vm.ratingList, data.rating);
-
+			data.exeProgress = findWithValue(vm.exeProgressList, data.exeProgress);
+			data.customerRank = findWithValue(vm.customerRankList, data.customerRank);
+			data.formType = findWithValue(vm.formTypeList, data.formType);
+	
 			_.assign(vm, data);
-			
+	
+			if(vm.interviewDate) 
+				vm.interviewDate = new Date(vm.interviewDate);
+
+			if(vm.lastInterviewDate)
+				vm.lastInterviewDate = new Date(vm.lastInterviewDate);
 			vm.fullAddr = vm.addr;
+			
+			//console.log(vm);
 		});
+	};
+
+	
+	vm.daysBetweenInterviews = () => {
+		try {
+			let d1 = new Date(vm.interviewDate);
+			let d2 = new Date(vm.lastInterviewDate);
+			return (d1.getTime() - d2.getTime())/(1000*60*60*24);
+		}
+		catch (e) {
+			console.log(e);
+			return "";
+		}
 	};
 
 	vm.refreshData = function() {
@@ -499,6 +557,7 @@ function($uibModalInstance, _, customer, $http, $rootScope, geoDataService) {
 			.then((res) => {
 				let data = res.data;
 				if(data.success) {
+					vm.state = "reviewing";
 					return $http.post('/pdf/customer-survey', customerData);
 				}
 				else {
@@ -560,24 +619,48 @@ function($uibModalInstance, _, customer, $http, $rootScope, geoDataService) {
 		let customerData = {
 			formDate: vm.formDate,
 			customerName: vm.customerName,
-			age: vm.age,
-			job: vm.job,
-			bank: vm.bank,
-			finance: vm.finance,
+			age: vm.age? vm.age:undefined,
+			job: vm.job? vm.job:undefined,
+			bank: vm.bank? vm.bank:undefined,
+			finance: vm.finance? vm.finance:undefined,
 			interviewer: vm.interviewer,
 			
-			tele1: vm.tele1,
-			tele2: vm.tele2,
+			tele1: vm.tele1?vm.tele1:undefined,
+			tele2: vm.tele2?vm.tele2:undefined,
 			
-			addr: vm.fullAddr,
-			addrRest: vm.addrRest,
-			city: vm.citySelect._id,
-			dist: vm.distSelect._id,
-			village: vm.villageSelect._id,
+			addr: vm.fullAddr?vm.fullAddr:undefined,
+			addrRest: vm.addrRest?vm.addrRest:undefined,
+			city: vm.citySelect?vm.citySelect._id:undefined,
+			dist: vm.distSelect?vm.distSelect._id:undefined,
+			village: vm.villageSelect?vm.villageSelect._id:undefined,
 
-			need: vm.need,
-			comment: vm.comment
+			need: vm.need?vm.need:undefined,
+			comment: vm.comment?vm.comment:undefined,
+
+			interviewDate: vm.interviewDate? vm.interviewDate:undefined,
+			lastInterviewDate: vm.lastInterviewDate? vm.lastInterviewDate:undefined,
+			companyWin: vm.companyWin? vm.companyWin:undefined,
+			contactNum: vm.contactNum? vm.contactNum:undefined,
+			
+			//sale form fields
+			recommendedProduct: vm.recommendedProduct? vm.recommendedProduct:undefined,
+			alreadySale: vm.alreadySale? vm.alreadySale:undefined,
+			thisTimeSale: vm.thisTimeSale? vm.thisTimeSale:undefined,
+			exeProgressOthers: vm.exeProgressOthers? vm.exeProgressOthers:undefined,
+
+			receptionistRating: vm.receptionistRating? vm.receptionistRating:undefined,
+			onTimeRating: vm.onTimeRating? vm.onTimeRating:undefined,
+			qualityRating: vm.qualityRating? vm.qualityRating:undefined,
+			stackRating: vm.stackRating? vm.stackRating:undefined,
+			goodsReturnRating: vm.goodsReturnRating? vm.goodsReturnRating:undefined,
+			deliveryRating: vm.deliveryRating? vm.deliveryRating:undefined,
+			agentRating: vm.agentRating? vm.agentRating:undefined,
+			billProcessRating: vm.billProcessRating? vm.billProcessRating:undefined
 		};
+
+		if(vm.exeProgress) customerData["exeProgress"] = vm.exeProgress.value;
+		if(vm.customerRank) customerData["customerRank"] = vm.customerRank.value;
+		if(vm.formType) customerData["formType"] = vm.formType.value;
 
 		if(vm.sex) customerData['sex'] = vm.sex.value;
 		if(vm.isCustomer) customerData['isCustomer'] = vm.isCustomer.value;

@@ -39,7 +39,32 @@ module.exports = (req, res) => {
 		'3': '差',
 		'4': '很差'
 	};
+
+	let customerRankMap = {
+		'0': 'VIP',
+		'1': '潛力',
+		'2': '持平',
+		'3': '危機',
+		'4': '憂鬱',
+	};
 	
+	let formTypeMap = {
+		'A': '信用',
+		'B': '供銷',
+		'C': '其他'
+	};
+
+	let interviewTypeMap = {
+		'init': '初訪',
+		're': '回訪'
+	};
+
+	let exeProgressMap = {
+		'0': '報價',
+		'1': '簽約',
+		'2': '其他'
+	};
+
 	var form = req.body;
 	var checkboxSize = 14;
 
@@ -51,36 +76,7 @@ module.exports = (req, res) => {
 		};
 	};
 
-	var getFormID = () => {
-		return 'A109020001';
-	};
-
 	var filename = '';
-	var timeInfo = {
-		columns: [
-			{
-                text: '填單流水號: ' + getFormID(), //add form id
-				width: '30%',
-				alignment: 'left'
-			},
-			getCheckBox(true),
-			{
-				text: '初訪',
-				width: '7%'
-			},
-			getCheckBox(true),
-			{
-				text: '回訪',
-				width: '7%'
-			},
-            {
-                text: '印表日期:' + moment().rocFormat(),
-                alignment: 'right'
-            }
-		],
-		margin: [0, 5, 0, 0]
-    };
-
 	var offset = 0;
 
     var divisionInfo = {
@@ -113,24 +109,118 @@ module.exports = (req, res) => {
 		.exec()
 		.then((customer) => {
 			if(customer) {
+				
 				let customerName = customer.name;
 				filename = customerName + "的訪問表.pdf";
 				res.locals.filename = filename;
-				
-				var sexVal = customer.sex?sexLabelMap[customer.sex]:"";
-				var ageVal = customer.age?customer.age:"";
-				var financeVal = customer.finance?customer.finance:"";
-				var jobVal = customer.job?customer.job:"";
-				var isCustomer = customer.isCustomer;
-				var rating = customer.rating?ratingList[customer.rating]:"";
-				var comment = customer.comment?customer.comment:"";
 
-				var leftMarginShift = (pos) => {
+				let getFormID = () => {
+					return customer.formID?customer.formID:"";
+				};
+				
+				let daysBetweenInterview = "0";
+				try {
+					let d1 = new Date(customer.interviewDate);
+					let d2 = new Date(customer.lastInterviewDate);
+					daysBetweenInterview = (d1.getTime() - d2.getTime())/(1000*60*60*24) + "";
+				}
+				catch (e) {
+				}
+				let interviewDateStr = customer.interviewDate? moment(customer.interviewDate).rocFormat():"";
+				let lastInterviewDateStr = customer.lastInterviewDate? moment(customer.lastInterviewDate).rocFormat():"";
+				let sex = customer.sex?sexLabelMap[customer.sex]:"";
+				let age = customer.age?customer.age:"";
+				let finance = customer.finance?customer.finance:"";
+				let job = customer.job?customer.job:"";
+				let isCustomer = customer.isCustomer;
+				let rating = customer.rating?ratingList[customer.rating]:"";
+				let comment = customer.comment?customer.comment:"";
+				let contactNum = customer.contactNum?customer.contactNum:"";
+				let companyWin = customer.companyWin?customer.companyWin:"";
+				
+				let interviewType = customer.interviewType?customer.interviewType:"";
+				let customerRank = customer.customerRank?customer.customerRank:"";
+				let formType = customer.formType?customer.formType:"";
+				
+				let recommendedProduct = customer.recommendedProduct?customer.recommendedProduct:"";
+				let alreadySale = customer.alreadySale?customer.alreadySale:"";
+				let thisTimeSale = customer.thisTimeSale?customer.thisTimeSale:"";
+				let exeProgress = customer.exeProgress?customer.exeProgress:"";
+				let exeProgressOthers = customer.exeProgressOthers?customer.exeProgressOthers:"";
+				let receptionistRating = customer.receptionistRating?customer.receptionistRating:"";
+				let onTimeRating = customer.onTimeRating?customer.onTimeRating:"";
+				let qualityRating = customer.qualityRating?customer.qualityRating:"";
+				let stackRating = customer.stackRating?customer.stackRating:"";
+				let goodsReturnRating = customer.goodsReturnRating?customer.goodsReturnRating:"";
+				let deliveryRating = customer.deliveryRating?customer.deliveryRating:"";
+				let agentRating = customer.agentRating?customer.agentRating:"";
+				let billProcessRating = customer.billProcessRating?customer.billProcessRating:"";
+
+				let timeInfo = {
+					columns: [
+						{
+							text: '填單流水號: ' + getFormID(), //add form id
+							width: '30%',
+							alignment: 'left'
+						},
+						getCheckBox(interviewType === 'init'),
+						{
+							text: '初訪',
+							width: '7%'
+						},
+						getCheckBox(interviewType === 're'),
+						{
+							text: '回訪',
+							width: '7%'
+						},
+						{
+							text: '印表日期:' + moment().rocFormat(),
+							alignment: 'right'
+						}
+					],
+					margin: [0, 5, 0, 0]
+				};
+
+				let leftMarginShift = (pos) => {
 					return (-8 + (pos - 1) * 37); 
 				};
 
-				var putCircleAt = (pos) => {
+				let putCircleAt = (pos) => {
 					return { image: 'circle', width: 36, height: 20, margin: [ leftMarginShift(pos), -18, 0, 0 ] };
+				};
+
+				let formTypePosMap = {
+					'A': 1,
+					'B': 2,
+					'C': 3
+				};
+
+				let exeProgressMap = {
+					'0': 1,
+					'1': 2,
+					'2': 3
+				};
+
+				let getCirclePosForFormType = () => {
+					return formTypePosMap[formType];
+				};
+
+				let getCirclePosForExeProgress = () => {
+					return exeProgressMap[exeProgress];
+				};
+
+				let getFormTypeStack = () => {
+					let content = [ { text: '信用 / 供銷 / 其他 ____' } ];
+					if(formType !== "")
+						content.push(putCircleAt(getCirclePosForFormType()));
+					return content;
+				};
+
+				let getExeProgressStack = () => {
+					let content = [ { text: '報價 / 簽約 / 其他 ' + (exeProgressOthers === "" ? "____" : exeProgressOthers) } ];
+					if(exeProgress !== "")
+						content.push(putCircleAt(getCirclePosForExeProgress()));
+					return content;
 				};
 
 				var doc = {
@@ -159,31 +249,31 @@ module.exports = (req, res) => {
 								widths: [65, 75, 80, 70, 80, 30, '*'],
 								body:[
 									//each row should contains 6 elements
-									['拜訪日期', '2020/02/02', '前次拜訪日期', '2020/02/01', '距離前次天數', { text:'3600天', colSpan: 2 }, ''],
+									['拜訪日期', interviewDateStr, '前次拜訪日期', lastInterviewDateStr, '距離前次天數', { text: daysBetweenInterview, colSpan: 2 }, ''],
 									[{ text: '客戶姓名\n/商號', rowSpan: 2 }, { text: customer.name?customer.name:"", rowSpan: 2, colSpan: 2 }, '', '電話', { text: customer.teleNum1?customer.teleNum1:"", colSpan: 3 }, '', ''], 
 									['', '', '', '傳真', { text: customer.teleNum2?customer.teleNum2:"", colSpan: 3 }, '', ''],
-									['商號窗口', '', '連絡電話', { text: '', colSpan: 4 }, '', '', '' ],
+									['商號窗口', companyWin, '連絡電話', { text: contactNum, colSpan: 4 }, '', '', '' ],
 									[{ text: '地址'}, { text: customer.addr?customer.addr:"", colSpan: 6 }, '', '', '', '', '' ],
 									[{ text: '本會信用\n客戶' }, { stack: [ { columns: [getCheckBox(isCustomer), { text: '是', width: 15 }] }, { columns: [ getCheckBox(!isCustomer), { text: '否', width: 15 }, { text: '', width: 5 }, { text: '往來銀行: ', width: 60 }, { text: customer.bank?customer.bank:"", width: '*' }] } ], colSpan: 2 }, '', { text: '往來狀況' },{ text: customer.customerType?customerTypeMap[customer.customerType]:"" },{ text: 'LINE\n群組' },{ text: customer.lineGroup?lineGroupStatesMap[customer.lineGroup]:"" }],
-									[{ text: '訪查員'}, { text: (customer.interviewer?customer.interviewer:""), colSpan: 2 }, '', { text: '拜訪項目' }, { stack: [ { text: '信用 / 供銷 / 其他 ___' } , putCircleAt(1)], colSpan: 3 }, '', '' ],
+									[{ text: '訪查員'}, { text: (customer.interviewer?customer.interviewer:""), colSpan: 2 }, '', { text: '拜訪項目' }, { stack: getFormTypeStack(), colSpan: 3 }, '', '' ],
 									[{ text: '訪問情形'}, { stack: [ { text: customer.need?customer.need:"" }, { columns: [ { text: '', width: '40%' }, { text: ('對本會滿意度: ' + rating), alignment: 'left', width: '60%' } ] } ], colSpan: 6 }, '', '', '', '', '' ],
 									
-									[{ text: '※供銷客戶續填', colSpan: 7}, '', '', '', '', '', ''],
-									[{ text: '推薦產品'}, { text: '', colSpan: 2 }, '', { text: '已導入的銷售'}, { text: '', colSpan: 3 }, '', ''],
+									[{ text: '※供銷客戶續填', colSpan: 7 }, '', '', '', '', '', ''],
+									[{ text: '推薦產品'}, { text: recommendedProduct, colSpan: 2 }, '', { text: '已導入的銷售'}, { text: alreadySale, colSpan: 3 }, '', ''],
 									//[{ text: '本次新增品項'}, { columns: [ { text: '', width: '40%' },{ text: '報價/簽約/其他 ____', width: '60%' } ], colSpan: 6 }, '', '', '', '', ''],
-									[{ text: '本次新增品項'}, { text:'', colSpan: 2 }, '', { text: '執行進度' }, { stack: [ { text: '報價 / 簽約 / 其他 ____' } , putCircleAt(2)], colSpan: 3 }, '', ''],
-									[{ text: '客戶滿意度:1 ~ 5分(滿分為5分)', colSpan: 7}, '', '', '', '', '', ''],
-									[{ text: '電話接待人員'}, '', { text: '產品到貨準時'}, '', { text: '產品品質'}, { text: '', colSpan: 2 }, '' ],
-									[{ text: '堆疊翻新整齊度'}, '', { text: '瑕疵退貨處理'}, '', { text: '運輸人員服務態度'}, { text: '', colSpan: 2 }, '' ],
-									[{ text: '業帶服務態度'}, '', { text: '帳務處理'}, { text: '', colSpan: 4 }, '', '', ''],
+									[{ text: '本次新增品項'}, { text: thisTimeSale, colSpan: 2 }, '', { text: '執行進度' }, { stack: getExeProgressStack(), colSpan: 3 }, '', ''],
+									[{ text: '客戶滿意度:1 ~ 5分(滿分為5分)', colSpan: 7 }, '', '', '', '', '', ''],
+									[{ text: '電話接待人員'}, receptionistRating, { text: '產品到貨準時'}, onTimeRating, { text: '產品品質'}, { text: qualityRating, colSpan: 2 }, '' ],
+									[{ text: '堆疊翻新整齊度'}, stackRating, { text: '瑕疵退貨處理'}, goodsReturnRating, { text: '運輸人員服務態度'}, { text: deliveryRating, colSpan: 2 }, '' ],
+									[{ text: '業代服務態度'}, agentRating, { text: '帳務處理'}, { text: billProcessRating, colSpan: 4 }, '', '', ''],
 									[{ text: ('其他客訴或回饋:\n' + comment) ,colSpan: 7 }, '', '', '', '', '', ''],
 									//['', '', '', '', '', '', ''],
 									[{ columns: [ { text: '客戶評級:', width: 60 }, 
-										{ text: '', width: 10 }, getCheckBox(false), { text: 'VIP', width: 30 },
-										{ text: '', width: 20 }, getCheckBox(false), { text: '潛力', width: 30 },
-										{ text: '', width: 20 }, getCheckBox(false), { text: '持平', width: 30 },
-										{ text: '', width: 20 }, getCheckBox(false), { text: '危機', width: 30 },
-										{ text: '', width: 20 }, getCheckBox(false), { text: '憂鬱', width: 30 }  ], colSpan: 7 }, '', '', '', '', '', ''],
+										{ text: '', width: 10 }, getCheckBox(customerRank === '0'), { text: 'VIP', width: 30 },
+										{ text: '', width: 20 }, getCheckBox(customerRank === '1'), { text: '潛力', width: 30 },
+										{ text: '', width: 20 }, getCheckBox(customerRank === '2'), { text: '持平', width: 30 },
+										{ text: '', width: 20 }, getCheckBox(customerRank === '3'), { text: '危機', width: 30 },
+										{ text: '', width: 20 }, getCheckBox(customerRank === '4'), { text: '憂鬱', width: 30 }  ], colSpan: 7 }, '', '', '', '', '', ''],
 								]
 							}
 						},
