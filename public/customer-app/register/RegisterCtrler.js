@@ -279,7 +279,7 @@ angular.module('mainApp')
 		try {
 			let d1 = new Date(vm.interviewDate);
 			let d2 = new Date(vm.lastInterviewDate);
-			return (d1.getTime() - d2.getTime())/(1000*60*60*24);
+			return Math.floor((d1.getTime() - d2.getTime())/(1000*60*60*24));
 		}
 		catch (e) {
 			console.log(e);
