@@ -80,14 +80,10 @@ module.exports = (req, res) => {
 	var offset = 0;
 
     var divisionInfo = {
-		table: {
-			widths: ['*', '*', '*', '*', '*'],
-			heights: ['auto', 50],
-			body: [
-				['經辦', '廠長', '主任', '秘書', '總幹事'],
-				['', '', '', '', '']
-			]
-		}
+		widths: ['*', '*', '*', '*', '*'],
+		heights: ['auto', 50],
+		margin: [0, 5, 0, 0],
+		columns: ['經辦', '廠長', '主任', '秘書', '總幹事']
 	};
 	
     var footerFunc = function(page, pages) {
@@ -222,7 +218,7 @@ module.exports = (req, res) => {
 						content.push(putCircleAt(getCirclePosForExeProgress()));
 					return content;
 				};
-
+				var firstCol = 60;
 				var doc = {
 					// a string or { width: number, height: number }
 					pageSize: 'A4',
@@ -244,40 +240,74 @@ module.exports = (req, res) => {
 						{ text: '大甲區農會客戶訪問表', fontSize: 18, alignment: 'center' },
 						timeInfo,
 						{
-							margin: [0 ,5 ,0 ,-1],
+							margin: [0, 5, 0, -1],
 							table: {
-								widths: [65, 75, 80, 70, 80, 30, '*'],
+								widths: [firstCol, 85, 80, 85, 80, '*'],
+								body: [
+									['拜訪日期', interviewDateStr, '前次拜訪日期', lastInterviewDateStr, '距離前次天數', { text: daysBetweenInterview } ]
+								]
+							}
+						},
+						{
+							margin: [0 ,0 ,0 ,-1],
+							table: {
+								widths: [firstCol, 120, 60, 30, '*'],
+								body: [
+									[{ text: '客戶姓名\n/商號', rowSpan: 2 }, { text: customer.name?customer.name:"", rowSpan: 2 }, { text: '性別: ' + sex }, '電話', { text: customer.teleNum1?customer.teleNum1:"" } ], 
+									['', '', { text: '年齡: ' + age }, '傳真', { text: customer.teleNum2? customer.teleNum2:"" }]
+								]
+							}
+						},
+						{
+							margin: [0 ,0 ,0 ,-1],
+							table: {
+								widths: [firstCol, 85, 80, 60, 85, 30, '*'],
 								body:[
-									//each row should contains 6 elements
-									['拜訪日期', interviewDateStr, '前次拜訪日期', lastInterviewDateStr, '距離前次天數', { text: daysBetweenInterview, colSpan: 2 }, ''],
-									[{ text: '客戶姓名\n/商號', rowSpan: 2 }, { text: customer.name?customer.name:"", rowSpan: 2, colSpan: 2 }, '', '電話', { text: customer.teleNum1?customer.teleNum1:"", colSpan: 3 }, '', ''], 
-									['', '', '', '傳真', { text: customer.teleNum2?customer.teleNum2:"", colSpan: 3 }, '', ''],
+									//each row should contains 7 elements
 									['商號窗口', companyWin, '連絡電話', { text: contactNum, colSpan: 4 }, '', '', '' ],
 									[{ text: '地址'}, { text: customer.addr?customer.addr:"", colSpan: 6 }, '', '', '', '', '' ],
-									[{ text: '本會信用\n客戶' }, { stack: [ { columns: [getCheckBox(isCustomer), { text: '是', width: 15 }] }, { columns: [ getCheckBox(!isCustomer), { text: '否', width: 15 }, { text: '', width: 5 }, { text: '往來銀行: ', width: 60 }, { text: customer.bank?customer.bank:"", width: '*' }] } ], colSpan: 2 }, '', { text: '往來狀況' },{ text: customer.customerType?customerTypeMap[customer.customerType]:"" },{ text: 'LINE\n群組' },{ text: customer.lineGroup?lineGroupStatesMap[customer.lineGroup]:"" }],
+									[{ text: '本會信用\n客戶' }, { stack: [ 
+																	{ columns: [getCheckBox(isCustomer), { text: '是', width: 15 }] }, 
+																	{ columns: [ getCheckBox(!isCustomer), { text: '否', width: 15 }, { text: '', width: 5 }, { text: '往來銀行: ', width: 60 }, { text: customer.bank?customer.bank:"", width: '*' }] } ], 
+																	colSpan: 2 }, 
+																	'', 
+																	{ text: '往來狀況' },
+																	{ text: customer.customerType?customerTypeMap[customer.customerType]:"" },
+																	{ text: 'LINE\n群組' }, 
+																	{ text: customer.lineGroup?lineGroupStatesMap[customer.lineGroup]:"" }],
 									[{ text: '訪查員'}, { text: (customer.interviewer?customer.interviewer:""), colSpan: 2 }, '', { text: '拜訪項目' }, { stack: getFormTypeStack(), colSpan: 3 }, '', '' ],
 									[{ text: '訪問情形'}, { stack: [ { text: customer.need?customer.need:"" }, { columns: [ { text: '', width: '40%' }, { text: ('對本會滿意度: ' + rating), alignment: 'left', width: '60%' } ] } ], colSpan: 6 }, '', '', '', '', '' ],
 									
-									[{ text: '※供銷客戶續填', colSpan: 7 }, '', '', '', '', '', ''],
-									[{ text: '推薦產品'}, { text: recommendedProduct, colSpan: 2 }, '', { text: '已導入的銷售'}, { text: alreadySale, colSpan: 3 }, '', ''],
+									
+								]
+							}
+						},
+						{
+							margin: [0 ,0 ,0 ,-1],
+							table: {
+								widths: [85, 60, 80, 75, 98, '*'],
+								heights: [ 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 40, 'auto', 70],
+								body:[
+									[{ text: '※供銷客戶續填', colSpan: 6 }, '', '', '', '', ''],
+									[{ text: '推薦產品'}, { text: recommendedProduct, colSpan: 2 }, '', { text: '已導入的銷售'}, { text: alreadySale, colSpan: 2 }, ''],
 									//[{ text: '本次新增品項'}, { columns: [ { text: '', width: '40%' },{ text: '報價/簽約/其他 ____', width: '60%' } ], colSpan: 6 }, '', '', '', '', ''],
-									[{ text: '本次新增品項'}, { text: thisTimeSale, colSpan: 2 }, '', { text: '執行進度' }, { stack: getExeProgressStack(), colSpan: 3 }, '', ''],
-									[{ text: '客戶滿意度:1 ~ 5分(滿分為5分)', colSpan: 7 }, '', '', '', '', '', ''],
-									[{ text: '電話接待人員'}, receptionistRating, { text: '產品到貨準時'}, onTimeRating, { text: '產品品質'}, { text: qualityRating, colSpan: 2 }, '' ],
-									[{ text: '堆疊翻新整齊度'}, stackRating, { text: '瑕疵退貨處理'}, goodsReturnRating, { text: '運輸人員服務態度'}, { text: deliveryRating, colSpan: 2 }, '' ],
-									[{ text: '業代服務態度'}, agentRating, { text: '帳務處理'}, { text: billProcessRating, colSpan: 4 }, '', '', ''],
-									[{ text: ('其他客訴或回饋:\n' + comment) ,colSpan: 7 }, '', '', '', '', '', ''],
+									[{ text: '本次新增品項'}, { text: thisTimeSale, colSpan: 2 }, '', { text: '執行進度' }, { stack: getExeProgressStack(), colSpan: 2 }, ''],
+									[{ text: '客戶滿意度:1 ~ 5分(滿分為5分)', colSpan: 6 }, '', '', '', '', ''],
+									[{ text: '電話接待人員'}, receptionistRating, { text: '產品到貨準時'}, onTimeRating, { text: '產品品質'}, { text: qualityRating }],
+									[{ text: '堆疊翻新整齊度'}, stackRating, { text: '瑕疵退貨處理'}, goodsReturnRating, { text: '運輸人員服務態度'}, { text: deliveryRating } ],
+									[{ text: '業代服務態度'}, agentRating, { text: '帳務處理'}, { text: billProcessRating, colSpan: 3 }, '', ''],
+									[{ text: ('其他客訴或回饋:\n' + comment) ,colSpan: 6 }, '', '', '', '', ''],
 									//['', '', '', '', '', '', ''],
 									[{ columns: [ { text: '客戶評級:', width: 60 }, 
 										{ text: '', width: 10 }, getCheckBox(customerRank === '0'), { text: 'VIP', width: 30 },
 										{ text: '', width: 20 }, getCheckBox(customerRank === '1'), { text: '潛力', width: 30 },
 										{ text: '', width: 20 }, getCheckBox(customerRank === '2'), { text: '持平', width: 30 },
 										{ text: '', width: 20 }, getCheckBox(customerRank === '3'), { text: '危機', width: 30 },
-										{ text: '', width: 20 }, getCheckBox(customerRank === '4'), { text: '憂鬱', width: 30 }  ], colSpan: 7 }, '', '', '', '', '', ''],
+										{ text: '', width: 20 }, getCheckBox(customerRank === '4'), { text: '憂鬱', width: 30 }  ], colSpan: 6 }, '', '', '', '', '' ],
+									[{ columns: [ { text: '會:', width: '45%' }, { text: '相關同仁:', width: '*' } ], colSpan: 6 }, '', '', '', '', '' ]	
 								]
 							}
 						},
-
 						{
 							stack: [
 								'1.訪客頻率，每週拜訪「初訪」、「回訪」各一次以上(經收期除外)，本表每週提出呈核。(供銷)',
@@ -285,6 +315,7 @@ module.exports = (req, res) => {
 								'3.本表年度裝訂成冊，由企稽/供銷主任保管，列入移交。',
 								'4.表單共用分別(同仁/企稽、業專/供銷)呈核統整。'
 							],
+							margin: [0 ,5 ,0 , 0],
 							fontSize: 10
 						},
 						divisionInfo
