@@ -618,6 +618,7 @@ function($uibModalInstance, _, customer, $http, $rootScope, geoDataService) {
 		vm.isEditting = false;
 
 		let customerData = {
+			_id: vm._id? vm._id:undefined,
 			formDate: vm.formDate,
 			customerName: vm.customerName,
 			age: vm.age? vm.age:undefined,

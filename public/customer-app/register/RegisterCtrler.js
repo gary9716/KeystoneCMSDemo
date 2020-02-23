@@ -364,6 +364,8 @@ angular.module('mainApp')
 		let customerData = {
 			formDate: vm.formDate,
 			customerName: vm.customerName,
+			
+			_id: vm._id? vm._id:undefined,
 			age: vm.age? vm.age:undefined,
 			job: vm.job? vm.job:undefined,
 			bank: vm.bank? vm.bank:undefined,
