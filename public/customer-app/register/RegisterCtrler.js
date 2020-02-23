@@ -442,7 +442,6 @@ angular.module('mainApp')
 	vm.isEditting = true;
 	vm.formDate = Date.now();
 	vm.interviewDate = Date.now();
-	vm.lastInterviewDate = Date.now();
 	vm.addrRest = "";
 	vm.state = 'editting';
 	vm.interviewType = vm.interviewTypeList[0];
