@@ -122,7 +122,12 @@ angular.module('mainApp')
 		},
 	];
 
-	
+	vm.formTypeList = [
+		{ value: 'A', name: '信用' },
+		{ value: 'B', name: '供銷' },
+		{ value: 'C', name: '其他' }
+	];
+
 	vm.interviewTypeList = [
 		{ value: 'init', name: '初訪' },
 		{ value: 're', name: '回訪' }
@@ -184,6 +189,9 @@ angular.module('mainApp')
 		}
 		if(vm.useInterviewType && vm.interviewType) {
 			filter.interviewType = vm.interviewType.value;
+		}
+		if(vm.useFormType && vm.formType) {
+			filter.formType = vm.formType.value;
 		}
 
 		//console.log(filter);

@@ -56,8 +56,13 @@
 <div class="container text-center">
 	<div class="col-lg-3 col-md-3 col-sm-6 col-xs-6 text-left">
 		<input type="checkbox" ng-model="ctrler.useInterviewType" style="margin: 10px;">
-		<label>訪查類型</label>
+		<label>訪查狀態</label>
 		<select class="form-control" style="margin-bottom: 10px;" name="interviewType" ng-model="ctrler.interviewType" ng-model-options="{ debounce: 150 }" ng-options="it as it.name for it in ctrler.interviewTypeList track by it.value"></select>
+	</div>
+	<div class="col-lg-3 col-md-3 col-sm-6 col-xs-6 text-left">
+		<input type="checkbox" ng-model="ctrler.useFormType" style="margin: 10px;">
+		<label>拜訪項目</label>
+		<select class="form-control" name="formType" style="margin-bottom: 10px;" ng-options="ft as ft.name for ft in ctrler.formTypeList track by ft.value" ng-model="ctrler.formType" ng-model-options="{ debounce: 150 }"></select>
 	</div>
 </div>
 <div class="container text-center">

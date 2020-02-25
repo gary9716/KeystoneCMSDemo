@@ -391,6 +391,12 @@ exports.search = (req, res) => {
 			});
 		}
 
+		if(form.hasOwnProperty("formType")) {
+			filter.push({
+				formType: form.formType
+			});
+		}
+
 		customerSurveyList.model
 		.find({
 			$and: filter
