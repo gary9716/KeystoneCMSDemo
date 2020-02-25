@@ -107,7 +107,9 @@ CustomerSurvey.add({
 	goodsReturnRating: { type: Number, label: '瑕疵退貨處理評分', initial: true },
 	deliveryRating: { type: Number, label: '運輸人員態度評分', initial: true },
 	agentRating: { type: Number, label: '業代服務評分', initial: true },
-	billProcessRating: { type: Number, label: '帳務處理評分', initial: true }
+	billProcessRating: { type: Number, label: '帳務處理評分', initial: true },
+	
+	customerComment: { type: String, label: '其他客訴或回饋', initial: true }
 });
 CustomerSurvey.defaultColumns = 'formDate, name, age, sex';
 CustomerSurvey.register();

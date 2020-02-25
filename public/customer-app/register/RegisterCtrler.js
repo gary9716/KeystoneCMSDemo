@@ -56,11 +56,7 @@ angular.module('mainApp')
 		{
 			value: '2',
 			name: '已邀請'
-		},
-		{
-			value: '3',
-			name: '未邀請'
-		},
+		}
 	];
 
 	vm.isCustomerLabels = [
@@ -268,18 +264,23 @@ angular.module('mainApp')
 		vm.evaluation = undefined;
 		vm.formDate = Date.now();
 		vm.interviewDate = Date.now();
-		vm.lastInterviewDate = Date.now();
+		//vm.lastInterviewDate = Date.now();
 		vm.interviewType = undefined;
 		vm.state = "editting";
 		vm.formType = vm.formTypeList[0];
 		vm.formID = undefined;
+		vm.customerComment = undefined;
 	}
 
 	vm.daysBetweenInterviews = () => {
 		try {
 			let d1 = new Date(vm.interviewDate);
 			let d2 = new Date(vm.lastInterviewDate);
-			return Math.floor((d1.getTime() - d2.getTime())/(1000*60*60*24));
+			let val = (d1.getTime() - d2.getTime())/(1000*60*60*24);
+			if(isNaN(val))
+				return "";
+			else
+				return Math.floor(val);
 		}
 		catch (e) {
 			console.log(e);
@@ -402,7 +403,8 @@ angular.module('mainApp')
 			goodsReturnRating: vm.goodsReturnRating? vm.goodsReturnRating:undefined,
 			deliveryRating: vm.deliveryRating? vm.deliveryRating:undefined,
 			agentRating: vm.agentRating? vm.agentRating:undefined,
-			billProcessRating: vm.billProcessRating? vm.billProcessRating:undefined
+			billProcessRating: vm.billProcessRating? vm.billProcessRating:undefined,
+			customerComment: vm.customerComment? vm.customerComment:undefined
 		};
 
 		if(vm.exeProgress) customerData["exeProgress"] = vm.exeProgress.value;

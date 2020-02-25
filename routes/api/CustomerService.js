@@ -78,12 +78,13 @@ exports.upsert = (req, res) => {
 	var data = {
 		formDate: form.formDate? form.formDate:Date.now(),
 		name: form.customerName,
+		interviewer: form.interviewer,
+
 		job: form.job? form.job:undefined,
 		bank: form.bank? form.bank:undefined,
 		age: form.age? form.age:undefined,
 		sex: form.sex? form.sex:undefined,
 		finance: form.finance? form.finance:undefined,
-		interviewer: form.interviewer,
 		isCustomer: form.isCustomer? form.isCustomer:undefined,
 		lineGroup: form.lineGroup? form.lineGroup:undefined,
 		customerType: form.customerType? form.customerType:undefined,
@@ -117,6 +118,7 @@ exports.upsert = (req, res) => {
 		deliveryRating: form.deliveryRating? form.deliveryRating:undefined,
 		agentRating: form.agentRating? form.agentRating:undefined,
 		billProcessRating: form.billProcessRating? form.billProcessRating:undefined,
+		customerComment: form.customerComment? form.customerComment:undefined,
 
 		exeProgress: form.exeProgress? form.exeProgress:undefined,
 		customerRank: form.customerRank? form.customerRank:undefined,
