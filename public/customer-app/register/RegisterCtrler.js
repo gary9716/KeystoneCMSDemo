@@ -179,6 +179,14 @@ angular.module('mainApp')
       });
 	}
 		
+	var getToday = () => {
+		let now = Date.now();
+		now.setHours(0);
+		now.setMinutes(0);
+		now.setSeconds(0);
+		return now;
+	};
+
     var setAddr = function() {
       if(vm.hasOwnProperty("cities") && vm.hasOwnProperty("dists")
         && vm.citySelect && vm.distSelect) {
@@ -263,7 +271,7 @@ angular.module('mainApp')
 		vm.comment = undefined;
 		vm.evaluation = undefined;
 		vm.formDate = Date.now();
-		vm.interviewDate = Date.now();
+		vm.interviewDate = getToday();
 		//vm.lastInterviewDate = Date.now();
 		vm.interviewType = undefined;
 		vm.state = "editting";

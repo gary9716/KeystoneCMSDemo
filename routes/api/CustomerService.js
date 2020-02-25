@@ -385,6 +385,12 @@ exports.search = (req, res) => {
 			});
 		}
 
+		if(form.hasOwnProperty("interviewType")) {
+			filter.push({
+				interviewType: form.interviewType
+			});
+		}
+
 		customerSurveyList.model
 		.find({
 			$and: filter

@@ -55,6 +55,13 @@
 </div>
 <div class="container text-center">
 	<div class="col-lg-3 col-md-3 col-sm-6 col-xs-6 text-left">
+		<input type="checkbox" ng-model="ctrler.useInterviewType" style="margin: 10px;">
+		<label>訪查類型</label>
+		<select class="form-control" style="margin-bottom: 10px;" name="interviewType" ng-model="ctrler.interviewType" ng-model-options="{ debounce: 150 }" ng-options="it as it.name for it in ctrler.interviewTypeList track by it.value"></select>
+	</div>
+</div>
+<div class="container text-center">
+	<div class="col-lg-3 col-md-3 col-sm-6 col-xs-6 text-left">
 		<input type="checkbox" ng-model="ctrler.useStartAge" style="margin: 10px;">
 		<label>年齡起點</label>
 		<div class="input-group">
@@ -93,6 +100,7 @@
 		<select class="form-control" style="margin-bottom: 10px;" name="sex" ng-model="ctrler.sex" ng-model-options="{ debounce: 150 }" ng-options="s as s.name for s in ctrler.sexLabels track by s.value"></select>
 	</div>
 </div>
+
 
 <div class="container text-center" style="margin-top: 10px;margin-bottom: 10px;">
 	<button class="btn-primary btn" type="button" ng-click="ctrler.search()">搜尋</button>

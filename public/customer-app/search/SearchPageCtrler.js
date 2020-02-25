@@ -122,6 +122,12 @@ angular.module('mainApp')
 		},
 	];
 
+	
+	vm.interviewTypeList = [
+		{ value: 'init', name: '初訪' },
+		{ value: 're', name: '回訪' }
+	];
+
 	vm.findWithValue = (dataArray, val) => {
 		return _.find(dataArray, (elem) => {
 			return elem.value === val;
@@ -175,6 +181,9 @@ angular.module('mainApp')
 		}
 		if(vm.useInterviewer && vm.interviewer) {
 			filter.interviewer = vm.interviewer;
+		}
+		if(vm.useInterviewType && vm.interviewType) {
+			filter.interviewType = vm.interviewType.value;
 		}
 
 		//console.log(filter);

@@ -220,6 +220,7 @@ module.exports = (req, res) => {
 					return content;
 				};
 				var firstCol = 60;
+				var largeHeight = 80;
 				var doc = {
 					// a string or { width: number, height: number }
 					pageSize: 'A4',
@@ -262,6 +263,7 @@ module.exports = (req, res) => {
 						{
 							margin: [0 ,0 ,0 ,-1],
 							table: {
+								heights: ['auto','auto','auto','auto', largeHeight],
 								widths: [firstCol, 85, 80, 60, 85, 30, '*'],
 								body:[
 									//each row should contains 7 elements
@@ -277,8 +279,8 @@ module.exports = (req, res) => {
 																	{ text: 'LINE\n群組' }, 
 																	{ text: customer.lineGroup?lineGroupStatesMap[customer.lineGroup]:"" }],
 									[{ text: '訪查員'}, { text: (customer.interviewer?customer.interviewer:""), colSpan: 2 }, '', { text: '拜訪項目' }, { stack: getFormTypeStack(), colSpan: 3 }, '', '' ],
-									[{ text: '訪問情形'}, { stack: [ { text: customer.need?customer.need:"" }, { columns: [ { text: '', width: '40%' }, { text: ('對本會滿意度: ' + rating), alignment: 'left', width: '60%' } ] } ], colSpan: 6 }, '', '', '', '', '' ],
-									
+									[{ text: '訪問情形', border: [true, false, true, false] }, { text: customer.need?customer.need:"", colSpan: 6, border: [true, false, true, false] }, '', '', '', '', '' ],
+									[{ text: '', border: [true, false, true, true] }, { columns: [ { text: '', width: '40%' }, { text: ('對本會滿意度: ' + rating), alignment: 'left', width: '60%' } ] , border: [true, false, true, true] , colSpan:6 }, '', '', '', '', '']
 									
 								]
 							}
@@ -287,7 +289,7 @@ module.exports = (req, res) => {
 							margin: [0 ,0 ,0 ,-1],
 							table: {
 								widths: [85, 60, 80, 75, 98, '*'],
-								heights: [ 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 70, 'auto'],
+								heights: [ 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', largeHeight],
 								body:[
 									[{ text: '※供銷客戶續填', colSpan: 6 }, '', '', '', '', ''],
 									[{ text: '推薦產品'}, { text: recommendedProduct, colSpan: 2 }, '', { text: '已導入的銷售'}, { text: alreadySale, colSpan: 2 }, ''],
@@ -317,6 +319,7 @@ module.exports = (req, res) => {
 							margin: [0, 0, 0, -1],
 							table: {
 								widths: [85, 60, 80, 75, 98, '*'],
+								heights: ['auto', largeHeight, largeHeight],
 								body:[
 									[{ columns: [ { text: '客戶評級:', width: 60 }, 
 										{ text: '', width: 10 }, getCheckBox(customerRank === '0'), { text: 'VIP', width: 30 },
