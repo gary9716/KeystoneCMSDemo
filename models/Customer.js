@@ -19,8 +19,8 @@ CustomerSurvey.add({
 	formID: { type:String, label: '流水號', index: true, initial: true, trim: true },
 	formDate: { type: Types.Datetime, format: 'YYYY-MM-DD', label: '表單日期', default: Date.now, initial: true, noedit: true },
 
-	interviewDate: { type: Types.Datetime, format: 'YYYY-MM-DD', label: '拜訪日期', default: Date.now, initial: true, noedit: true },
-	lastInterviewDate: { type: Types.Datetime, format: 'YYYY-MM-DD', label: '上次拜訪日期', default: Date.now, initial: true, noedit: true },
+	interviewDate: { type: Types.Datetime, format: 'YYYY-MM-DD', label: '拜訪日期', initial: true, noedit: true },
+	lastInterviewDate: { type: Types.Datetime, format: 'YYYY-MM-DD', label: '上次拜訪日期', initial: true, noedit: true },
 	
 	interviewType: { type: Types.Select, label: '拜訪類別', options: [ 
 		{ value: 'init', label: '初訪' },

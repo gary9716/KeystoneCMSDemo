@@ -144,6 +144,10 @@ angular.module('mainApp')
 			return elem._id === id;
 		});
 	};
+		
+	vm.isNotInitInterview = () => {
+		return vm.interviewType && vm.interviewType.value !== "init";
+	};
 
 	vm.search = () => {
 		if(vm.isSearching) return;
@@ -413,6 +417,10 @@ function($uibModalInstance, _, customer, $http, $rootScope, geoDataService) {
 		{ value: '1', name: '簽約' },
 		{ value: '2', name: '其他' }
 	];
+		
+	vm.isNotInitInterview = () => {
+		return vm.interviewType && vm.interviewType.value !== "init";
+	};
 
 	vm.isSaleForm = () => {
 		let val = vm.formType && vm.formType.value === vm.formTypeList[1].value;

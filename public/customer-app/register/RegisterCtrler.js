@@ -179,13 +179,17 @@ angular.module('mainApp')
       });
 	}
 		
-	var getToday = () => {
-		let now = Date.now();
+	vm.isNotInitInterview = () => {
+		return vm.interviewType && vm.interviewType.value !== "init";
+	};
+
+	function getToday() {
+		let now = new Date();
 		now.setHours(0);
 		now.setMinutes(0);
 		now.setSeconds(0);
 		return now;
-	};
+	}
 
     var setAddr = function() {
       if(vm.hasOwnProperty("cities") && vm.hasOwnProperty("dists")
@@ -238,11 +242,10 @@ angular.module('mainApp')
 		vm.formType = findWithValue(vm.formTypeList, data.formType);
 		vm.interviewType = findWithValue(vm.interviewTypeList, data.interviewType);
 
-		if(!vm.interviewDate) vm.interviewDate = Date.now();
+		if(!vm.interviewDate) vm.interviewDate = getToday();
 		else vm.interviewDate = new Date(vm.interviewDate);
 
-		if(!vm.lastInterviewDate) vm.lastInterviewDate = Date.now();
-		else vm.lastInterviewDate = new Date(vm.lastInterviewDate);
+		if(vm.lastInterviewDate) vm.lastInterviewDate = new Date(vm.lastInterviewDate); 
 	};
 
 	var emptyForm = () => {
@@ -272,7 +275,6 @@ angular.module('mainApp')
 		vm.evaluation = undefined;
 		vm.formDate = Date.now();
 		vm.interviewDate = getToday();
-		//vm.lastInterviewDate = Date.now();
 		vm.interviewType = undefined;
 		vm.state = "editting";
 		vm.formType = vm.formTypeList[0];
@@ -451,7 +453,7 @@ angular.module('mainApp')
 	vm.isSearching = false;
 	vm.isEditting = true;
 	vm.formDate = Date.now();
-	vm.interviewDate = Date.now();
+	vm.interviewDate = getToday();
 	vm.addrRest = "";
 	vm.state = 'editting';
 	vm.interviewType = vm.interviewTypeList[0];

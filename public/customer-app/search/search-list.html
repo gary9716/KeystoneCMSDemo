@@ -193,7 +193,7 @@
 					</span>
 				</div>
 			</div>
-			<div class="col-md-3 col-xs-6">
+			<div class="col-md-3 col-xs-6" ng-show="ctrler.isNotInitInterview()">
 				<p class="text-left" style="opacity: 1;">前次拜訪日期</p>
 				<div class="input-group" style="margin-bottom: 10px;">
 					<input type="text" class="form-control input-md" uib-datepicker-popup="yyyy/MM/dd" ng-model="ctrler.lastInterviewDate" is-open="ctrler.lastInterviewDateSelOpened" close-text="關閉" clear-text="清除" current-text="今天"/>
@@ -409,7 +409,7 @@
 						<td>拜訪日期</td>
 						<td>{{ctrler.interviewDate | date:'yyyy/MM/dd'}}</td>
 					</tr>
-					<tr>
+					<tr ng-show="ctrler.isNotInitInterview()">
 						<td>前次拜訪日期</td>
 						<td>{{ctrler.lastInterviewDate | date:'yyyy/MM/dd'}}</td>
 					</tr>

@@ -18,6 +18,14 @@
       height:100%;
 			padding: 0px;
     }
+
+		div.fixed-at-top {
+			position: fixed; /* Set the component to fixed position */
+  		top: 0; /* Position the component at the top of the page */
+			z-index: 1;
+			text-align: center;
+			width: 100%;
+		}
     </style>
     <script>
       <!--get helper functions-->
@@ -89,7 +97,7 @@
     			</div>
     </nav>
 		
-		<div class="container">
+		<div class="fixed-at-top">
     			<div uib-alert ng-repeat="alert in alerts track by $index" ng-class="'alert-' + (alert.type || 'warning')" dismiss-on-timeout="3000" close="alerts.splice(alerts.indexOf(alert),1);" ng-bind="alert.msg || ''"></div>
     </div>
 
