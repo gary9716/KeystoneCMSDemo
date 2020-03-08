@@ -114,7 +114,8 @@
 	<hr size="8px" width="100%">
 	<div class="container text-left">
 		<label>搜尋結果: 共有{{ctrler.totalCustomers.length}}筆</label>
-		<button type="button" class="btn-primary btn" style="margin: 10px;" ng-click="ctrler.printCustomerList()">印出客戶列表</button>
+		<button type="button" class="btn-primary btn" style="margin: 10px;" ng-click="ctrler.printCustomerList()">印出客戶列表(PDF)</button>
+		<button type="button" class="btn-primary btn" style="margin: 10px;" ng-click="ctrler.downloadCustomerCSV()">印出客戶列表(CSV)</button>
 	</div>
 	
 	<div class="table-responsive">
@@ -151,9 +152,11 @@
 			</tbody>
 		</table>
 	</div>
-	<div class="container text-center">
-		<ul class="pagination-sm" style="margin-left: 10px;" uib-pagination total-items="ctrler.totalCustomers" ng-model="ctrler.curPage" items-per-page="ctrler.perPage" boundary-links="true" num-pages="ctrler.numPages" next-text="下一頁" previous-text="上一頁" last-text="最終頁" first-text="最初頁" ></ul>
-	</div>
+	<!--
+<div class="container text-center">
+	<ul uib-pagination total-items="ctrler.totalCustomers" ng-change="ctrler.getCurPageCustomers()" ng-model="ctrler.curPage" items-per-page="ctrler.perPage" boundary-links="true" num-pages="ctrler.numPages" max-size="5" next-text="下一頁" previous-text="上一頁" last-text="最終頁" first-text="最初頁" ></ul>
+</div>
+-->
 </div>
 
 

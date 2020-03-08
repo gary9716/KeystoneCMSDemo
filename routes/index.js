@@ -160,12 +160,6 @@ exports = module.exports = function (app) {
 
 	app.post('/pdf/customer-survey',
 		compression(),
-		middleware.permissionCheck.bind([
-			{
-				listName: Constants.CustomerSurveyListName,
-				opName: readOp
-			}
-		]),
 		middleware.doPDFGenViaPDFMake.bind({
 			doc: 'customer-survey'
 		})
@@ -300,12 +294,6 @@ exports = module.exports = function (app) {
 
 	app.post('/api/customer-survey/search',
 		compression(),
-		middleware.permissionCheck.bind([
-      {
-        opName: readOp,
-        listName: Constants.CustomerSurveyListName
-      }
-    ]),
 		routes.api.CustomerService.search
 	);
 

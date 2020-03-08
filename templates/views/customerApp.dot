@@ -51,7 +51,8 @@
 		<script src="/js/bootstrap/bootstrap-3.3.5.min.js"></script>
 		<script src="/js/jquery/jquery.form.min.js"></script>
 		<script src="/js/bootstrap/validator.min.js"></script>
-		<script src="/js/all-lib.js"></script>
+		<script src="/js/moment/moment.min.js"></script>
+    <script src="/js/all-lib.js"></script>
 
     <!-- admin JS and CSS code, needs to be placed behind lib code-->
     [[var code = helpers.isAdminEditorCSS(model.user);]]

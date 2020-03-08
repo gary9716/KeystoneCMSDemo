@@ -9,16 +9,43 @@ var printBlob = (data) => {
 	//document.body.removeChild(blobAnchorElem);
 }
 
+var downloadCSV = (csvContent) => {
+	var encodedUri = encodeURI(csvContent);
+	var link = document.createElement("a");
+	link.setAttribute("href", encodedUri);
+	link.setAttribute("download", "customersList.csv");
+	link.setAttribute("target", '_blank');
+	//document.body.appendChild(link); // Required for FF
+
+	link.click();
+}
+
+var findWithID = (dataArray, id) => {
+	return _.find(dataArray, (elem) => {
+		return elem._id === id;
+	});
+}
+
+var findWithValue = (dataArray, val) => {
+	return _.find(dataArray, (elem) => {
+		return elem.value === val;
+	});
+}
+
+var genCSVData = (rows) => {
+	let csvContent = "data:text/csv;charset=utf-8," + rows.map(e => e.join(",")).join("\n");
+	return csvContent;
+}
+
 angular.module('mainApp')
 .controller('SearchPageCtrler', 
   ['$http', '$window', '$state', '$rootScope', '$uibModal', 'lodash','localStorageService', 'appRootPath',
   function ($http, $window, $state, $rootScope, $uibModal, _ , localStorageService, appRootPath) {
 	var vm = this;
 	vm.curPage = 1;
-	vm.perPage = 10;
-	vm.numPages = 5;
+	vm.perPage = 5;
 	vm.isSearching = false;
-
+	vm.totalCustomers = [];
 	vm.stateLabels = [
 		{
 			value: 'editting',
@@ -133,6 +160,19 @@ angular.module('mainApp')
 		{ value: 're', name: '回訪' }
 	];
 
+	vm.customerRankList = [
+		{ value: '0', name: 'VIP' },
+		{ value: '1', name: '潛力' },
+		{ value: '2', name: '持平' },
+		{ value: '3', name: '危機' },
+		{ value: '4', name: '憂鬱' }
+	];
+	vm.exeProgressList = [
+		{ value: '0', name: '報價' },
+		{ value: '1', name: '簽約' },
+		{ value: '2', name: '其他' }
+	];
+
 	vm.findWithValue = (dataArray, val) => {
 		return _.find(dataArray, (elem) => {
 			return elem.value === val;
@@ -149,10 +189,21 @@ angular.module('mainApp')
 		return vm.interviewType && vm.interviewType.value !== "init";
 	};
 
+	vm.onePageCustomers = [];
+	vm.getCurPageCustomers = () => {
+		vm.onePageCustomers.length = 0;
+		let totalItems = vm.totalCustomers? vm.totalCustomers.length:0;
+		let startIndex = (vm.curPage - 1) * vm.perPage;
+		for(let i = startIndex;i < totalItems && (i - startIndex) < vm.perPage;i++) {
+			vm.onePageCustomers.push(vm.totalCustomers[i]);
+		}
+
+	};
+
 	vm.search = () => {
 		if(vm.isSearching) return;
 		vm.isSearching = true;
-		vm.totalCustomers = null;
+		vm.totalCustomers.length = 0;
 
 		let filter = {};
 		if (vm.useFormState && vm.state) {
@@ -206,7 +257,10 @@ angular.module('mainApp')
 			
 			let data = res.data;
 			if(data.success) {
-				vm.totalCustomers = data.result;
+				data.result.forEach((item) => {
+					vm.totalCustomers.push(item);
+				});
+				vm.getCurPageCustomers();
 			}
 			else {
 				$rootScope.pubErrorMsg('沒找到');
@@ -293,6 +347,247 @@ angular.module('mainApp')
 			var msg = err && err.data? err.data.toString():(err? err.toString(): '');
 			$rootScope.pubErrorMsg('下載失敗,' + msg);
 		});
+	};
+
+	vm.downloadCustomerCSV = () => {
+		if(!vm.totalCustomers || vm.totalCustomers.length == 0) return;
+		let rowData = [];
+		let fieldRow = [];
+		let extractedFields = [
+			{
+				key: "formDate",
+				label: "表格日期"
+			},
+			{
+				key: "formID",
+				label: "流水號"
+			},
+			{
+				key: "formType",
+				label: "表格類型"
+			},
+			{
+				key: "interviewDate",
+				label: "拜訪日期"
+			},
+			{
+				key: "lastInterviewDate",
+				label: "前次拜訪日期"
+			},
+			{
+				key: "interviewType",
+				label: "拜訪類型"
+			},
+			{
+				key: "name",
+				label: "顧客名稱"
+			},
+			{
+				key: "interviewer",
+				label: "訪查員"
+			},
+			{
+				key: "age",
+				label: "年齡"
+			},
+			{
+				key: "job",
+				label: "職業"
+			},
+			{
+				key: "bank",
+				label: "往來銀行"
+			},
+			{
+				key: "sex",
+				label: "性別"
+			},
+			{
+				key: "teleNum1",
+				label: "電話"
+			},
+			{
+				key: "teleNum2",
+				label: "傳真"
+			},
+			{
+				key: "contactNum",
+				label: "聯絡電話"
+			},
+			{
+				key: "companyWin",
+				label: "商號窗口"
+			},			
+			{
+				key: "finance",
+				label: "經濟狀況"
+			},
+			{
+				key: "lineGroup",
+				label: "line群組"
+			},
+			{
+				key: "addr",
+				label: "地址"
+			},
+			{
+				key: "need",
+				label: "客戶需求"
+			},
+			{
+				key: "comment",
+				label: "備註"
+			},
+			{
+				key: "state",
+				label: "表格狀態"
+			},
+			{
+				key: "customerType",
+				label: "客戶類型"
+			},
+			{
+				key: "rating",
+				label: "評分"
+			},
+			{
+				key: "isCustomer",
+				label: "是本會信用部客戶"
+			},
+			{
+				key: "customerRank",
+				label: "客戶評等"
+			},
+			{
+				key: "recommendedProduct",
+				label: "推薦產品"
+			},
+			{
+				key: "alreadySale",
+				label: "已導入銷售"
+			},
+			{
+				key: "thisTimeSale",
+				label: "本次新增品項"
+			},
+			{
+				key: "exeProgress",
+				label: "執行進度"
+			},
+			{
+				key: "exeProgressOthers",
+				label: "執行進度（其他）"
+			},
+			{
+				key: "receptionistRating",
+				label: "電話接待人員評分"
+			},
+			{
+				key: "onTimeRating",
+				label: "產品準時到貨評分"
+			},
+			{
+				key: "qualityRating",
+				label: "產品品質評分"
+			},
+			{
+				key: "stackRating",
+				label: "堆疊翻新整齊度"
+			},
+			{
+				key: "goodsReturnRating",
+				label: "瑕疵退貨處理評分"
+			},
+			{
+				key: "deliveryRating",
+				label: "運輸人員態度"
+			},
+			{
+				key: "agentRating",
+				label: "業代評分"
+			},
+			{
+				key: "billProcessRating",
+				label: "帳務處理評分"
+			},
+			{
+				key: "customerComment",
+				label: "其他客訴或回饋"
+			},
+
+
+			
+		];
+
+		for(let field of extractedFields) {
+			fieldRow.push(field.label);
+		}
+		rowData.push(fieldRow);
+
+		for(let customer of vm.totalCustomers) {
+			let row = [];
+			for(let field of extractedFields) {
+				if(customer.hasOwnProperty(field.key)) {
+					let key = field.key;
+					let value = customer[key];
+					if(key === "sex") {
+						let obj = findWithValue(vm.sexLabels, value);
+						value = obj? obj.name: value;
+					}
+					else if(key === "lineGroup") {
+						let obj = findWithValue(vm.lineGroupStates, value);
+						value = obj? obj.name: value;
+					}
+					else if(key === "state") {
+						let obj = findWithValue(vm.stateLabels, value);
+						value = obj? obj.name: value;
+					}
+					else if(key === "customerType") {
+						let obj = findWithValue(vm.customerTypes, value);
+						value = obj? obj.name: value;
+					}
+					else if(key === "rating") {
+						let obj = findWithValue(vm.ratingList, value);
+						value = obj? obj.name: value;
+					}
+					else if(key === "isCustomer") {
+						let obj = findWithValue(vm.isCustomerLabels, value);
+						value = obj? obj.name: value;
+					}
+					else if(key === "customerRank") {
+						let obj = findWithValue(vm.customerRankList, value);
+						value = obj? obj.name: value;
+					}
+					else if(key === "exeProgress") {
+						let obj = findWithValue(vm.exeProgressList, value);
+						value = obj? obj.name: value;
+					}
+					else if(key === "interviewType") {
+						let obj = findWithValue(vm.interviewTypeList, value);
+						value = obj? obj.name: value;
+					}
+					
+					else if(key === "need" || key === "comment" || key === "customerComment") {
+						value = "\"" + value + "\"";
+						//value = value.replace(/(\r\n|\n|\r)/gm,"");
+					}
+					else if(key === "formDate" || key === "interviewDate" || key === "lastInterviewDate") {
+						if(value)
+							value = moment(value).format("YYYY/MM/DD");
+						else
+							value = "";
+					}
+					row.push(value);
+				}
+				else {
+					row.push("");
+				}
+			}
+			rowData.push(row);
+		}
+
+		let csvContent = genCSVData(rowData);
+		downloadCSV(csvContent);
 	};
 
 }])
@@ -482,18 +777,6 @@ function($uibModalInstance, _, customer, $http, $rootScope, geoDataService) {
 			vm.fullAddr = '';
 		}
     }
-
-	var findWithID = (dataArray, id) => {
-		return _.find(dataArray, (elem) => {
-			return elem._id === id;
-		});
-	}
-
-	var findWithValue = (dataArray, val) => {
-		return _.find(dataArray, (elem) => {
-			return elem.value === val;
-		});
-	}
 
 	var extractData = function(data) {
 		data.tele1 = data.teleNum1;
