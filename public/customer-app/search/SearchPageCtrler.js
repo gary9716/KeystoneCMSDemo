@@ -11,7 +11,7 @@ var printBlob = (data) => {
 
 var downloadCSV = (csvContent) => {
 	var link = document.createElement("a");
-	link.setAttribute("href", encodedUri);
+	link.setAttribute("href", csvContent);
 	link.setAttribute("download", "customersList.csv");
 	link.setAttribute("target", '_blank');
 	//document.body.appendChild(link); // Required for FF
