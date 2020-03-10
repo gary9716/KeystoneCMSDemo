@@ -33,7 +33,7 @@ var findWithValue = (dataArray, val) => {
 }
 
 var genCSVData = (rows) => {
-	let csvContent = "data:text/csv;charset=utf-8,%EF%BB%BF" + encodeURI(rows.map(e => e.join(",")).join("\n"));
+	let csvContent = "data:text/csv;charset=utf-8,%EF%BB%BF" + encodeURIComponent(rows.map(e => e.join(",")).join("\n"));
 	return csvContent;
 }
 
