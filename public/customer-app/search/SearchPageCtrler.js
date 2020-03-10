@@ -10,7 +10,6 @@ var printBlob = (data) => {
 }
 
 var downloadCSV = (csvContent) => {
-	var encodedUri = encodeURI(csvContent);
 	var link = document.createElement("a");
 	link.setAttribute("href", encodedUri);
 	link.setAttribute("download", "customersList.csv");
