@@ -309,12 +309,24 @@ exports = module.exports = function (app) {
 	);
 
 	app.post('/api/customer-survey/update-comment',
-		compression(),
+    compression(),
+    middleware.permissionCheck.bind([
+      {
+        opName: updateOp,
+        listName: Constants.CustomerSurveyListName
+      }
+    ]),
 		routes.api.CustomerService.updateComment
 	);
 
 	app.post('/api/customer-survey/delete',
-		compression(),
+    compression(),
+    middleware.permissionCheck.bind([
+      {
+        opName: deleteOp,
+        listName: Constants.CustomerSurveyListName
+      }
+    ]),
 		routes.api.CustomerService.delete
 	);
 

@@ -33,7 +33,7 @@ var findWithValue = (dataArray, val) => {
 }
 
 var genCSVData = (rows) => {
-	let csvContent = "data:text/csv;charset=utf-8," + rows.map(e => e.join(",")).join("\n");
+	let csvContent = "data:text/csv;charset=big5," + rows.map(e => e.join(",")).join("\n");
 	return csvContent;
 }
 
@@ -41,6 +41,7 @@ angular.module('mainApp')
 .controller('SearchPageCtrler', 
   ['$http', '$window', '$state', '$rootScope', '$uibModal', 'lodash','localStorageService', 'appRootPath',
   function ($http, $window, $state, $rootScope, $uibModal, _ , localStorageService, appRootPath) {
+	
 	var vm = this;
 	vm.curPage = 1;
 	vm.perPage = 5;
@@ -172,6 +173,10 @@ angular.module('mainApp')
 		{ value: '1', name: '簽約' },
 		{ value: '2', name: '其他' }
 	];
+
+	vm.isLogin = () => {
+		return $rootScope.locals.user;
+	}
 
 	vm.findWithValue = (dataArray, val) => {
 		return _.find(dataArray, (elem) => {
@@ -821,7 +826,6 @@ function($uibModalInstance, _, customer, $http, $rootScope, geoDataService) {
 				vm.lastInterviewDate = new Date(vm.lastInterviewDate);
 			vm.fullAddr = vm.addr;
 			
-			//console.log(vm);
 		});
 	};
 

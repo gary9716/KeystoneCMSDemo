@@ -114,8 +114,10 @@
 	<hr size="8px" width="100%">
 	<div class="container text-left">
 		<label>搜尋結果: 共有{{ctrler.totalCustomers.length}}筆</label>
-		<button type="button" class="btn-primary btn" style="margin: 10px;" ng-click="ctrler.printCustomerList()">印出客戶列表(PDF)</button>
-		<button type="button" class="btn-primary btn" style="margin: 10px;" ng-click="ctrler.downloadCustomerCSV()">印出客戶列表(CSV)</button>
+		<span ng-show="ctrler.isLogin()">
+			<button type="button" class="btn-primary btn" style="margin: 10px;" ng-click="ctrler.printCustomerList()">印出客戶列表(PDF)</button>
+			<button type="button" class="btn-primary btn" style="margin: 10px;" ng-click="ctrler.downloadCustomerCSV()">印出客戶列表(CSV)</button>
+		</span>
 	</div>
 	
 	<div class="table-responsive">

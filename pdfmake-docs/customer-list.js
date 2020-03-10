@@ -78,7 +78,7 @@ module.exports = (req, res) => {
     };
 
 	var customerListContent = {
-		widths: ['*', '*', '*', '*', '*', '*', '*', '*', '*', '*'], //width can be [number, *, auto]
+		widths: [60, 30, 30, 'auto', 'auto', 'auto', 'auto', 60, 'auto', 30], //width can be [number, *, auto]
 		body: [
 			['姓名', '性別', '年齡', '直轄縣市', '鄉鎮市區', '村里', 'Line群組', '客戶類型', '滿意度', '狀態']
 		]
@@ -149,7 +149,7 @@ module.exports = (req, res) => {
 		pageOrientation: 'portrait',
 		
 		// [left, top, right, bottom] or [horizontal, vertical] or just a number for equal margins
-		pageMargins: [ 40, 40, 40, 250 + offset*2 ],
+		pageMargins: [ 40, 40, 40, 40 ],
 		
 		defaultStyle: {
 			font: 'msjh'
