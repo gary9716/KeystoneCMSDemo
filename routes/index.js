@@ -282,23 +282,44 @@ exports = module.exports = function (app) {
   );
 
 	app.post('/api/customer-survey/upsert',
-		compression(),
+    compression(),
+    middleware.permissionCheck.bind([
+      {
+        opName: updateOp,
+        listName: Constants.CustomerSurveyListName
+      }
+    ]),
 		routes.api.CustomerService.upsert
 	);
 
 	
 	app.post('/api/customer-survey/sync',
-		compression(),
+    compression(),
+    middleware.permissionCheck.bind([
+      {
+        opName: readOp,
+        listName: Constants.CustomerSurveyListName
+      }
+    ]),
 		routes.api.CustomerService.sync
 	);
 
 	app.post('/api/customer-survey/search',
-		compression(),
+    compression(),
+    middleware.permissionCheck.bind([
+      {
+        opName: readOp,
+        listName: Constants.CustomerSurveyListName
+      }
+    ]),
 		routes.api.CustomerService.search
 	);
 
 	app.post('/api/customer-survey/changeState',
-		compression(),
+    compression(),
+    middleware.roleExclude.bind({
+      roles: ['訪查員']
+    }),
 		middleware.permissionCheck.bind([
       {
         opName: updateOp,
@@ -309,7 +330,9 @@ exports = module.exports = function (app) {
 	);
 
 	app.post('/api/customer-survey/update-comment',
-    compression(),
+    middleware.roleExclude.bind({
+      roles: ['訪查員']
+    }),
     middleware.permissionCheck.bind([
       {
         opName: updateOp,

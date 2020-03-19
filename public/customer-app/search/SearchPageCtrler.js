@@ -1016,6 +1016,10 @@ function($uibModalInstance, _, customer, $http, $rootScope, geoDataService) {
 			else {
 				return Promise.reject('改變表格狀態失敗');
 			}
+		})
+		.catch((err) => {
+			var msg = err && err.data? err.data.toString():(err? err.toString(): '');
+			$rootScope.pubErrorMsg('歸檔失敗,' + msg);
 		});
 
 	};
