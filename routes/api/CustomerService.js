@@ -210,6 +210,37 @@ exports.upsert = (req, res) => {
 	
 };
 
+exports.simpleSync = (req, res) => {
+	var form = {
+		_id: req.body._id
+	};
+	
+	let q = customerSurveyList.model.find(form);
+	if(form.hasOwnProperty("populateFields")) {
+		q = q.populate(form.populateFields);
+	}
+
+	q.lean()
+	.exec()
+	.then((customers) => {
+		if(customers && customers.length > 0) {
+			res.json({
+				success: true,
+				result: customers.length === 1? customers[0]: customers
+			});
+		}
+		else {
+			res.json({
+				success:false
+			});
+		}
+	})
+	.catch(function(err) {
+		return res.ktSendRes(400, err);
+	});
+
+};
+
 exports.sync = (req, res) => {
 	var form = req.body;
 	var andCondition = [];

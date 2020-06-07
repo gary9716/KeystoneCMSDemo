@@ -302,6 +302,17 @@ exports = module.exports = function (app) {
       }
     ]),
 		routes.api.CustomerService.sync
+  );
+  
+  app.post('/api/customer-survey/simple-sync',
+    compression(),
+    middleware.permissionCheck.bind([
+      {
+        opName: readOp,
+        listName: Constants.CustomerSurveyListName
+      }
+    ]),
+		routes.api.CustomerService.simpleSync
 	);
 
 	app.post('/api/customer-survey/search',

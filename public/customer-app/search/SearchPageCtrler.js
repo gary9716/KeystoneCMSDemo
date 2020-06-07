@@ -280,21 +280,6 @@ angular.module('mainApp')
 
 	};
 
-	let updateCustomer = (customer) => {
-		customer.populateFields = 'city dist village';
-		$http.post('/api/customer-survey/sync', customer)
-		.then((res) => {
-			var data = res.data;
-			if(data.success) {
-				_.assign(customer, data.result);
-			}
-		})
-		.catch((err) => {
-			var msg = err && err.data? err.data.toString():(err? err.toString(): '');
-       		$rootScope.pubErrorMsg('同步失敗,' + msg);
-		});
-	}
-
 	vm.openCustomerDetail = function(customer) {
         var modalInstance = $uibModal.open({
             templateUrl: 'customer-detail.html',
@@ -315,7 +300,6 @@ angular.module('mainApp')
           .catch(function (res) {
 			if(res === 'deleteCustomer') {
 				//callback from $uibModalInstance.dismiss()
-				dontUpdate = true;
 				_.remove(vm.totalCustomers, (c) => {
 					return c._id === customer._id;
 				});
@@ -323,7 +307,7 @@ angular.module('mainApp')
 		  })
 		  .finally(() => {
 			modalInstance.close();
-			if(!dontUpdate) updateCustomer(customer);
+			//update after submit, not here
 		  });
 	}
 	
@@ -776,10 +760,25 @@ function($uibModalInstance, _, customer, $http, $rootScope, geoDataService) {
 		}
 
     }
-		
+	
+	var updateCustomer = (customer) => {
+		customer.populateFields = 'city dist village';
+		$http.post('/api/customer-survey/simple-sync', customer)
+		.then((res) => {
+			var data = res.data;
+			if(data.success) {
+				_.assign(customer, data.result);
+			}
+		})
+		.catch((err) => {
+			var msg = err && err.data? err.data.toString():(err? err.toString(): '');
+			   $rootScope.pubErrorMsg('同步失敗,' + msg);
+		});
+	};
+
     var setAddr = function() {
 		if(vm.citySelect && vm.distSelect) {
-			vm.fullAddr = (vm.citySelect.name + vm.distSelect.dist + vm.addrRest); 
+			vm.fullAddr = (vm.citySelect.name + vm.distSelect.dist + (vm.villageSelect?vm.villageSelect.name:"") + vm.addrRest); 
 		}
 		else {
 			vm.fullAddr = '';
@@ -899,6 +898,10 @@ function($uibModalInstance, _, customer, $http, $rootScope, geoDataService) {
 				return Promise.reject('');
 			}
 		})
+		.then(() => {
+			//do update
+			updateCustomer(customer);
+		})
 		.catch((err) => {
 			var msg = err && err.data? err.data.toString():(err? err.toString(): '');
 			$rootScope.pubErrorMsg('印表失敗,' + msg);
@@ -922,6 +925,10 @@ function($uibModalInstance, _, customer, $http, $rootScope, geoDataService) {
 			else {
 				return Promise.reject(''); 
 			}
+		})
+		.then(() => {
+			//do update
+			updateCustomer(customer);
 		})
 		.catch((err) => {
 			var msg = err && err.data? err.data.toString():(err? err.toString(): '');
@@ -1000,6 +1007,10 @@ function($uibModalInstance, _, customer, $http, $rootScope, geoDataService) {
 				return Promise.reject(''); 
 			}
 		})
+		.then(() => {
+			//do update
+			updateCustomer(customer);
+		})
 		.catch((err) => {
 			var msg = err && err.data? err.data.toString():(err? err.toString(): '');
 			$rootScope.pubErrorMsg('更新或上傳失敗,' + msg);
@@ -1022,6 +1033,10 @@ function($uibModalInstance, _, customer, $http, $rootScope, geoDataService) {
 			else {
 				return Promise.reject('改變表格狀態失敗');
 			}
+		})
+		.then(() => {
+			//do update
+			updateCustomer(customer);
 		})
 		.catch((err) => {
 			var msg = err && err.data? err.data.toString():(err? err.toString(): '');

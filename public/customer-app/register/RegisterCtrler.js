@@ -194,7 +194,7 @@ angular.module('mainApp')
     var setAddr = function() {
       if(vm.hasOwnProperty("cities") && vm.hasOwnProperty("dists")
         && vm.citySelect && vm.distSelect) {
-        vm.fullAddr = (vm.citySelect.name + vm.distSelect.dist + vm.addrRest); 
+        vm.fullAddr = (vm.citySelect.name + vm.distSelect.dist + (vm.villageSelect?vm.villageSelect.name:"") + vm.addrRest); 
       }
       else {
         vm.fullAddr = '';
