@@ -75,7 +75,8 @@ CustomerSurvey.add({
 
 	need : { type: Types.Textarea, label: '客戶需求', trim: true, initial: true },
 	comment: { type: Types.Textarea, label: '會相關部門', trim: true, initial: true },
-
+	comment2: { type: Types.Textarea, label: '備註', trim: true, initial: true },
+	
 	state : { type: Types.Select, label: '表格狀態', options: [ 
 		{ value: 'editting', label: '編修' },
 		{ value: 'reviewing', label: '審核' },

@@ -440,6 +440,10 @@ angular.module('mainApp')
 			},
 			{
 				key: "comment",
+				label: "會相關部門"
+			},
+			{
+				key: "comment2",
 				label: "備註"
 			},
 			{
@@ -571,7 +575,7 @@ angular.module('mainApp')
 						value = obj? obj.name: value;
 					}
 					
-					else if(key === "need" || key === "comment" || key === "customerComment") {
+					else if(key === "need" || key === "comment" || key === "comment2" || key === "customerComment") {
 						value = "\"" + value + "\"";
 						//value = value.replace(/(\r\n|\n|\r)/gm,"");
 					}
@@ -905,7 +909,8 @@ function($uibModalInstance, _, customer, $http, $rootScope, geoDataService) {
 	vm.updateComment = () => {
 		let data = {
 			_id: vm._id,
-			comment: vm.comment
+			comment: vm.comment,
+			comment2: vm.comment2
 		};
 		//console.log(data);
 		$http.post('/api/customer-survey/update-comment', data)
@@ -949,6 +954,7 @@ function($uibModalInstance, _, customer, $http, $rootScope, geoDataService) {
 
 			need: vm.need?vm.need:undefined,
 			comment: vm.comment?vm.comment:undefined,
+			comment2: vm.comment2?vm.comment2:undefined,
 
 			interviewDate: vm.interviewDate? vm.interviewDate:undefined,
 			lastInterviewDate: vm.lastInterviewDate? vm.lastInterviewDate:undefined,

@@ -553,11 +553,20 @@
 					
 					<tr ng-show="ctrler.isState('reviewing')">
 						<td>會相關部門</td>
-						<td><textarea class="form-control" name="need" ng-model="ctrler.comment" ng-model-options="{ debounce: 150 }"></textarea></td>
+						<td><textarea class="form-control" name="comment" ng-model="ctrler.comment" ng-model-options="{ debounce: 150 }"></textarea></td>
 					</tr>
 					<tr ng-show="ctrler.isState('filed')">
 						<td>會相關部門</td>
 						<td>{{ctrler.comment}}</td>
+					</tr>
+
+					<tr ng-show="ctrler.isState('reviewing')">
+						<td>備註</td>
+						<td><textarea class="form-control" name="comment2" ng-model="ctrler.comment2" ng-model-options="{ debounce: 150 }"></textarea></td>
+					</tr>
+					<tr ng-show="ctrler.isState('filed')">
+						<td>備註</td>
+						<td>{{ctrler.comment2}}</td>
 					</tr>
 				</tbody>
 			</table>

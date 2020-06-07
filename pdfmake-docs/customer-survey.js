@@ -137,6 +137,7 @@ module.exports = (req, res) => {
 				let isCustomer = customer.isCustomer;
 				let rating = customer.rating?ratingList[customer.rating]:"";
 				let comment = customer.comment?customer.comment:"";
+				let comment2 = customer.comment2?customer.comment2:"";
 				let contactNum = customer.contactNum?customer.contactNum:"";
 				let companyWin = customer.companyWin?customer.companyWin:"";
 				
@@ -333,8 +334,8 @@ module.exports = (req, res) => {
 										{ text: '', width: 20 }, getCheckBox(customerRank === '2'), { text: '持平', width: 30 },
 										{ text: '', width: 20 }, getCheckBox(customerRank === '3'), { text: '危機', width: 30 },
 										{ text: '', width: 20 }, getCheckBox(customerRank === '4'), { text: '憂鬱', width: 30 }  ], colSpan: 6 }, '', '', '', '', '' ],
-									[{ text: '會:', colSpan: 6 }, '', '', '', '', '' ],
-									[{ text: '備註: ' + comment, colSpan: 6 }, '', '', '', '', '' ]
+									[{ text: '會:' + comment, colSpan: 6 }, '', '', '', '', '' ],
+									[{ text: '備註: ' + comment2, colSpan: 6 }, '', '', '', '', '' ]
 								]
 							}
 						},

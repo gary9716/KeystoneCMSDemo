@@ -20,6 +20,7 @@ exports.updateComment = (req, res) => {
 			if (customer) {
 				if(customer.state !== 'filed') {
 					customer.comment = form.comment;
+					customer.comment2 = form.comment2;
 					return customer.save();
 				}
 				else {
@@ -97,6 +98,7 @@ exports.upsert = (req, res) => {
 		addr: form.addr? form.addr:undefined,
 		need: form.need? form.need:undefined,
 		comment: form.comment? form.comment:undefined,
+		comment2: form.comment2? form.comment2:undefined,
 		rating: form.rating? form.rating:undefined,
 
 		interviewDate: form.interviewDate? form.interviewDate:undefined,
@@ -136,6 +138,7 @@ exports.upsert = (req, res) => {
 					}
 					else if(customer.state === 'reviewing') {
 						customer.comment = form.comment? form.comment:"";
+						customer.comment2 = form.comment2? form.comment2:"";
 						return customer.save();
 					}
 					else {
