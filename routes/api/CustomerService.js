@@ -160,7 +160,11 @@ exports.upsert = (req, res) => {
 
 	var genFormID = (curCustomer) => {
 		let curMoment = moment();
-		if (curCustomer.formType) {
+		if(curCustomer.formID) {
+			console.log('form id existed');
+			return Promise.resolve(curCustomer);
+		}
+		else if (curCustomer.formType) {
 			return formDataList.model.findOne({ formType: curCustomer.formType }).exec()
 			.then((fd) => {
 				if (fd) {
@@ -169,7 +173,7 @@ exports.upsert = (req, res) => {
 						fd.numForms = 1;
 					else
 						fd.numForms++;
-					fd.lastDate = lastDateMoment.toDate();
+					fd.lastDate = curMoment.toDate();
 					return fd.save();
 				}
 				else {
@@ -185,7 +189,7 @@ exports.upsert = (req, res) => {
 			})
 			.then((fd) => {
 				let formID = fd.formType + curMoment.rocYear() + curMoment.format('MM') + padZero(fd.numForms, 4);
-				//console.log(formID);
+				console.log(formID);
 				curCustomer.formID = formID;
 				return curCustomer.save();
 			});
