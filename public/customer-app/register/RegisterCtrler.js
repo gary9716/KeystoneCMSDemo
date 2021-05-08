@@ -275,7 +275,7 @@ angular.module('mainApp')
 		vm.evaluation = undefined;
 		vm.formDate = Date.now();
 		vm.interviewDate = getToday();
-		vm.interviewType = undefined;
+		vm.interviewType = vm.interviewTypeList[0];
 		vm.state = "editting";
 		vm.formType = vm.formTypeList[0];
 		vm.formID = undefined;
