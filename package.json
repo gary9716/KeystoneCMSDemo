@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "dependencies": {
-    "async": "2.1.4",
+    "async": "3.2.2",
     "cloudinary": "1.7.0",
     "connect-mongo": "^3.2.0",
     "connect-redis": "^3.3.2",
