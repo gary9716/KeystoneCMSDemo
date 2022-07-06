@@ -21,7 +21,7 @@
     "lodash": "^4.13.1",
     "mime": "^2.2.0",
     "mime-to-extensions": "^1.0.2",
-    "moment": "2.19.3",
+    "moment": "2.29.4",
     "mongod": "^2.0.0",
     "mongodb": "^3.0.2",
     "mongodb-uri": "^0.9.7",
