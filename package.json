@@ -18,7 +18,7 @@
     "iconv-lite": "^0.4.19",
     "keystone": "4.0.0-beta.5",
     "keystone-email": "1.0.5",
-    "lodash": "^4.13.1",
+    "lodash": "^4.17.21",
     "mime": "^2.2.0",
     "mime-to-extensions": "^1.0.2",
     "moment": "2.19.3",
